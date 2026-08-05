@@ -72,9 +72,10 @@ h2{font:400 clamp(23px,3.6vw,30px)/1.4 Georgia,"Noto Serif SC",serif;letter-spac
 .tips li.hl{background:linear-gradient(135deg,#f7f3ea,#f2e9d6);border-left-color:var(--gold)}
 
 /* cards */
-.card{background:var(--card);border:1px solid var(--line);border-top:2px solid rgba(198,161,91,.5);padding:22px 24px;margin:16px 0;box-shadow:0 8px 26px rgba(48,36,18,.05)}
-.card h3{font:400 18px Georgia,"Noto Serif SC",serif;color:var(--gold);letter-spacing:.08em;margin:0 0 10px;display:flex;align-items:center;gap:10px}
-.card h3:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold-l);flex:0 0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-top:2px solid rgba(198,161,91,.5);border-radius:14px;padding:22px 24px;margin:16px 0;box-shadow:0 8px 26px rgba(48,36,18,.05);transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(48,36,18,.1)}
+.card h3{font:400 18px Georgia,"Noto Serif SC",serif;color:var(--gold);letter-spacing:.08em;margin:0 0 10px;display:flex;align-items:center;gap:11px}
+.card h3 .ico{width:36px;height:36px;border-radius:11px;background:linear-gradient(145deg,rgba(198,161,91,.22),rgba(198,161,91,.1));border:1px solid rgba(198,161,91,.35);display:inline-flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 auto}
 .card h3+h3, .card p+h3, .card ul+h3{margin-top:22px}
 .card p,.card ul{margin:6px 0;color:#3c362c;font-size:14.5px}
 .card ul{padding-left:20px}
@@ -94,7 +95,7 @@ tbody tr:nth-child(even) td{background:#efe9db}
 td:first-child{text-align:left}
 caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",serif;color:var(--gold);padding:0 0 10px;letter-spacing:.06em}
 
-.note{background:rgba(198,161,91,.12);border:1px solid rgba(198,161,91,.4);border-left:3px solid var(--gold);padding:13px 18px;color:#6f5320;font-size:14px;margin:16px 0}
+.note{background:rgba(198,161,91,.12);border:1px solid rgba(198,161,91,.4);border-left:3px solid var(--gold);border-radius:10px;padding:13px 18px;color:#6f5320;font-size:14px;margin:16px 0}
 .note.warn{background:rgba(160,70,45,.08);border-color:rgba(160,70,45,.35);border-left-color:#a0462d;color:#7c3722}
 
 /* dark outro */
@@ -129,9 +130,9 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
 </div>
 
 <nav class="quicknav"><div class="box">
-  <a href="#tips"><b>01</b>到家注意事项</a>
-  <a href="#supplies"><b>02</b>用品与药品</a>
-  <a href="#raw"><b>03</b>生骨肉指南</a>
+  <a href="#tips"><b>01</b>🏡 到家注意事项</a>
+  <a href="#supplies"><b>02</b>🧺 用品与药品</a>
+  <a href="#raw"><b>03</b>🥩 生骨肉指南</a>
 </div></nav>
 
 <div class="wrap">
@@ -140,14 +141,14 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
   <div class="sec-head"><span class="sec-num">01</span><h2>新猫到家注意事项</h2></div>
   <div class="cards-flow">
     <div class="card">
-      <h3>心态与陪伴</h3>
+      <h3><span class="ico">💛</span>心态与陪伴</h3>
       <ul>
         <li>猫咪是你人生中的一小部分，而你是TA的一生。</li>
         <li>给TA取个霸气的名字，每次喂食的时候温柔呼唤。</li>
       </ul>
     </div>
     <div class="card">
-      <h3>到家适应期</h3>
+      <h3><span class="ico">🏡</span>到家适应期</h3>
       <ul>
         <li>航空箱不要丢——它带着熟悉的气味，是猫咪到新环境的"安全屋"，以后就医、出行也用得上。</li>
         <li>到家前做好卫生和消毒，尤其沙发下、床下等猫咪喜欢躲藏的地方。</li>
@@ -160,7 +161,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
       </ul>
     </div>
     <div class="card">
-      <h3>居家安全</h3>
+      <h3><span class="ico">🛡️</span>居家安全</h3>
       <ul>
         <li>封阳台是必须的，避免坠楼事件发生。</li>
         <li>家里的绿植花草，先查清楚是否对猫有害。<strong>百合最危险</strong>——所有百合科对猫都可能致命，花粉、叶片甚至花瓶里的水都会导致急性肾衰。其他常见有毒植物：郁金香、水仙、风信子、杜鹃、夹竹桃、苏铁（铁树）、绿萝、滴水观音、万年青、龟背竹、常春藤、芦荟、仙客来、菊花。对猫安全的绿植：猫草（小麦草）、猫薄荷、吊兰、波士顿蕨、散尾葵。</li>
@@ -169,7 +170,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
       </ul>
     </div>
     <div class="card">
-      <h3>日常饮食</h3>
+      <h3><span class="ico">🍗</span>日常饮食</h3>
       <ul>
         <li>主食优先级：生骨肉＞猫饭＞罐头＞冻干＞猫粮；没有把握自制生骨肉的家长建议罐头为主（详见第 03 章）。</li>
         <li>平时加餐小零食：白水煮（不加盐、不调味）的牛肉、鸡鸭兔肉皆可。</li>
@@ -180,7 +181,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
       </ul>
     </div>
     <div class="card">
-      <h3>毛发与洗护</h3>
+      <h3><span class="ico">🛁</span>毛发与洗护</h3>
       <ul>
         <li>新到家的小猫千万不要洗澡——最容易感冒和得猫藓；毛脏了用热毛巾轻轻擦拭。</li>
         <li>每天花几分钟梳毛，促进毛发生长也减少家里掉毛。</li>
@@ -189,7 +190,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
       </ul>
     </div>
     <div class="card">
-      <h3>健康与医疗</h3>
+      <h3><span class="ico">💉</span>健康与医疗</h3>
       <ul>
         <li>疫苗：小猫到家前已打 2–3 针妙三多，之后每年接种一次即可；及时接种可预防猫瘟等恶性传染病。</li>
         <li>驱虫：每月内驱（海乐妙）+ 外驱（大宠爱）；疫苗和驱虫需间隔一周，且之后一周内不要洗澡。</li>
@@ -200,7 +201,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
       </ul>
     </div>
     <div class="card">
-      <h3>出门与社会化</h3>
+      <h3><span class="ico">🌳</span>出门与社会化</h3>
       <ul>
         <li>幼猫到家不能带出门，建议至少 4 个月后进行社会化训练。</li>
         <li>循序渐进：从单元楼、小区内慢慢过渡到室外，随时关注猫咪状态，不能强行遛猫。</li>
@@ -214,7 +215,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
   <p class="sec-sub">接猫前照着这份清单备齐，猫咪到家就能安顿下来。</p>
   <div class="cards-flow">
     <div class="card">
-      <h3>水碗、粮碗、猫砂盆</h3>
+      <h3><span class="ico">🥣</span>水碗、粮碗、猫砂盆</h3>
       <ul>
         <li>水碗、粮碗陶瓷材质、有一定高度最佳。</li>
         <li>猫砂盆一定买特大号，80cm 左右的宽度。</li>
@@ -222,21 +223,21 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
       </ul>
     </div>
     <div class="card">
-      <h3>猫爬架：通天柱＞一体猫爬架</h3>
+      <h3><span class="ico">🐈</span>猫爬架：通天柱＞一体猫爬架</h3>
       <ul>
         <li>层板间隔 1 米左右，让猫咪全身舒展；缅因需要 1 至 1.2 米高度。</li>
         <li>很多玩具都很鸡肋，那么多智商税加起来，不如一个优秀的猫爬架。</li>
       </ul>
     </div>
     <div class="card">
-      <h3>逗猫棒 &amp; 猫抓板</h3>
+      <h3><span class="ico">🎣</span>逗猫棒 &amp; 猫抓板</h3>
       <ul>
         <li>逗猫棒：羽毛材质最佳，长度一米以上，避免玩闹时误伤抓到你。</li>
         <li>猫抓板：麻绳材质最佳，别买瓦楞纸；有麻绳柱猫爬架的家不需要额外购买。</li>
       </ul>
     </div>
     <div class="card">
-      <h3>营养品：益生菌、猫草片、化毛片</h3>
+      <h3><span class="ico">🌿</span>营养品：益生菌、猫草片、化毛片</h3>
       <ul>
         <li>益生菌推荐布拉迪益生菌，保护肠胃、避免软便拉稀。</li>
         <li>猫草便宜好用；化毛片贵一点，也很实用。</li>
@@ -244,7 +245,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
       </ul>
     </div>
     <div class="card">
-      <h3>日常药品：常备以下几个即可</h3>
+      <h3><span class="ico">🩹</span>日常药品：常备以下几个即可</h3>
       <ul>
         <li>大宠爱 + 海乐妙：内外驱最佳搭配</li>
         <li>布拉迪益生菌 / 妈咪爱：调理肠胃</li>
@@ -262,7 +263,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
   <div class="sec-head"><span class="sec-num">03</span><h2>生骨肉指南</h2></div>
   <p class="sec-sub">主食优先级：生骨肉＞猫饭＞罐头＞冻干＞猫粮。生骨肉推荐品牌 SIEE，猫粮推荐爱肯拿、百利；没有把握自制生骨肉的家长，建议罐头为主。以下从配方、喂食量、喂骨到选肉，一次讲全。</p>
   <div class="card">
-    <h3>为什么喂生骨肉 · 优势</h3>
+    <h3><span class="ico">✨</span>为什么喂生骨肉 · 优势</h3>
     <ul>
       <li>改善毛发质量，缅因这种大型长毛猫真的很需要。</li>
       <li>大便成形，尿多屎少，家里不臭。</li>
@@ -270,7 +271,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
       <li>牛肉含量高可帮助爆毛。</li>
     </ul>
   </div>
-  <h3 class="sub-head">均衡分配与配方</h3>
+  <h3 class="sub-head">均衡分配与配方<span style="margin-left:10px">🥣</span></h3>
   <div class="tablewrap">
   <table>
     <caption>生骨肉均衡饮食分配</caption>
@@ -283,7 +284,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
   </div>
   <div class="grid2">
     <div class="card">
-      <h3>无骨配方</h3>
+      <h3><span class="ico">🥩</span>无骨配方</h3>
       <ul>
         <li>20% 进口牛肉 · 10% 进口牛心</li>
         <li>10% 冷冻青口贝</li>
@@ -291,7 +292,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
         <li>10% 冷冻兔肉</li>
         <li>5% 鸡心 · 5% 鸭肝</li>
       </ul>
-      <h3>额外添加进生骨肉</h3>
+      <h3><span class="ico">🧂</span>额外添加进生骨肉</h3>
       <ul>
         <li>碳酸钙：肉 = 0.6g : 100g</li>
         <li>锰：幼猫 6kg 肉 + 1 颗；成猫 9kg 肉 + 1 颗</li>
@@ -299,14 +300,14 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
         <li>复合维生素 B：每 kg 肉 4 颗</li>
         <li>牛磺酸（now food 牛磺酸粉）：每 kg + 0.5g</li>
       </ul>
-      <h3>喂食当日添加</h3>
+      <h3><span class="ico">🐟</span>喂食当日添加</h3>
       <ul>
         <li>Omega-3 鱼油（now food 超级鱼油 ultra）：每周 4 颗</li>
         <li>VE：每周 4 颗，和鱼油搭配</li>
       </ul>
     </div>
     <div class="card">
-      <h3>有骨配方</h3>
+      <h3><span class="ico">🍖</span>有骨配方</h3>
       <ul>
         <li>23% 进口牛肉 · 10% 进口牛心</li>
         <li>30% 冷冻鸡胸</li>
@@ -314,21 +315,21 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
         <li>5% 鸭肝 · 5% 兔腰</li>
         <li>14% 鸭脖</li>
       </ul>
-      <h3>额外添加进生骨肉</h3>
+      <h3><span class="ico">🧂</span>额外添加进生骨肉</h3>
       <ul>
         <li>锰：幼猫 6kg 肉 + 1 颗；成猫 9kg 肉 + 1 颗</li>
         <li>碘化钾：每 kg 肉 1 颗</li>
         <li>复合维生素 B：每 kg 肉 4 颗</li>
         <li>牛磺酸（now food 牛磺酸粉）：每 kg + 0.5g</li>
       </ul>
-      <h3>喂食当日添加</h3>
+      <h3><span class="ico">🐟</span>喂食当日添加</h3>
       <ul>
         <li>Omega-3 鱼油（now food 超级鱼油 ultra）：每周 4 颗</li>
         <li>VE：每周 4 颗，和鱼油搭配</li>
       </ul>
     </div>
   </div>
-  <h3 class="sub-head" id="amount">喂食量与频率</h3>
+  <h3 class="sub-head" id="amount">喂食量与频率<span style="margin-left:10px">⚖️</span></h3>
   <p class="sec-sub">按月龄和体重查表即可；喂罐头/猫粮的家庭可参考包装建议量。</p>
   <div class="tablewrap">
   <table>
@@ -356,29 +357,29 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
   <p class="note">肥胖猫：每日食量为体重的 2%–2.5%。</p>
   <div class="grid2">
     <div class="card">
-      <h3>饮食频率</h3>
+      <h3><span class="ico">⏰</span>饮食频率</h3>
       <ul>
         <li>6 个月以上：每天喂食 2 次，3 次最佳。</li>
         <li>6 个月以下：每天喂食 3 次，4–5 次最佳。</li>
       </ul>
     </div>
     <div class="card">
-      <h3>注意事项</h3>
+      <h3><span class="ico">⚠️</span>注意事项</h3>
       <ul>
         <li>每顿必须间隔 4–5 小时以上；若与猫粮搭配吃，需间隔 6 小时以上。</li>
         <li>喂食量可根据猫咪身体情况酌情增减（如怀孕、发情）。</li>
       </ul>
     </div>
   </div>
-  <h3 class="sub-head" id="bone">喂骨参考 · 骨骼含比</h3>
+  <h3 class="sub-head" id="bone">喂骨参考 · 骨骼含比<span style="margin-left:10px">🦴</span></h3>
   <p class="sec-sub">生骨肉中骨的那 7% 怎么喂？先看参考值，再按部位含骨量换算。</p>
   <div class="grid2">
     <div class="card">
-      <h3>参考值</h3>
+      <h3><span class="ico">📏</span>参考值</h3>
       <p>猫咪饮食中骨骼需求量介于 5%–10%，默认 7% 即可；超过 15% 可能出现便秘。</p>
     </div>
     <div class="card">
-      <h3>计算举例</h3>
+      <h3><span class="ico">🧮</span>计算举例</h3>
       <p>小猫 6 个月、4kg，按每日生骨肉喂食量为体重的 8% 计算：4000g × 8% = 320g；骨骼需求占比 7%：320g × 7% = 22.4g。家里有鸡爪（含骨量 60%），今天就可以给猫咪吃 22.4g ÷ 60% ≈ 37g 鸡爪。</p>
     </div>
   </div>
@@ -398,20 +399,20 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
   </table>
   </div>
   <p class="note warn">注意：牛、羊、猪的骨骼不适合猫咪直接啃食（狗可以适量吃）。</p>
-  <h3 class="sub-head" id="meat">选肉渠道与常见答疑</h3>
+  <h3 class="sub-head" id="meat">选肉渠道与常见答疑<span style="margin-left:10px">🛒</span></h3>
   <p class="sec-sub">在哪买肉、买什么标准的肉，以及适口性、寄生虫、混喂三个最常见的问题。</p>
   <div class="cards-flow">
     <div class="card">
-      <h3>肉类渠道</h3>
+      <h3><span class="ico">🛒</span>肉类渠道</h3>
       <p>京东 · 淘宝 · 盒马生鲜 · 大润发</p>
-      <h3>肉类标准参考</h3>
+      <h3><span class="ico">✅</span>肉类标准参考</h3>
       <ul>
         <li>鸡鸭兔：六和、圣农等冷冻品牌</li>
         <li>牛羊肉：新西兰银蕨、澳洲恒都等进口品牌</li>
       </ul>
     </div>
     <div class="card">
-      <h3>适口性问题</h3>
+      <h3><span class="ico">😋</span>适口性问题</h3>
       <ul>
         <li>红肉类含量高，搭配鸡肉适口性就非常高。</li>
         <li>吃惯罐头和干粮的猫咪需要耐心改变：可添加 VIYO 营养液或冻干粉慢慢诱导。</li>
@@ -419,7 +420,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
       </ul>
     </div>
     <div class="card">
-      <h3>寄生虫与混吃</h3>
+      <h3><span class="ico">🧊</span>寄生虫与混吃</h3>
       <ul>
         <li>所有生肉一定要买品牌冷冻产品，专业冷冻处理能达到杀菌标准；专业冷冻处理能达到杀菌标准；有条件尽量不解冻直接分切。</li>
         <li>生骨肉家庭每月内驱（推荐海乐妙）；猫粮家庭每 3 个月内驱。</li>
