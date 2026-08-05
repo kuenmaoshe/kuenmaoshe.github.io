@@ -133,14 +133,15 @@ body.day .cattery-assure strong{color:#8c6b31}
   .hero-counts{margin:14px 0 0!important}
 }
 
-/* mobile feature strip: all six cells, 3x2 */
+/* mobile feature strip: all six cells in one compact row */
 @media (max-width:640px){
-  .hero-feature-strip{grid-template-columns:repeat(3,1fr)!important;height:auto!important}
-  .hero-feature-strip button{display:flex!important;padding:13px 4px 12px;border-right:1px solid #39342b}
-  .hero-feature-strip button:nth-child(3n){border-right:0}
-  .hero-feature-strip button:nth-child(-n+3){border-bottom:1px solid #39342b}
+  .hero-feature-strip{grid-template-columns:repeat(6,minmax(0,1fr))!important;height:auto!important}
+  .hero-feature-strip button{display:flex!important;gap:5px;padding:10px 2px 9px;border-right:1px solid #39342b}
+  .hero-feature-strip button:last-child{border-right:0}
+  .hero-feature-strip .feature-symbol{font-size:15px}
+  .hero-feature-strip button b{font-size:10px;letter-spacing:.04em;white-space:nowrap}
   body.day .hero-feature-strip button{border-color:#d8cebc}
-  .hero{padding-bottom:175px!important}
+  .hero{padding-bottom:118px!important}
 }
 
 /* cover brand name */
