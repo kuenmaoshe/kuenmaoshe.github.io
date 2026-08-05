@@ -118,7 +118,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
 <header class="top"><div class="inner">
   <a href="index.html">← 返回官网</a>
   <span class="brand">SHAKOSHAKO</span>
-  <a href="#" class="top-wx" data-wx="kuenmaoshe">微信咨询</a>
+  <a href="weixin://dl/chat?kuenmaoshe">微信咨询</a>
 </div></header>
 
 <div class="hero">
@@ -459,17 +459,6 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
       });
     });
   });
-  var topWx = document.querySelector(".top-wx");
-  if (topWx) {
-    topWx.addEventListener("click", function (ev) {
-      ev.preventDefault();
-      copyText(topWx.getAttribute("data-wx")).then(function () {
-        var old = topWx.textContent;
-        topWx.textContent = "已复制 kuenmaoshe ✓";
-        setTimeout(function () { topWx.textContent = old; }, 2200);
-      });
-    });
-  }
   if ("IntersectionObserver" in window) {
     var io = new IntersectionObserver(function (es) {
       es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
