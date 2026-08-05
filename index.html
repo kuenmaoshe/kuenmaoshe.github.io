@@ -1016,18 +1016,19 @@ body.day .diary-line{color:#6a655c}
     function dpage(open, ico, title, body) {
       return '<details class="diary-page"' + (open ? " open" : "") + '><summary><span class="d-ico">' + ico + "</span>" + title + "</summary>" + body + "</details>";
     }
-    if (r.status === "sold") {
+    var hasTimeline = !!(r.birth || r.reserve || r.vac || r.sero || r.departDate || r.home || (r.weights && r.weights.length));
+    if (r.status === "sold" && hasTimeline) {
       inner += '<p class="shk-drawer-sub">\u5c0f\u732b\u65e5\u8bb0</p>';
       var born = r.birth ? (r.birth.y + "-" + ("0" + r.birth.m).slice(-2) + "-" + ("0" + r.birth.d).slice(-2)) : "";
       inner += dpage(true, "\ud83d\udc23", "\u51fa\u751f\u4e86",
         (born ? '<p class="diary-line">\u751f\u65e5 \u00b7 ' + born + "</p>" : "") + sliderHtml + hintHtml);
       if (parentsHtml) inner += dpage(false, "\ud83d\udc3e", "\u7238\u7238\u5988\u5988", parentsHtml);
-      if (r.weights && r.weights.length) inner += dpage(false, "\u2696\ufe0f", "\u6210\u957f\u8bb0\u5f55",
-        r.weights.map(function (w) { return '<p class="diary-line">' + esc(w) + "</p>"; }).join(""));
       inner += dpage(false, "\ud83c\udfe1", "\u5b9a\u4e0b\u65b0\u5bb6",
         (r.reserve ? '<p class="diary-line">' + esc(r.reserve) + "</p>" : "") +
         '<p class="diary-line">' + (r.home ? "\u65b0\u5bb6 \u00b7 " + esc(r.home) : "\u4e0e\u65b0\u5bb6\u5ead\u7ed3\u7f18\u5566") + "</p>");
       if (r.vac) inner += dpage(false, "\ud83d\udc89", "\u6253\u75ab\u82d7", '<p class="diary-line">' + esc(r.vac) + "</p>");
+      if (r.weights && r.weights.length) inner += dpage(false, "\u2696\ufe0f", "\u6210\u957f\u8bb0\u5f55",
+        r.weights.map(function (w) { return '<p class="diary-line">' + esc(w) + "</p>"; }).join(""));
       if (r.sero) inner += dpage(false, "\ud83e\uddea", "\u8840\u6e05\u68c0\u6d4b", '<p class="diary-line">' + esc(r.sero) + "</p>");
       var dd = parseBirth(r.departDate);
       var isFuture = dd ? new Date(dd.y, dd.m - 1, dd.d) > new Date() : !!r.departDate;
@@ -1064,7 +1065,7 @@ body.day .diary-line{color:#6a655c}
     document.querySelectorAll(".kitten-card").forEach(function (c) {
       var r = KITTENS[parseInt(c.getAttribute("data-idx"), 10)];
       if (!r) return;
-      var hasMore = r.status === "sold" || r.dad || r.mom ||
+      var hasMore = (r.status === "sold" && (r.birth || r.reserve || r.vac || r.sero || r.departDate || r.home || (r.weights && r.weights.length))) || r.dad || r.mom ||
         (r.name && FEEDBACK.some(function (f) { return f.cat === r.name; }));
       var cg2 = (r.color || "") + (r.gender || "");
       var nm2 = cg2 + (r.name ? " \u00b7 " + r.name : "");
