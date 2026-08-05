@@ -107,16 +107,6 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
 .rv{opacity:0;transform:translateY(18px);transition:opacity .7s,transform .7s}
 .rv.in{opacity:1;transform:none}
 
-/* falling kitties */
-#kitty-rain{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
-.kitty-fall{position:absolute;top:-48px;will-change:transform;animation:kfall linear forwards}
-.kitty-fall .sway{display:block;animation:ksway ease-in-out infinite alternate}
-.kitty-fall .spin{display:block;animation:kspin linear infinite}
-.kitty-fall svg{width:1.35em;height:1.35em;display:block;color:#b08d4f}
-@keyframes kfall{to{transform:translateY(115vh)}}
-@keyframes ksway{from{transform:translateX(-18px)}to{transform:translateX(18px)}}
-@keyframes kspin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){#kitty-rain{display:none}}
 </style>
 </head>
 <body>
@@ -510,41 +500,6 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
   window.addEventListener("scroll", spy, { passive: true });
   spy();
 
-  /* falling kitties */
-  if (!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) {
-    var rain = document.createElement("div");
-    rain.id = "kitty-rain";
-    document.body.appendChild(rain);
-    var CAT_SVG = '<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="20" cy="24" r="11"/><path d="M12 17 L9 9 L17 13"/><path d="M28 17 L31 9 L23 13"/><circle cx="16.5" cy="23" r="1.2" fill="currentColor" stroke="none"/><circle cx="23.5" cy="23" r="1.2" fill="currentColor" stroke="none"/><path d="M18 28 Q20 30 22 28"/></svg>';
-    var GLYPHS = ["🐱", "🐈", "🐾", "🐾", "@svg", "@svg"];
-    var MAX = 12;
-    function drop() {
-      if (document.hidden || rain.childElementCount >= MAX) return;
-      var d = document.createElement("span");
-      d.className = "kitty-fall";
-      var sway = document.createElement("span");
-      sway.className = "sway";
-      var spin = document.createElement("span");
-      spin.className = "spin";
-      var g = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-      if (g === "@svg") { spin.innerHTML = CAT_SVG; } else { spin.textContent = g; }
-      sway.appendChild(spin);
-      d.appendChild(sway);
-      var size = 13 + Math.random() * 12;
-      var dur = 9 + Math.random() * 9;
-      d.style.left = (Math.random() * 100) + "vw";
-      d.style.fontSize = size.toFixed(0) + "px";
-      d.style.opacity = (0.35 + Math.random() * 0.3).toFixed(2);
-      d.style.animationDuration = dur.toFixed(1) + "s";
-      sway.style.animationDuration = (2.6 + Math.random() * 2.4).toFixed(1) + "s";
-      spin.style.animationDuration = (6 + Math.random() * 10).toFixed(1) + "s";
-      if (Math.random() < 0.5) spin.style.animationDirection = "reverse";
-      d.addEventListener("animationend", function () { d.remove(); });
-      rain.appendChild(d);
-    }
-    for (var k = 0; k < 6; k++) setTimeout(drop, k * 700);
-    setInterval(drop, 1600);
-  }
 })();
 </script>
 </body>
