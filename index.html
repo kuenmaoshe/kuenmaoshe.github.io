@@ -1002,15 +1002,16 @@ body.day .diary-line{color:#6a655c}
         mediaTag(p.media[0], "shk-drawer-media") +
         '<h4>' + esc(nm) + '</h4><p>' + esc((p.role ? p.role + " \u00b7 " : "") + p.color) + "</p></div>";
     });
-    var fbHtml = "";
+    var fbList = [];
     if (r.name) {
       FEEDBACK.filter(function (f) { return f.cat === r.name; }).forEach(function (f) {
         var media = f.img ? f.img.split(/[,\uFF0C]/).map(function (s) { return s.trim(); }).filter(Boolean) : [];
-        fbHtml += '<div class="shk-fb">' +
+        fbList.push({ date: f.date, html: '<div class="shk-fb">' +
           (media.length ? '<div class="shk-fb-media" data-media="' + esc(media.join("|")) + '" data-title="' + esc(f.cat) + '"><img src="' + esc(media[0]) + '" alt="" loading="lazy"></div>' : "") +
-          '<blockquote>' + esc(f.text) + '</blockquote><span>' + esc(f.date) + "</span></div>";
+          '<blockquote>' + esc(f.text) + '</blockquote><span>' + esc(f.date) + "</span></div>" });
       });
     }
+    var fbHtml = fbList.map(function (x) { return x.html; }).join("");
     var inner = '<button class="shk-drawer-close" aria-label="Close">\u00d7</button>' +
       '<p class="shk-drawer-title">' + esc(name) + "</p>";
     function dpage(open, ico, title, body) {
@@ -1020,24 +1021,37 @@ body.day .diary-line{color:#6a655c}
     if (r.status === "sold" && hasTimeline) {
       inner += '<p class="shk-drawer-sub">\u5c0f\u732b\u65e5\u8bb0</p>';
       var born = r.birth ? (r.birth.y + "-" + ("0" + r.birth.m).slice(-2) + "-" + ("0" + r.birth.d).slice(-2)) : "";
-      inner += dpage(true, "\ud83d\udc23", "\u51fa\u751f\u4e86",
-        (born ? '<p class="diary-line">\u751f\u65e5 \u00b7 ' + born + "</p>" : "") + sliderHtml + hintHtml);
-      if (parentsHtml) inner += dpage(false, "\ud83d\udc3e", "\u7238\u7238\u5988\u5988", parentsHtml);
-      inner += dpage(false, "\ud83c\udfe1", "\u5b9a\u4e0b\u65b0\u5bb6",
+      var dkey = function (s) { var b = parseBirth(s); return b ? b.y * 10000 + b.m * 100 + b.d : null; };
+      var pages = [];
+      pages.push({ k: 0, html: dpage(true, "\ud83d\udc23", "\u51fa\u751f\u4e86",
+        (born ? '<p class="diary-line">\u751f\u65e5 \u00b7 ' + born + "</p>" : "") + sliderHtml + hintHtml) });
+      if (parentsHtml) pages.push({ k: 1, html: dpage(false, "\ud83d\udc3e", "\u7238\u7238\u5988\u5988", parentsHtml) });
+      pages.push({ k: dkey(r.reserve) || 2, html: dpage(false, "\ud83c\udfe1", "\u5b9a\u4e0b\u65b0\u5bb6",
         (r.reserve ? '<p class="diary-line">' + esc(r.reserve) + "</p>" : "") +
-        '<p class="diary-line">' + (r.home ? "\u65b0\u5bb6 \u00b7 " + esc(r.home) : "\u4e0e\u65b0\u5bb6\u5ead\u7ed3\u7f18\u5566") + "</p>");
-      if (r.vac) inner += dpage(false, "\ud83d\udc89", "\u6253\u75ab\u82d7", '<p class="diary-line">' + esc(r.vac) + "</p>");
-      if (r.weights && r.weights.length) inner += dpage(false, "\u2696\ufe0f", "\u6210\u957f\u8bb0\u5f55",
-        r.weights.map(function (w) { return '<p class="diary-line">' + esc(w) + "</p>"; }).join(""));
-      if (r.sero) inner += dpage(false, "\ud83e\uddea", "\u8840\u6e05\u68c0\u6d4b", '<p class="diary-line">' + esc(r.sero) + "</p>");
+        '<p class="diary-line">' + (r.home ? "\u65b0\u5bb6 \u00b7 " + esc(r.home) : "\u4e0e\u65b0\u5bb6\u5ead\u7ed3\u7f18\u5566") + "</p>") });
+      if (r.vac) pages.push({ k: dkey(r.vac) || 3, html: dpage(false, "\ud83d\udc89", "\u6253\u75ab\u82d7", '<p class="diary-line">' + esc(r.vac) + "</p>") });
+      if (r.weights && r.weights.length) {
+        var wm = String(r.weights[0]).match(/\d{4}-\d{1,2}-\d{1,2}/);
+        pages.push({ k: (wm && dkey(wm[0])) || 4, html: dpage(false, "\u2696\ufe0f", "\u6210\u957f\u8bb0\u5f55",
+          r.weights.map(function (w) { return '<p class="diary-line">' + esc(w) + "</p>"; }).join("")) });
+      }
+      if (r.sero) pages.push({ k: dkey(r.sero) || 5, html: dpage(false, "\ud83e\uddea", "\u8840\u6e05\u68c0\u6d4b", '<p class="diary-line">' + esc(r.sero) + "</p>") });
       var dd = parseBirth(r.departDate);
       var isFuture = dd ? new Date(dd.y, dd.m - 1, dd.d) > new Date() : !!r.departDate;
-      inner += dpage(false, "\ud83d\ude97", isFuture ? "\u9884\u8ba1\u51fa\u53d1" : "\u51fa\u53d1",
+      pages.push({ k: dkey(r.departDate) || 99999998, html: dpage(false, "\ud83d\ude97", isFuture ? "\u9884\u8ba1\u51fa\u53d1" : "\u51fa\u53d1",
         (r.departDate ? '<p class="diary-line">' + esc(r.departDate) + "</p>" : "") +
         (r.depart && r.depart.length ? '<div class="diary-photo" data-media="' + esc(r.depart.join("|")) + '" data-title="' + esc(name) + '">' + mediaTag(r.depart[0], "shk-drawer-media") + "</div>" : "") +
-        (isFuture ? "" : '<p class="diary-line">\u51fa\u53d1\u53bb\u65b0\u5bb6\u5566</p>'));
-      inner += dpage(false, "\ud83d\udc8c", "\u5bb6\u957f\u53cd\u9988",
-        fbHtml || '<p class="diary-line">\u671f\u5f85\u5bb6\u957f\u7684\u6765\u4fe1</p>');
+        (isFuture ? "" : '<p class="diary-line">\u51fa\u53d1\u53bb\u65b0\u5bb6\u5566</p>')) });
+      if (fbList.length) {
+        fbList.forEach(function (fb) {
+          pages.push({ k: dkey(fb.date) || 99999999, html: dpage(false, "\ud83d\udc8c", "\u5bb6\u957f\u53cd\u9988", fb.html) });
+        });
+      } else {
+        pages.push({ k: 99999999, html: dpage(false, "\ud83d\udc8c", "\u5bb6\u957f\u53cd\u9988", '<p class="diary-line">\u671f\u5f85\u5bb6\u957f\u7684\u6765\u4fe1</p>') });
+      }
+      pages.forEach(function (p, i2) { p.i = i2; });
+      pages.sort(function (a, b) { return a.k - b.k || a.i - b.i; });
+      inner += pages.map(function (p) { return p.html; }).join("");
     } else {
       inner += sliderHtml + hintHtml;
       if (parentsHtml) inner += '<p class="shk-drawer-sub">\u7238\u7238\u5988\u5988</p>' + parentsHtml;
