@@ -60,6 +60,8 @@ section.block{padding:78px 0 6px}
 .sec-num{font:400 44px/1 Georgia,serif;color:var(--gold-l);letter-spacing:.04em}
 h2{font:400 clamp(23px,3.6vw,30px)/1.4 Georgia,"Noto Serif SC",serif;letter-spacing:.08em;margin:0}
 .sec-sub{color:var(--muted);font-size:14px;margin:10px 0 26px;letter-spacing:.04em}
+.sub-head{display:flex;align-items:center;gap:14px;font:400 21px Georgia,"Noto Serif SC",serif;letter-spacing:.08em;color:var(--ink);margin:58px 0 4px;scroll-margin-top:132px}
+.sub-head:before{content:"";width:28px;height:1px;background:var(--gold-l);flex:0 0 auto}
 
 /* tips grid */
 .tips{counter-reset:tip;list-style:none;padding:0;margin:26px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -136,10 +138,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
 <nav class="quicknav"><div class="box">
   <a href="#tips"><b>01</b>到家注意事项</a>
   <a href="#supplies"><b>02</b>用品与药品</a>
-  <a href="#raw"><b>03</b>主食与配方</a>
-  <a href="#amount"><b>04</b>喂食量</a>
-  <a href="#bone"><b>05</b>骨骼含比</a>
-  <a href="#meat"><b>06</b>选肉与答疑</a>
+  <a href="#raw"><b>03</b>生骨肉指南</a>
 </div></nav>
 
 <div class="wrap">
@@ -241,8 +240,9 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
 </section>
 
 <section class="block rv" id="raw">
-  <div class="sec-head"><span class="sec-num">03</span><h2>主食选择与生骨肉配方</h2></div>
-  <p class="sec-sub">主食优先级：生骨肉＞猫饭＞罐头＞冻干＞猫粮。生骨肉推荐品牌 SIEE，猫粮推荐爱肯拿、百利；没有把握自制生骨肉的家长，建议罐头为主。以下是本猫舍在用的生骨肉配方。</p>
+  <div class="sec-head"><span class="sec-num">03</span><h2>生骨肉指南</h2></div>
+  <p class="sec-sub">主食优先级：生骨肉＞猫饭＞罐头＞冻干＞猫粮。生骨肉推荐品牌 SIEE，猫粮推荐爱肯拿、百利；没有把握自制生骨肉的家长，建议罐头为主。以下从配方、喂食量、喂骨到选肉，一次讲全。</p>
+  <h3 class="sub-head">均衡分配与配方</h3>
   <div class="tablewrap">
   <table>
     <caption>生骨肉均衡饮食分配</caption>
@@ -300,10 +300,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
       </ul>
     </div>
   </div>
-</section>
-
-<section class="block rv" id="amount">
-  <div class="sec-head"><span class="sec-num">04</span><h2>生骨肉喂食量与频率</h2></div>
+  <h3 class="sub-head" id="amount">喂食量与频率</h3>
   <p class="sec-sub">按月龄和体重查表即可；喂罐头/猫粮的家庭可参考包装建议量。</p>
   <div class="tablewrap">
   <table>
@@ -345,10 +342,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
       </ul>
     </div>
   </div>
-</section>
-
-<section class="block rv" id="bone">
-  <div class="sec-head"><span class="sec-num">05</span><h2>喂骨参考 · 骨骼含比</h2></div>
+  <h3 class="sub-head" id="bone">喂骨参考 · 骨骼含比</h3>
   <p class="sec-sub">生骨肉中骨的那 7% 怎么喂？先看参考值，再按部位含骨量换算。</p>
   <div class="grid2">
     <div class="card">
@@ -376,10 +370,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
   </table>
   </div>
   <p class="note warn">注意：牛、羊、猪的骨骼不适合猫咪直接啃食（狗可以适量吃）。</p>
-</section>
-
-<section class="block rv" id="meat">
-  <div class="sec-head"><span class="sec-num">06</span><h2>选肉渠道与生骨肉答疑</h2></div>
+  <h3 class="sub-head" id="meat">选肉渠道与常见答疑</h3>
   <p class="sec-sub">在哪买肉、买什么标准的肉，以及适口性、寄生虫、混喂三个最常见的问题。</p>
   <div class="grid2">
     <div class="card">
