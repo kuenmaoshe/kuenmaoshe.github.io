@@ -401,9 +401,16 @@ body.day .diary-line{color:#6a655c}
   }
   function loadData() {
     if (!window.fetch) return Promise.resolve(null);
-    return whenXLSX().then(function (ok) {
-      if (!ok) return null;
-      return realLoad();
+    return fetch("data/sheets.json", { cache: "no-cache" }).then(function (res) {
+      if (!res.ok) throw new Error(res.status);
+      return res.json();
+    }).then(function (js) {
+      return parseSheets(function (n) { return (n === 0 ? js[js.__first] : js[n]) || null; });
+    }).catch(function () {
+      return whenXLSX().then(function (ok) {
+        if (!ok) return null;
+        return realLoad();
+      });
     });
   }
   function realLoad() {
@@ -412,8 +419,16 @@ body.day .diary-line{color:#6a655c}
       return res.arrayBuffer();
     }).then(function (buf) {
       var wb = XLSX.read(buf, { type: "array" });
-      var ws = wb.Sheets[wb.SheetNames[0]];
-      var raw = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: "" });
+      return parseSheets(function (n) {
+        var ws = n === 0 ? wb.Sheets[wb.SheetNames[0]] : wb.Sheets[n];
+        return ws ? XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: "" }) : null;
+      });
+    }).catch(function () { return null; });
+  }
+  function parseSheets(getRaw) {
+    try {
+      var raw = getRaw(0);
+      if (!raw) return null;
       var rows = [];
       for (var i = 1; i < raw.length; i++) {
         var r = raw[i];
@@ -432,13 +447,13 @@ body.day .diary-line{color:#6a655c}
           depart: String(r[10] || "").split(/[,\uFF0C]/).map(function (s) { return s.trim(); }).filter(Boolean),
           vac: String(r[11] || "").trim(),
           sero: String(r[12] || "").trim(),
-          departDate: String(r[13] || "").trim()
+          departDate: String(r[13] || "").trim(),
+          weights: String(r[14] || "").split(/[,\uFF0C]/).map(function (s) { return s.trim(); }).filter(Boolean)
         });
       }
       var parents = [];
-      var pws = wb.Sheets["\u79cd\u732b"];
-      if (pws) {
-        var praw = XLSX.utils.sheet_to_json(pws, { header: 1, raw: false, defval: "" });
+      var praw = getRaw("\u79cd\u732b");
+      if (praw) {
         for (var j = 1; j < praw.length; j++) {
           var pr = praw[j];
           if (!pr || !(pr[0] || "").trim() || !(pr[3] || "").trim()) continue;
@@ -447,9 +462,8 @@ body.day .diary-line{color:#6a655c}
         }
       }
       var news = [];
-      var nws = wb.Sheets["\u65b0\u95fb"];
-      if (nws) {
-        var nraw = XLSX.utils.sheet_to_json(nws, { header: 1, raw: false, defval: "" });
+      var nraw = getRaw("\u65b0\u95fb");
+      if (nraw) {
         for (var k = 1; k < nraw.length; k++) {
           var nr = nraw[k];
           if (!nr || !(nr[2] || "").trim()) continue;
@@ -457,18 +471,16 @@ body.day .diary-line{color:#6a655c}
         }
       }
       var faqs = [];
-      var qws = wb.Sheets["\u5e38\u89c1\u95ee\u9898"];
-      if (qws) {
-        var qraw = XLSX.utils.sheet_to_json(qws, { header: 1, raw: false, defval: "" });
+      var qraw = getRaw("\u5e38\u89c1\u95ee\u9898");
+      if (qraw) {
         for (var y = 1; y < qraw.length; y++) {
           if (qraw[y] && (qraw[y][0] || "").trim() && (qraw[y][1] || "").trim())
             faqs.push({ q: String(qraw[y][0]).trim(), a: String(qraw[y][1]).trim() });
         }
       }
       var feedback = [];
-      var fws = wb.Sheets["\u5bb6\u957f\u53cd\u9988"];
-      if (fws) {
-        var fraw = XLSX.utils.sheet_to_json(fws, { header: 1, raw: false, defval: "" });
+      var fraw = getRaw("\u5bb6\u957f\u53cd\u9988");
+      if (fraw) {
         for (var q = 1; q < fraw.length; q++) {
           var fr = fraw[q];
           if (!fr || !(fr[2] || "").trim()) continue;
@@ -476,15 +488,14 @@ body.day .diary-line{color:#6a655c}
         }
       }
       var settings = {};
-      var sws = wb.Sheets["\u8bbe\u7f6e"];
-      if (sws) {
-        var sraw = XLSX.utils.sheet_to_json(sws, { header: 1, raw: false, defval: "" });
+      var sraw = getRaw("\u8bbe\u7f6e");
+      if (sraw) {
         for (var z = 1; z < sraw.length; z++) {
           if (sraw[z] && (sraw[z][0] || "").trim()) settings[String(sraw[z][0]).trim()] = String(sraw[z][1] || "").trim();
         }
       }
       return rows.length ? { kittens: rows, parents: parents, news: news, feedback: feedback, settings: settings, faqs: faqs } : null;
-    }).catch(function () { return null; });
+    } catch (e) { return null; }
   }
 
   /* ---------- filters (dataset-based, translation-safe) ---------- */
@@ -1011,6 +1022,8 @@ body.day .diary-line{color:#6a655c}
       inner += dpage(true, "\ud83d\udc23", "\u51fa\u751f\u4e86",
         (born ? '<p class="diary-line">\u751f\u65e5 \u00b7 ' + born + "</p>" : "") + sliderHtml + hintHtml);
       if (parentsHtml) inner += dpage(false, "\ud83d\udc3e", "\u7238\u7238\u5988\u5988", parentsHtml);
+      if (r.weights && r.weights.length) inner += dpage(false, "\u2696\ufe0f", "\u6210\u957f\u8bb0\u5f55",
+        r.weights.map(function (w) { return '<p class="diary-line">' + esc(w) + "</p>"; }).join(""));
       inner += dpage(false, "\ud83c\udfe1", "\u5b9a\u4e0b\u65b0\u5bb6",
         (r.reserve ? '<p class="diary-line">' + esc(r.reserve) + "</p>" : "") +
         '<p class="diary-line">' + (r.home ? "\u65b0\u5bb6 \u00b7 " + esc(r.home) : "\u4e0e\u65b0\u5bb6\u5ead\u7ed3\u7f18\u5566") + "</p>");
@@ -1242,8 +1255,8 @@ body.day .diary-line{color:#6a655c}
     });
   }
   if (window.fetch) {
-    fetch("data/kittens.xlsx", { method: "HEAD", cache: "no-cache" }).then(function (r) {
-      var tag = (r.headers.get("ETag") || r.headers.get("Last-Modified") || "");
+    fetch("data/sheets.json", { method: "HEAD", cache: "no-cache" }).then(function (r) {
+      var tag = r.ok ? (r.headers.get("ETag") || r.headers.get("Last-Modified") || "") : "";
       if (shkCached && shkCached.data && tag && shkCached.tag === tag) {
         try { sessionStorage.removeItem("shk_re"); } catch (e) {}
         return;
