@@ -966,7 +966,7 @@ body.day .d-date{color:#6a655c}
       if (e.isIntersecting) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
       else v.pause();
     });
-  }, { threshold: 0.15 }) : null;
+  }, { rootMargin: "300px 0px", threshold: 0.01 }) : null;
   function kickVideos(root) {
     Array.prototype.forEach.call((root || document).querySelectorAll("video"), function (v) {
       v.muted = true;
