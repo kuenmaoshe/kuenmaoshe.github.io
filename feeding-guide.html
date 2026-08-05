@@ -101,6 +101,16 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
 /* reveal */
 .rv{opacity:0;transform:translateY(18px);transition:opacity .7s,transform .7s}
 .rv.in{opacity:1;transform:none}
+
+/* falling kitties */
+#kitty-rain{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.kitty-fall{position:absolute;top:-48px;will-change:transform;animation:kfall linear forwards}
+.kitty-fall .sway{display:block;animation:ksway ease-in-out infinite alternate}
+.kitty-fall .spin{display:block;animation:kspin linear infinite}
+@keyframes kfall{to{transform:translateY(115vh)}}
+@keyframes ksway{from{transform:translateX(-18px)}to{transform:translateX(18px)}}
+@keyframes kspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#kitty-rain{display:none}}
 </style>
 </head>
 <body>
@@ -108,7 +118,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
 <header class="top"><div class="inner">
   <a href="index.html">← 返回官网</a>
   <span class="brand">SHAKOSHAKO</span>
-  <a href="weixin://dl/chat?kuenmaoshe">微信咨询</a>
+  <a href="#" class="top-wx" data-wx="kuenmaoshe">微信咨询</a>
 </div></header>
 
 <div class="hero">
@@ -449,6 +459,17 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
       });
     });
   });
+  var topWx = document.querySelector(".top-wx");
+  if (topWx) {
+    topWx.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      copyText(topWx.getAttribute("data-wx")).then(function () {
+        var old = topWx.textContent;
+        topWx.textContent = "已复制 kuenmaoshe ✓";
+        setTimeout(function () { topWx.textContent = old; }, 2200);
+      });
+    });
+  }
   if ("IntersectionObserver" in window) {
     var io = new IntersectionObserver(function (es) {
       es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
@@ -480,6 +501,40 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
   }
   window.addEventListener("scroll", spy, { passive: true });
   spy();
+
+  /* falling kitties */
+  if (!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+    var rain = document.createElement("div");
+    rain.id = "kitty-rain";
+    document.body.appendChild(rain);
+    var GLYPHS = ["🐱", "🐈", "🐾", "🐾", "🐈‍⬛"];
+    var MAX = 12;
+    function drop() {
+      if (document.hidden || rain.childElementCount >= MAX) return;
+      var d = document.createElement("span");
+      d.className = "kitty-fall";
+      var sway = document.createElement("span");
+      sway.className = "sway";
+      var spin = document.createElement("span");
+      spin.className = "spin";
+      spin.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+      sway.appendChild(spin);
+      d.appendChild(sway);
+      var size = 13 + Math.random() * 12;
+      var dur = 9 + Math.random() * 9;
+      d.style.left = (Math.random() * 100) + "vw";
+      d.style.fontSize = size.toFixed(0) + "px";
+      d.style.opacity = (0.35 + Math.random() * 0.3).toFixed(2);
+      d.style.animationDuration = dur.toFixed(1) + "s";
+      sway.style.animationDuration = (2.6 + Math.random() * 2.4).toFixed(1) + "s";
+      spin.style.animationDuration = (6 + Math.random() * 10).toFixed(1) + "s";
+      if (Math.random() < 0.5) spin.style.animationDirection = "reverse";
+      d.addEventListener("animationend", function () { d.remove(); });
+      rain.appendChild(d);
+    }
+    for (var k = 0; k < 6; k++) setTimeout(drop, k * 700);
+    setInterval(drop, 1600);
+  }
 })();
 </script>
 </body>
