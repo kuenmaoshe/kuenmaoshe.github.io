@@ -1009,7 +1009,7 @@ body.day .diary-line{color:#6a655c}
       if (r.vac) inner += dpage(false, "\ud83d\udc89", "\u6253\u75ab\u82d7", '<p class="diary-line">' + esc(r.vac) + "</p>");
       if (r.sero) inner += dpage(false, "\ud83e\uddea", "\u8840\u6e05\u68c0\u6d4b", '<p class="diary-line">' + esc(r.sero) + "</p>");
       var dd = parseBirth(r.departDate);
-      var isFuture = dd && new Date(dd.y, dd.m - 1, dd.d) > new Date();
+      var isFuture = dd ? new Date(dd.y, dd.m - 1, dd.d) > new Date() : !!r.departDate;
       inner += dpage(false, "\ud83d\ude97", isFuture ? "\u9884\u8ba1\u51fa\u53d1" : "\u51fa\u53d1",
         (r.departDate ? '<p class="diary-line">' + esc(r.departDate) + "</p>" : "") +
         (r.depart && r.depart.length ? '<div class="diary-photo" data-media="' + esc(r.depart.join("|")) + '" data-title="' + esc(name) + '">' + mediaTag(r.depart[0], "shk-drawer-media") + "</div>" : "") +
