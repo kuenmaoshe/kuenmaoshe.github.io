@@ -81,6 +81,9 @@ h2{font:400 clamp(23px,3.6vw,30px)/1.4 Georgia,"Noto Serif SC",serif;letter-spac
 .card li{margin:4px 0}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.cards-flow{columns:2;column-gap:16px}
+.cards-flow .card{break-inside:avoid;margin:0 0 16px;display:inline-block;width:100%}
+@media(max-width:760px){.cards-flow{columns:1}}
 
 /* tables */
 .tablewrap{overflow-x:auto;margin:14px 0}
@@ -146,7 +149,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
 <section class="block rv" id="tips">
   <div class="sec-head"><span class="sec-num">01</span><h2>新猫到家注意事项</h2></div>
   <p class="sec-sub">原 40 条按主题归成七组，重复项已合并，方便对照执行。</p>
-  <div class="grid2">
+  <div class="cards-flow">
     <div class="card">
       <h3>心态与陪伴</h3>
       <ul>
@@ -221,7 +224,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
 <section class="block rv" id="supplies">
   <div class="sec-head"><span class="sec-num">02</span><h2>生活用品与常备药品</h2></div>
   <p class="sec-sub">接猫前照着这份清单备齐，猫咪到家就能安顿下来。</p>
-  <div class="grid2">
+  <div class="cards-flow">
     <div class="card">
       <h3>水碗、粮碗、猫砂盆</h3>
       <ul>
@@ -409,7 +412,7 @@ caption{caption-side:top;text-align:left;font:400 16px Georgia,"Noto Serif SC",s
   <p class="note warn">注意：牛、羊、猪的骨骼不适合猫咪直接啃食（狗可以适量吃）。</p>
   <h3 class="sub-head" id="meat">选肉渠道与常见答疑</h3>
   <p class="sec-sub">在哪买肉、买什么标准的肉，以及适口性、寄生虫、混喂三个最常见的问题。</p>
-  <div class="grid2">
+  <div class="cards-flow">
     <div class="card">
       <h3>肉类渠道</h3>
       <p>京东 · 淘宝 · 盒马生鲜 · 大润发</p>
