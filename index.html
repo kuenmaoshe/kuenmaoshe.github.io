@@ -428,7 +428,10 @@ body.day .diary-line{color:#6a655c}
           mom: String(r[7] || "").trim(),
           name: String(r[8] || "").trim(),
           reserve: String(r[9] || "").trim(),
-          depart: String(r[10] || "").split(/[,\uFF0C]/).map(function (s) { return s.trim(); }).filter(Boolean)
+          depart: String(r[10] || "").split(/[,\uFF0C]/).map(function (s) { return s.trim(); }).filter(Boolean),
+          vac: String(r[11] || "").trim(),
+          sero: String(r[12] || "").trim(),
+          departDate: String(r[13] || "").trim()
         });
       }
       var parents = [];
@@ -609,6 +612,9 @@ body.day .diary-line{color:#6a655c}
 
   /* ---------- i18n: zh / en / ko ---------- */
   var D = {
+    "打疫苗": ["Vaccinated", "\uc608\ubc29\uc811\uc885"],
+    "血清检测": ["Rabies Serology", "\ud56d\uccb4\uac00 \uac80\uc0ac"],
+    "预计出发": ["Departure Planned", "\ucd9c\ubc1c \uc608\uc815"],
     "小猫日记": ["Kitten Diary", "\uc544\uae30 \uace0\uc591\uc774 \uc77c\uae30"],
     "出生了": ["Born", "\ud0dc\uc5b4\ub0ac\uc5b4\uc694"],
     "定下新家": ["A Family Found", "\uc0c8 \uac00\uc871 \ud655\uc815"],
@@ -1000,9 +1006,14 @@ body.day .diary-line{color:#6a655c}
       inner += dpage(false, "\ud83c\udfe1", "\u5b9a\u4e0b\u65b0\u5bb6",
         (r.reserve ? '<p class="diary-line">' + esc(r.reserve) + "</p>" : "") +
         '<p class="diary-line">' + (r.home ? "\u65b0\u5bb6 \u00b7 " + esc(r.home) : "\u4e0e\u65b0\u5bb6\u5ead\u7ed3\u7f18\u5566") + "</p>");
-      inner += dpage(false, "\ud83d\ude97", "\u51fa\u53d1",
+      if (r.vac) inner += dpage(false, "\ud83d\udc89", "\u6253\u75ab\u82d7", '<p class="diary-line">' + esc(r.vac) + "</p>");
+      if (r.sero) inner += dpage(false, "\ud83e\uddea", "\u8840\u6e05\u68c0\u6d4b", '<p class="diary-line">' + esc(r.sero) + "</p>");
+      var dd = parseBirth(r.departDate);
+      var isFuture = dd && new Date(dd.y, dd.m - 1, dd.d) > new Date();
+      inner += dpage(false, "\ud83d\ude97", isFuture ? "\u9884\u8ba1\u51fa\u53d1" : "\u51fa\u53d1",
+        (r.departDate ? '<p class="diary-line">' + esc(r.departDate) + "</p>" : "") +
         (r.depart && r.depart.length ? '<div class="diary-photo" data-media="' + esc(r.depart.join("|")) + '" data-title="' + esc(name) + '">' + mediaTag(r.depart[0], "shk-drawer-media") + "</div>" : "") +
-        '<p class="diary-line">\u51fa\u53d1\u53bb\u65b0\u5bb6\u5566</p>');
+        (isFuture ? "" : '<p class="diary-line">\u51fa\u53d1\u53bb\u65b0\u5bb6\u5566</p>'));
       inner += dpage(false, "\ud83d\udc8c", "\u5bb6\u957f\u53cd\u9988",
         fbHtml || '<p class="diary-line">\u671f\u5f85\u5bb6\u957f\u7684\u6765\u4fe1</p>');
     } else {
