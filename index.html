@@ -1047,7 +1047,8 @@ body.day .d-sub{color:#6a655c}
           if (d0 && (!gk || d0 < gk)) gk = d0;
           var dTok = texts.filter(function (t) { return dkey(t); })[0] || "";
           if (dTok) gLatest = dTok;
-          gBody += '<p class="diary-line">' + texts.map(esc).join(" \u00b7 ") + "</p>";
+          var bodyTexts = r.weights.length === 1 ? texts.filter(function (t) { return !dkey(t); }) : texts;
+          if (bodyTexts.length) gBody += '<p class="diary-line">' + bodyTexts.map(esc).join(" \u00b7 ") + "</p>";
           if (media.length) {
             gMedia = true;
             gBody += '<div class="diary-photo" data-media="' + esc(media.join("|")) + '" data-title="' + esc(name) + '">' + mediaTag(media[0], "shk-drawer-media") + "</div>";
