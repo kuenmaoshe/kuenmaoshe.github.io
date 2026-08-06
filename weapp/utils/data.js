@@ -1,3 +1,5 @@
+var FALLBACK = require("./fallback.js");
+
 var BASE = "https://kuenmaoshe.github.io/";
 var CACHE_KEY = "shk_weapp_data_v1";
 
@@ -94,7 +96,10 @@ function loadData(cb, onError) {
     timeout: 12000,
     success: function (res) {
       if (res.statusCode !== 200 || !res.data) {
-        if (!cached && onError) onError("数据服务暂时不可用");
+        if (cached) return;
+        var off1 = parseSheets(FALLBACK);
+        if (off1) { cb(off1, true); return; }
+        if (onError) onError("数据服务暂时不可用");
         return;
       }
       var data = parseSheets(res.data);
@@ -106,7 +111,11 @@ function loadData(cb, onError) {
       cb(data, false);
     },
     fail: function () {
-      if (!cached && onError) onError("网络连接失败，请检查网络后重试");
+      if (cached) return;
+      // 网络不可用时用内置数据，保证页面完整（审核环境同样适用）
+      var offline = parseSheets(FALLBACK);
+      if (offline) { cb(offline, true); return; }
+      if (onError) onError("网络连接失败，请检查网络后重试");
     }
   });
 }
