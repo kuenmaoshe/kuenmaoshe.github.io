@@ -43,7 +43,7 @@
         <text class="flabel">{{i18n.t('状态', lang)}}</text>
         <text class="fbtn {{!filters.status?'on':''}}" bindtap="onFilter" data-key="status">{{i18n.t('全部', lang)}}</text>
         <text class="fbtn {{filters.status==='available'?'on':''}}" bindtap="onFilter" data-key="status" data-val="available">{{i18n.t('可预订', lang)}}</text>
-        <text class="fbtn {{filters.status==='sold'?'on':''}}" bindtap="onFilter" data-key="status" data-val="sold">{{i18n.t('已到新家', lang)}}</text>
+        <text class="fbtn {{filters.status==='sold'?'on':''}}" bindtap="onFilter" data-key="status" data-val="sold">{{i18n.t('已安家', lang)}}</text>
       </view>
       <view class="fgroup">
         <text class="flabel">{{i18n.t('性别', lang)}}</text>
@@ -80,7 +80,7 @@
     <view class="grid">
       <view class="kcard" wx:for="{{filtered}}" wx:key="uid" bindtap="tapKitten" data-idx="{{index}}">
         <image class="kimg" src="{{item.cover}}" mode="aspectFill" lazy-load="true" />
-        <view class="badge {{item.status}}">{{i18n.t(item.status==='sold'?'已到新家':'可预订', lang)}}</view>
+        <view class="badge {{item.status}}">{{i18n.t(item.status==='sold'?'已安家':'可预订', lang)}}</view>
         <view class="multi" wx:if="{{item.multi}}">{{item.multi}} 张 ↔</view>
         <view class="kinfo">
           <text class="kno serif">{{item.no}}</text>
