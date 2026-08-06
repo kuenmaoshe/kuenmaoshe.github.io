@@ -6,7 +6,6 @@ var AGE_BUCKETS = { u3: [0, 2], m36: [3, 6], o6: [7, 999] };
 Page({
   data: {
     lang: 0, // 0 中文, 1 EN, 2 KO
-    theme: "night",
     loading: true,
     loadError: "",
     kittens: [],
@@ -38,7 +37,7 @@ Page({
   onLoad: function () {
     var saved = null;
     try { saved = wx.getStorageSync("shk_prefs") || null; } catch (e) {}
-    if (saved) this.setData({ lang: saved.lang || 0, theme: saved.theme || "night" });
+    if (saved) this.setData({ lang: saved.lang || 0 });
     var envImgs = this.data.envImgs.map(function (e) {
       return { src: data.abs(e.src), cap: e.cap };
     });
@@ -186,14 +185,10 @@ Page({
     this.savePrefs();
   },
 
-  toggleTheme: function () {
-    this.setData({ theme: this.data.theme === "night" ? "day" : "night" });
-    this.savePrefs();
-  },
 
   savePrefs: function () {
     try {
-      wx.setStorageSync("shk_prefs", { lang: this.data.lang, theme: this.data.theme });
+      wx.setStorageSync("shk_prefs", { lang: this.data.lang });
     } catch (e) {}
   },
 

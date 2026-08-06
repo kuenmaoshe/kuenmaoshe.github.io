@@ -2,20 +2,15 @@
 
 /* ---------- toolbar ---------- */
 .toolbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
   display: flex; align-items: center; justify-content: space-between;
   padding: 16rpx 28rpx;
-  background: rgba(11, 11, 9, .92);
+  background: #0b0b09;
   border-bottom: 1rpx solid #2a2620;
 }
 .langs { display: flex; gap: 18rpx; }
 .lang { color: #7b756a; font-size: 24rpx; letter-spacing: 2rpx; }
 .lang.on { color: #e2c98d; }
-.theme-btn {
-  width: 56rpx; height: 56rpx; border-radius: 50%;
-  border: 1rpx solid rgba(198,161,91,.5); color: #e2c98d;
-  display: flex; align-items: center; justify-content: center; font-size: 26rpx;
-}
 
 /* ---------- hero ---------- */
 .hero {
@@ -197,11 +192,3 @@ button.btn::after { border: none; }
 .footer { background: #0b0b09; color: #7b756a; font-size: 20rpx; text-align: center; padding: 50rpx 30rpx 60rpx; letter-spacing: 2rpx; }
 .fbrand { color: #c6a15b; font-size: 28rpx; letter-spacing: 8rpx; margin-bottom: 14rpx; }
 
-/* ---------- day theme ---------- */
-.page.day .section.dark { background: #eee9df; }
-.page.day .section.dark2 { background: #f2ede3; }
-.page.day .h2.inv, .page.day .pname, .page.day .vt, .page.day .st, .page.day .gt { color: #17140f; }
-.page.day .intro.inv, .page.day .vd, .page.day .sd, .page.day .gd, .page.day .prole { color: #7d7668; }
-.page.day .vitem, .page.day .step, .page.day .gift { border-color: #d8cebc; }
-.page.day .guide-link { color: #8c6b31; border-color: rgba(140,107,49,.55); }
-.page.day .pcard { background: #e4dcca; }

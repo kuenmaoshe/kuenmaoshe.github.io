@@ -1,6 +1,6 @@
 <wxs src="../../utils/i18n.wxs" module="i18n" />
 
-<view class="page {{theme}}">
+<view class="page">
 
   <!-- 顶部工具条 -->
   <view class="toolbar">
@@ -9,7 +9,6 @@
       <text class="lang {{lang===1?'on':''}}" bindtap="setLang" data-lang="1">EN</text>
       <text class="lang {{lang===2?'on':''}}" bindtap="setLang" data-lang="2">KO</text>
     </view>
-    <view class="theme-btn" bindtap="toggleTheme">{{theme==='night'?'☀':'☾'}}</view>
   </view>
 
   <!-- 封面 -->
@@ -58,8 +57,8 @@
       <view class="fgroup">
         <text class="flabel">{{i18n.t('性别', lang)}}</text>
         <text class="fbtn {{!filters.gender?'on':''}}" bindtap="onFilter" data-key="gender">{{i18n.t('全部', lang)}}</text>
-        <text class="fbtn {{filters.gender==='male'?'on':''}}" bindtap="onFilter" data-key="gender" data-val="male">{{i18n.t('弟弟', lang)}} ♂</text>
-        <text class="fbtn {{filters.gender==='female'?'on':''}}" bindtap="onFilter" data-key="gender" data-val="female">{{i18n.t('妹妹', lang)}} ♀</text>
+        <text class="fbtn {{filters.gender==='male'?'on':''}}" bindtap="onFilter" data-key="gender" data-val="male">{{i18n.t('弟弟', lang)}}</text>
+        <text class="fbtn {{filters.gender==='female'?'on':''}}" bindtap="onFilter" data-key="gender" data-val="female">{{i18n.t('妹妹', lang)}}</text>
       </view>
       <view class="fgroup">
         <text class="flabel">{{i18n.t('年龄', lang)}}</text>
@@ -95,7 +94,7 @@
         <view class="kinfo">
           <text class="kno serif">{{item.no}}</text>
           <view class="kmeta">
-            <view class="kname">{{item.title}}<text class="g-ico {{item.gender==='弟弟'?'boy':'girl'}}">{{item.gender==='弟弟'?'♂':'♀'}}</text></view>
+            <view class="kname">{{item.title}}</view>
             <view class="ksub" wx:if="{{item.status==='available' && item.months!==null}}">{{item.months}}个月</view>
             <view class="ksub gold" wx:if="{{item.status!=='available' && item.home}}">{{i18n.t('新家', lang)}} · {{item.home}}</view>
             <view class="ksub" wx:if="{{item.parentsLine}}">{{i18n.t('爸爸妈妈', lang)}} · {{item.parentsLine}}</view>
