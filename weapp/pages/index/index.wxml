@@ -2,15 +2,6 @@
 
 <view class="page">
 
-  <!-- 顶部工具条 -->
-  <view class="toolbar">
-    <view class="langs">
-      <text class="lang {{lang===0?'on':''}}" bindtap="setLang" data-lang="0">中</text>
-      <text class="lang {{lang===1?'on':''}}" bindtap="setLang" data-lang="1">EN</text>
-      <text class="lang {{lang===2?'on':''}}" bindtap="setLang" data-lang="2">KO</text>
-    </view>
-  </view>
-
   <!-- 封面 -->
   <view class="hero">
     <image class="hero-logo" src="/assets/logo.png" mode="heightFix" />

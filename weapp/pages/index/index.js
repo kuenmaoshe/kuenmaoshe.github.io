@@ -35,9 +35,6 @@ Page({
   },
 
   onLoad: function () {
-    var saved = null;
-    try { saved = wx.getStorageSync("shk_prefs") || null; } catch (e) {}
-    if (saved) this.setData({ lang: saved.lang || 0 });
     var envImgs = this.data.envImgs.map(function (e) {
       return { src: data.abs(e.src), cap: e.cap };
     });
@@ -174,23 +171,9 @@ Page({
     this.setData({ faqs: faqs });
   },
 
-  cycleLang: function () {
-    var lang = (this.data.lang + 1) % 3;
-    this.setData({ lang: lang });
-    this.savePrefs();
-  },
-
-  setLang: function (e) {
-    this.setData({ lang: +e.currentTarget.dataset.lang });
-    this.savePrefs();
-  },
 
 
-  savePrefs: function () {
-    try {
-      wx.setStorageSync("shk_prefs", { lang: this.data.lang });
-    } catch (e) {}
-  },
+
 
   copyWx: function () {
     wx.setClipboardData({

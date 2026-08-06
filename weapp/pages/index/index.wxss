@@ -1,16 +1,6 @@
 .page { background: #0b0b09; }
 
 /* ---------- toolbar ---------- */
-.toolbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16rpx 28rpx;
-  background: #0b0b09;
-  border-bottom: 1rpx solid #2a2620;
-}
-.langs { display: flex; gap: 18rpx; }
-.lang { color: #7b756a; font-size: 24rpx; letter-spacing: 2rpx; }
-.lang.on { color: #e2c98d; }
 
 /* ---------- hero ---------- */
 .hero {
@@ -37,7 +27,7 @@ button.btn::after { border: none; }
   border-top: 1rpx solid #2a2620;
 }
 .feat {
-  width: 33.33%; padding: 22rpx 6rpx; text-align: center;
+  width: 33.33%; box-sizing: border-box; padding: 22rpx 6rpx; text-align: center;
   color: #d9d3c6; font-size: 22rpx;
   border-bottom: 1rpx solid #2a2620;
   display: flex; flex-direction: column; gap: 6rpx;
