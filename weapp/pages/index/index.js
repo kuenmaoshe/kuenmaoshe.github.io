@@ -72,7 +72,7 @@ Page({
       return {
         color: r.color, gender: r.gender, status: r.status,
         dad: r.dad, mom: r.mom, home: r.home,
-        imgs: r.imgs, cover: r.imgs[0],
+        imgs: r.imgs, cover: (r.thumbs && r.thumbs[0]) || r.imgs[0],
         multi: r.imgs.length > 1 ? r.imgs.length : 0,
         title: cg + (r.name ? " · " + r.name : ""),
         months: months,

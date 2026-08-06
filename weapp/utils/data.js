@@ -9,6 +9,12 @@ function abs(p) {
   return BASE + p.replace(/^\//, "");
 }
 
+function thumb(p) {
+  if (!p || /\.mp4(\?|$)/i.test(p)) return p;
+  var m = p.match(/([^\/]+)\.(jpe?g|png|webp)(\?.*)?$/i);
+  return m ? abs("assets/thumb/" + m[1] + ".webp") : abs(p);
+}
+
 function splitList(v) {
   return String(v || "")
     .split(/[,，]/)
@@ -46,6 +52,7 @@ function parseSheets(js) {
       color: String(r[0]).trim(),
       gender: String(r[1] || "").trim(),
       imgs: splitList(r[2]).map(abs),
+      thumbs: splitList(r[2]).map(thumb),
       status: status,
       birth: parseBirth(r[4]),
       home: String(r[5] || "").trim(),
@@ -64,7 +71,8 @@ function parseSheets(js) {
         name: String(pr[0]).trim(),
         role: String(pr[1] || "").trim(),
         color: String(pr[2] || "").trim(),
-        media: splitList(pr[3]).map(abs)
+        media: splitList(pr[3]).map(abs),
+        thumbs: splitList(pr[3]).map(thumb)
       });
     }
   }

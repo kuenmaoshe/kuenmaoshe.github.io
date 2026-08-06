@@ -103,7 +103,7 @@
     <view class="intro inv">{{i18n.t('优秀血统与健康的基石，承载着 Shakoshako 的未来。', lang)}}</view>
     <view class="pgrid">
       <view class="pcard" wx:for="{{parents}}" wx:key="name" bindtap="tapParent" data-idx="{{index}}">
-        <image class="pimg" src="{{item.media[0]}}" mode="aspectFill" lazy-load="true" />
+        <image class="pimg" src="{{item.thumbs[0] || item.media[0]}}" mode="aspectFill" lazy-load="true" />
         <view class="pinfo">
           <view class="pname serif">{{item.name}}</view>
           <view class="prole">{{i18n.t(item.role, lang)}} · {{item.color}}</view>
