@@ -1339,13 +1339,36 @@ body.day .cattery-assure small{color:#6f6759!important}
     if (label) dot.setAttribute("data-place", label);
     wrap.appendChild(dot);
   }
+  var CODE_GEO = { cn:[104.06,30.67], nl:[5.3,52.1], us:[-98.5,39.8], kr:[126.98,37.57], jp:[139.7,35.68],
+    de:[10.0,51.0], fr:[2.35,48.86], gb:[-0.13,51.51], it:[12.5,41.9], es:[-3.7,40.4], pt:[-8.0,39.6],
+    ca:[-106.3,56.1], au:[133.8,-25.3], nz:[172.5,-41.8], ru:[37.62,55.75], sg:[103.85,1.29],
+    my:[101.7,3.15], th:[100.5,13.75], vn:[105.85,21.03], id:[106.85,-6.2], ph:[121.0,14.6],
+    in:[77.2,28.6], br:[-47.9,-15.8], mx:[-99.1,19.4], se:[18.07,59.33], no:[10.75,59.91],
+    dk:[12.57,55.68], fi:[24.94,60.17], ch:[8.55,47.37], at:[16.37,48.21], be:[4.35,50.85],
+    pl:[21.01,52.23], tr:[32.85,39.93], ae:[54.37,24.45], sa:[46.7,24.7], ie:[-6.26,53.35],
+    hk:[114.17,22.32], tw:[121.5,25.03], mo:[113.55,22.19], cz:[14.42,50.09], gr:[23.73,37.98],
+    hu:[19.04,47.5], ro:[26.1,44.43], ua:[30.52,50.45], il:[34.78,32.08], za:[28.05,-26.2],
+    ar:[-58.38,-34.6], cl:[-70.65,-33.45], co:[-74.07,4.71], pe:[-77.03,-12.05] };
   function buildVisitorDots(settings) {
     var wrap = document.querySelector(".world-map-wrap");
     var cnWrap = document.querySelector(".cn-map-wrap");
     if (!wrap) return;
+    var placed = [];
     function mark(lon, lat, label) {
+      for (var i = 0; i < placed.length; i++) {
+        if (Math.abs(placed[i][0] - lon) < 2.5 && Math.abs(placed[i][1] - lat) < 2.5) return;
+      }
+      placed.push([lon, lat]);
       addWorldDot(wrap, lon, lat, label);
       if (cnWrap && inChina(lon, lat)) addDot(cnWrap, chinaPct(lon, lat), label);
+    }
+    if (window.fetch) {
+      fetch("data/visitors.json", { cache: "no-cache" }).then(function (r) { return r.json(); }).then(function (j) {
+        (j.countries || []).forEach(function (c) {
+          var g = CODE_GEO[c.code];
+          if (g) mark(g[0], g[1], c.name + " \u00d7 " + c.count);
+        });
+      }).catch(function () {});
     }
     var regions = settings && settings["\u8bbf\u5ba2\u5730\u533a"];
     if (regions) {
