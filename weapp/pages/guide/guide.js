@@ -176,6 +176,10 @@ Page({
     });
   },
 
+  onShareTimeline: function () {
+    return { title: "缅因猫喂养指南 · Shakoshako 猫舍" };
+  },
+
   onShareAppMessage: function () {
     return { title: "缅因猫喂养指南 · Shakoshako 猫舍", path: "/pages/guide/guide" };
   }

@@ -85,18 +85,28 @@ function parseSheets(js) {
   return kittens.length ? { kittens: kittens, parents: parents, faqs: faqs, settings: settings } : null;
 }
 
-function loadData(cb) {
+function loadData(cb, onError) {
   var cached = null;
   try { cached = wx.getStorageSync(CACHE_KEY) || null; } catch (e) {}
   if (cached) cb(cached, true);
   wx.request({
     url: BASE + "data/sheets.json",
+    timeout: 12000,
     success: function (res) {
-      if (res.statusCode !== 200 || !res.data) return;
+      if (res.statusCode !== 200 || !res.data) {
+        if (!cached && onError) onError("数据服务暂时不可用");
+        return;
+      }
       var data = parseSheets(res.data);
-      if (!data) return;
+      if (!data) {
+        if (!cached && onError) onError("数据格式有误");
+        return;
+      }
       try { wx.setStorageSync(CACHE_KEY, data); } catch (e) {}
       cb(data, false);
+    },
+    fail: function () {
+      if (!cached && onError) onError("网络连接失败，请检查网络后重试");
     }
   });
 }

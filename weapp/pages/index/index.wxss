@@ -32,8 +32,9 @@
 .hero-actions { display: flex; flex-direction: column; gap: 18rpx; margin-top: 40rpx; }
 .btn {
   padding: 26rpx 0; text-align: center; font-size: 28rpx; letter-spacing: 3rpx;
-  border-radius: 999rpx;
+  border-radius: 999rpx; line-height: 1.85; margin: 0; border: none;
 }
+button.btn::after { border: none; }
 .btn.primary { background: linear-gradient(120deg, #e2c98d, #b08d4f); color: #1a1608; }
 .btn.ghost { border: 1rpx solid rgba(198,161,91,.6); color: #e2c98d; }
 .feature-strip {
@@ -62,6 +63,12 @@
 .intro { color: #7d7668; font-size: 25rpx; line-height: 1.95; margin-top: 16rpx; }
 .intro.inv { color: #a9a49a; }
 .loading, .empty { text-align: center; color: #8b8578; font-size: 24rpx; padding: 50rpx 0; }
+.errbox { text-align: center; padding: 50rpx 0; }
+.errmsg { color: #8b8578; font-size: 24rpx; margin-bottom: 20rpx; }
+.errbtn {
+  display: inline-block; border: 1rpx solid rgba(140,107,49,.55); border-radius: 999rpx;
+  padding: 14rpx 40rpx; color: #8c6b31; font-size: 24rpx; letter-spacing: 2rpx;
+}
 
 /* ---------- footprints ---------- */
 .footprints { margin-top: 30rpx; }

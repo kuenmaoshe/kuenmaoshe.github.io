@@ -81,6 +81,10 @@
     </view>
 
     <view class="loading" wx:if="{{loading}}">加载中…</view>
+    <view class="errbox" wx:if="{{loadError}}">
+      <view class="errmsg">{{loadError}}</view>
+      <view class="errbtn" bindtap="retry">重新加载</view>
+    </view>
 
     <!-- 小猫卡片 -->
     <view class="grid">
@@ -99,7 +103,7 @@
         </view>
       </view>
     </view>
-    <view class="empty" wx:if="{{!loading && !filtered.length}}">～ 没有符合条件的小猫 ～</view>
+    <view class="empty" wx:if="{{!loading && !loadError && !filtered.length}}">～ 没有符合条件的小猫 ～</view>
   </view>
 
   <!-- 种猫 -->
@@ -210,7 +214,8 @@
     <view class="h2 serif">{{i18n.t('联系我们', lang)}}</view>
     <view class="intro">{{i18n.t('咨询幼猫、预订或了解猫舍信息，欢迎通过以下官方渠道联系我们；也欢迎关注我们的社交平台，看看猫舍日常与幼猫的成长记录。', lang)}}</view>
     <view class="contact-btns">
-      <view class="btn primary" bindtap="copyWx">{{i18n.t('微信', lang)}} kuenmaoshe · {{i18n.t('点击复制微信号', lang)}}</view>
+      <button class="btn primary" open-type="contact" session-from="cattery">{{i18n.t('在线咨询', lang)}}</button>
+      <view class="btn ghost" bindtap="copyWx">{{i18n.t('微信', lang)}} kuenmaoshe · {{i18n.t('点击复制微信号', lang)}}</view>
       <view class="btn ghost" bindtap="callPhone">{{i18n.t('电话咨询', lang)}} 185 8285 8936</view>
     </view>
     <view class="socials">小红书 · Instagram · TikTok：kuenmaoshe</view>

@@ -8,6 +8,7 @@ Page({
     lang: 0, // 0 中文, 1 EN, 2 KO
     theme: "night",
     loading: true,
+    loadError: "",
     kittens: [],
     filtered: [],
     parents: [],
@@ -45,10 +46,20 @@ Page({
     var careImgs = {};
     for (var k in care) careImgs[k] = data.abs(care[k]);
     this.setData({ envImgs: envImgs, careImgs: careImgs });
+    this.fetch();
+  },
+
+  fetch: function () {
     var that = this;
-    data.loadData(function (d) {
-      that.applyData(d);
-    });
+    this.setData({ loading: true, loadError: "" });
+    data.loadData(
+      function (d) { that.applyData(d); },
+      function (msg) { that.setData({ loading: false, loadError: msg }); }
+    );
+  },
+
+  retry: function () {
+    this.fetch();
   },
 
   applyData: function (d) {
@@ -91,6 +102,7 @@ Page({
     });
     this.setData({
       loading: false,
+      loadError: "",
       kittens: kittens,
       parents: d.parents,
       faqs: d.faqs,
@@ -211,6 +223,10 @@ Page({
         wx.pageScrollTo({ scrollTop: res[0].top + res[1].scrollTop - 10, duration: 400 });
       }
     });
+  },
+
+  onShareTimeline: function () {
+    return { title: "Shakoshako 缅因猫舍 · 专注缅因猫，传承优秀血统" };
   },
 
   onShareAppMessage: function () {
