@@ -1,0 +1,21 @@
+/* Shakoshako palette — mirrors the website */
+page {
+  --ink: #17140f;
+  --dark: #0b0b09;
+  --bg: #eee9df;
+  --card: #f7f3ea;
+  --line: #d8cebc;
+  --gold: #8c6b31;
+  --gold-l: #c6a15b;
+  --gold-pale: #e2c98d;
+  --muted: #655e52;
+  background: var(--dark);
+  font-family: -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
+  font-size: 28rpx;
+  line-height: 1.85;
+  color: var(--ink);
+}
+.serif {
+  font-family: Georgia, "Songti SC", "Noto Serif SC", serif;
+  font-weight: 400;
+}

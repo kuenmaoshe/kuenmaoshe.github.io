@@ -1,0 +1,225 @@
+<wxs src="../../utils/i18n.wxs" module="i18n" />
+
+<view class="page {{theme}}">
+
+  <!-- 顶部工具条 -->
+  <view class="toolbar">
+    <view class="langs">
+      <text class="lang {{lang===0?'on':''}}" bindtap="setLang" data-lang="0">中</text>
+      <text class="lang {{lang===1?'on':''}}" bindtap="setLang" data-lang="1">EN</text>
+      <text class="lang {{lang===2?'on':''}}" bindtap="setLang" data-lang="2">KO</text>
+    </view>
+    <view class="theme-btn" bindtap="toggleTheme">{{theme==='night'?'☀':'☾'}}</view>
+  </view>
+
+  <!-- 封面 -->
+  <view class="hero">
+    <image class="hero-logo" src="/assets/logo.png" mode="heightFix" />
+    <view class="eyebrow">EST. IN CHENGDU · CHINA</view>
+    <view class="hero-brand serif">SHAKOSHAKO<text class="hero-brand-cn">猫舍</text></view>
+    <view class="hero-h1 serif">{{i18n.t('专注缅因猫，传承优秀血统。', lang)}}</view>
+    <view class="hero-lead">{{i18n.t('以健康、体型与温柔性格为核心，负责任地繁育高品质缅因猫。', lang)}}</view>
+    <view class="hero-counts" wx:if="{{!loading}}">{{i18n.t('在售猫咪', lang)}} {{counts.avail}} · {{i18n.t('已售猫咪', lang)}} {{counts.sold}}</view>
+    <view class="hero-actions">
+      <view class="btn primary" bindtap="scrollToKittens">{{i18n.t('查看猫咪', lang)}} 🐾</view>
+      <view class="btn ghost" bindtap="copyWx">{{i18n.t('联系我们', lang)}}</view>
+    </view>
+    <view class="feature-strip">
+      <view class="feat"><text class="f-sym">♡</text><text>{{i18n.t('健康血统', lang)}}</text><text class="f-sub">CFA · WCF</text></view>
+      <view class="feat"><text class="f-sym">♛</text><text>{{i18n.t('优秀体型', lang)}}</text><text class="f-sub">SHAKOSHAKO</text></view>
+      <view class="feat"><text class="f-sym">⌁</text><text>{{i18n.t('基因检测', lang)}}</text><text class="f-sub">HCM · PKD</text></view>
+      <view class="feat"><text class="f-sym">⌂</text><text>{{i18n.t('独立猫舍', lang)}}</text><text class="f-sub">CHENGDU</text></view>
+      <view class="feat"><text class="f-sym">◎</text><text>{{i18n.t('成长记录', lang)}}</text><text class="f-sub">DIARY</text></view>
+      <view class="feat"><text class="f-sym">◇</text><text>{{i18n.t('售后保障', lang)}}</text><text class="f-sub">24H · LIFETIME</text></view>
+    </view>
+  </view>
+
+  <!-- 在售幼猫 -->
+  <view class="section light" id="kittens">
+    <view class="kicker">OUR KITTENS</view>
+    <view class="h2 serif">{{i18n.t('在花园里自在成长', lang)}}</view>
+    <view class="intro">{{i18n.t('阳光、自然与耐心陪伴着每一只幼猫成长。姓名、生日、性别与状态将在确认后持续更新。', lang)}}</view>
+
+    <view class="footprints" wx:if="{{regions.length}}">
+      <text class="fp-title">🐾 {{i18n.t('小猫足迹', lang)}}</text>
+      <view class="fp-chips">
+        <text class="fp-chip" wx:for="{{regions}}" wx:key="place">{{item.place}} × {{item.n}}</text>
+      </view>
+    </view>
+
+    <!-- 筛选 -->
+    <view class="filters">
+      <view class="fgroup">
+        <text class="flabel">{{i18n.t('状态', lang)}}</text>
+        <text class="fbtn {{!filters.status?'on':''}}" bindtap="onFilter" data-key="status">{{i18n.t('全部', lang)}}</text>
+        <text class="fbtn {{filters.status==='available'?'on':''}}" bindtap="onFilter" data-key="status" data-val="available">{{i18n.t('可预订', lang)}}</text>
+        <text class="fbtn {{filters.status==='sold'?'on':''}}" bindtap="onFilter" data-key="status" data-val="sold">{{i18n.t('已到新家', lang)}}</text>
+      </view>
+      <view class="fgroup">
+        <text class="flabel">{{i18n.t('性别', lang)}}</text>
+        <text class="fbtn {{!filters.gender?'on':''}}" bindtap="onFilter" data-key="gender">{{i18n.t('全部', lang)}}</text>
+        <text class="fbtn {{filters.gender==='male'?'on':''}}" bindtap="onFilter" data-key="gender" data-val="male">{{i18n.t('弟弟', lang)}} ♂</text>
+        <text class="fbtn {{filters.gender==='female'?'on':''}}" bindtap="onFilter" data-key="gender" data-val="female">{{i18n.t('妹妹', lang)}} ♀</text>
+      </view>
+      <view class="fgroup">
+        <text class="flabel">{{i18n.t('年龄', lang)}}</text>
+        <text class="fbtn {{!filters.months?'on':''}}" bindtap="onFilter" data-key="months">{{i18n.t('全部', lang)}}</text>
+        <text class="fbtn {{filters.months==='u3'?'on':''}}" bindtap="onFilter" data-key="months" data-val="u3">{{i18n.t('3个月以下', lang)}}</text>
+        <text class="fbtn {{filters.months==='m36'?'on':''}}" bindtap="onFilter" data-key="months" data-val="m36">{{i18n.t('3–6个月', lang)}}</text>
+        <text class="fbtn {{filters.months==='o6'?'on':''}}" bindtap="onFilter" data-key="months" data-val="o6">{{i18n.t('6个月以上', lang)}}</text>
+      </view>
+      <view class="fgroup" wx:if="{{dads.length}}">
+        <text class="flabel">{{i18n.t('种公', lang)}}</text>
+        <text class="fbtn {{!filters.dad?'on':''}}" bindtap="onFilter" data-key="dad">{{i18n.t('全部', lang)}}</text>
+        <text class="fbtn {{filters.dad===item?'on':''}}" wx:for="{{dads}}" wx:key="*this" bindtap="onFilter" data-key="dad" data-val="{{item}}">{{item}}</text>
+      </view>
+      <view class="fgroup" wx:if="{{moms.length}}">
+        <text class="flabel">{{i18n.t('种母', lang)}}</text>
+        <text class="fbtn {{!filters.mom?'on':''}}" bindtap="onFilter" data-key="mom">{{i18n.t('全部', lang)}}</text>
+        <text class="fbtn {{filters.mom===item?'on':''}}" wx:for="{{moms}}" wx:key="*this" bindtap="onFilter" data-key="mom" data-val="{{item}}">{{item}}</text>
+      </view>
+    </view>
+
+    <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+    <!-- 小猫卡片 -->
+    <view class="grid">
+      <view class="kcard" wx:for="{{filtered}}" wx:key="uid" bindtap="tapKitten" data-idx="{{index}}">
+        <image class="kimg" src="{{item.cover}}" mode="aspectFill" lazy-load="true" />
+        <view class="badge {{item.status}}">{{i18n.t(item.status==='sold'?'已到新家':'可预订', lang)}}</view>
+        <view class="multi" wx:if="{{item.multi}}">{{item.multi}} 张 ↔</view>
+        <view class="kinfo">
+          <text class="kno serif">{{item.no}}</text>
+          <view class="kmeta">
+            <view class="kname">{{item.title}}<text class="g-ico {{item.gender==='弟弟'?'boy':'girl'}}">{{item.gender==='弟弟'?'♂':'♀'}}</text></view>
+            <view class="ksub" wx:if="{{item.status==='available' && item.months!==null}}">{{item.months}}个月</view>
+            <view class="ksub gold" wx:if="{{item.status!=='available' && item.home}}">{{i18n.t('新家', lang)}} · {{item.home}}</view>
+            <view class="ksub" wx:if="{{item.parentsLine}}">{{i18n.t('爸爸妈妈', lang)}} · {{item.parentsLine}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="empty" wx:if="{{!loading && !filtered.length}}">～ 没有符合条件的小猫 ～</view>
+  </view>
+
+  <!-- 种猫 -->
+  <view class="section dark">
+    <view class="kicker">OUR MAINE COONS</view>
+    <view class="h2 serif inv">{{i18n.t('种猫展示', lang)}}</view>
+    <view class="intro inv">{{i18n.t('优秀血统与健康的基石，承载着 Shakoshako 的未来。', lang)}}</view>
+    <view class="pgrid">
+      <view class="pcard" wx:for="{{parents}}" wx:key="name" bindtap="tapParent" data-idx="{{index}}">
+        <image class="pimg" src="{{item.media[0]}}" mode="aspectFill" lazy-load="true" />
+        <view class="pinfo">
+          <view class="pname serif">{{item.name}}</view>
+          <view class="prole">{{i18n.t(item.role, lang)}} · {{item.color}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 繁育理念 -->
+  <view class="section dark2">
+    <view class="kicker">OUR PROMISE</view>
+    <view class="h2 serif inv">{{i18n.t('为卓越而繁育', lang)}}</view>
+    <view class="intro inv">{{i18n.t('作为 WCF 与 CFA 双协会认证猫舍，我们相信优秀的缅因猫不仅拥有令人瞩目的外形，更应具备健康的体魄与温柔的性格。', lang)}}</view>
+    <view class="vlist">
+      <view class="vitem"><text class="vnum serif">01</text><view><view class="vt serif">{{i18n.t('健康优先', lang)}}</view><view class="vd">{{i18n.t('HCM · PKD 基因检测，定期体检与驱虫', lang)}}</view></view></view>
+      <view class="vitem"><text class="vnum serif">02</text><view><view class="vt serif">{{i18n.t('优秀血统', lang)}}</view><view class="vd">{{i18n.t('种猫源自俄罗斯猫舍的优质血系', lang)}}</view></view></view>
+      <view class="vitem"><text class="vnum serif">03</text><view><view class="vt serif">{{i18n.t('责任繁育', lang)}}</view><view class="vd">{{i18n.t('科学繁育管理，尊重生命与自然成长', lang)}}</view></view></view>
+      <view class="vitem"><text class="vnum serif">04</text><view><view class="vt serif">{{i18n.t('终身陪伴', lang)}}</view><view class="vd">{{i18n.t('小猫到家后，陪伴与支持一直都在', lang)}}</view></view></view>
+    </view>
+  </view>
+
+  <!-- 猫舍环境 -->
+  <view class="section light">
+    <view class="kicker">OUR CATTERY</view>
+    <view class="h2 serif">{{i18n.t('自在成长的空间', lang)}}</view>
+    <view class="intro">{{i18n.t('我们为缅因猫打造了安全、舒适、自然的生活环境，让每一只猫咪都能健康成长，快乐生活。', lang)}}</view>
+    <view class="env">
+      <view class="envcard" wx:for="{{envImgs}}" wx:key="src" bindtap="previewEnv" data-src="{{item.src}}">
+        <image src="{{item.src}}" mode="aspectFill" lazy-load="true" />
+        <view class="envcap serif">{{i18n.t(item.cap, lang)}}</view>
+      </view>
+    </view>
+    <view class="assure">
+      <view class="aitem"><view class="at">{{i18n.t('安全防护', lang)}}</view><view class="ad">{{i18n.t('全方位防护措施', lang)}}</view></view>
+      <view class="aitem"><view class="at">{{i18n.t('自然健康', lang)}}</view><view class="ad">{{i18n.t('绿植环绕，空气清新', lang)}}</view></view>
+      <view class="aitem"><view class="at">{{i18n.t('定期清洁', lang)}}</view><view class="ad">{{i18n.t('每日清扫，定期消毒', lang)}}</view></view>
+      <view class="aitem"><view class="at">{{i18n.t('用心照护', lang)}}</view><view class="ad">{{i18n.t('科学喂养，贴心陪伴', lang)}}</view></view>
+    </view>
+  </view>
+
+  <!-- 日常喂养 -->
+  <view class="section cream">
+    <view class="kicker">FEEDING &amp; CARE</view>
+    <view class="h2 serif">{{i18n.t('科学与用心守护健康', lang)}}</view>
+    <view class="careblock">
+      <view class="ct serif">{{i18n.t('生骨肉喂养', lang)}}</view>
+      <view class="cd">{{i18n.t('本猫舍提倡生骨肉喂养：选用新西兰进口银蕨、强英、华英等品牌肉源，且必须经过严格超低温冷冻（如 SIEE 生骨肉）。小猫从 45 天断奶起就吃生骨肉，肌肉更结实、身体更健康；偶尔加餐冻干与罐头，并不定期补充营养品和保健品。', lang)}}</view>
+      <image class="cimg" src="{{careImgs.raw}}" mode="aspectFill" lazy-load="true" bindtap="previewCare" data-src="{{careImgs.raw}}" />
+    </view>
+    <view class="careblock">
+      <view class="ct serif">{{i18n.t('营养品 / 保健品', lang)}}</view>
+      <view class="cd">{{i18n.t('布拉迪益生菌、添赐力免疫增强膏、MAG 卵磷脂、MAG 95% Omega-3 鱼油、VIYO 营养液、高免因子、美尼喵赖氨酸、快乐红糖等。', lang)}}</view>
+      <image class="cimg" src="{{careImgs.supp}}" mode="aspectFill" lazy-load="true" bindtap="previewCare" data-src="{{careImgs.supp}}" />
+    </view>
+    <view class="careblock">
+      <view class="ct serif">{{i18n.t('定制猫砂', lang)}}</view>
+      <view class="cd">{{i18n.t('专门定制高品质、无香型混合猫砂，对猫咪呼吸道更友好。', lang)}}</view>
+      <view class="cimg2">
+        <image src="{{careImgs.bags}}" mode="aspectFill" lazy-load="true" bindtap="previewCare" data-src="{{careImgs.bags}}" />
+        <image src="{{careImgs.litter}}" mode="aspectFill" lazy-load="true" bindtap="previewCare" data-src="{{careImgs.litter}}" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 购买流程 -->
+  <view class="section dark">
+    <view class="kicker">PURCHASE PROCESS</view>
+    <view class="h2 serif inv">{{i18n.t('从初次相遇到成为家人', lang)}}</view>
+    <view class="intro inv">{{i18n.t('选猫、定金、合同、尾款、接猫与售后，每一步清晰透明，并为新家庭提供持续指导。', lang)}}</view>
+    <view class="guide-link" bindtap="goGuide">{{i18n.t('新猫到家指南', lang)}} →</view>
+    <view class="steps">
+      <view class="step"><text class="sno serif">01</text><view class="st serif">{{i18n.t('查看幼猫', lang)}}</view><view class="sd">{{i18n.t('通过真实照片和视频了解幼猫', lang)}}</view></view>
+      <view class="step"><text class="sno serif">02</text><view class="st serif">{{i18n.t('选择幼猫', lang)}}</view><view class="sd">{{i18n.t('通过微信沟通并确认心仪幼猫', lang)}}</view></view>
+      <view class="step"><text class="sno serif">03</text><view class="st serif">{{i18n.t('支付定金', lang)}}</view><view class="sd">{{i18n.t('支付30%定金并签订电子合同', lang)}}</view></view>
+      <view class="step"><text class="sno serif">04</text><view class="st serif">{{i18n.t('支付尾款', lang)}}</view><view class="sd">{{i18n.t('接猫前一天付清尾款', lang)}}</view></view>
+      <view class="step"><text class="sno serif">05</text><view class="st serif">{{i18n.t('安全接猫', lang)}}</view><view class="sd">{{i18n.t('可在成都接猫或安排航空运输', lang)}}</view></view>
+      <view class="step"><text class="sno serif">06</text><view class="st serif">{{i18n.t('终身支持', lang)}}</view><view class="sd">{{i18n.t('提供健康保障与终身饲养指导', lang)}}</view></view>
+    </view>
+    <view class="gift" wx:if="{{settings['新家礼包']}}">
+      <view class="gt serif">{{i18n.t('新家礼包', lang)}}</view>
+      <view class="gd">{{i18n.t('新家礼包会随小猫一同快递寄出，内含：', lang)}}{{settings['新家礼包']}}</view>
+    </view>
+  </view>
+
+  <!-- FAQ -->
+  <view class="section light" wx:if="{{faqs.length}}">
+    <view class="kicker">FAQ</view>
+    <view class="h2 serif">{{i18n.t('常见问题', lang)}}</view>
+    <view class="faq" wx:for="{{faqs}}" wx:key="q">
+      <view class="fq" bindtap="toggleFaq" data-idx="{{index}}">{{item.q}}<text class="farrow">{{item.open?'▴':'▾'}}</text></view>
+      <view class="fa" wx:if="{{item.open}}">{{item.a}}</view>
+    </view>
+  </view>
+
+  <!-- 联系我们 -->
+  <view class="section cream">
+    <view class="kicker">CONTACT SHAKOSHAKO</view>
+    <view class="h2 serif">{{i18n.t('联系我们', lang)}}</view>
+    <view class="intro">{{i18n.t('咨询幼猫、预订或了解猫舍信息，欢迎通过以下官方渠道联系我们；也欢迎关注我们的社交平台，看看猫舍日常与幼猫的成长记录。', lang)}}</view>
+    <view class="contact-btns">
+      <view class="btn primary" bindtap="copyWx">{{i18n.t('微信', lang)}} kuenmaoshe · {{i18n.t('点击复制微信号', lang)}}</view>
+      <view class="btn ghost" bindtap="callPhone">{{i18n.t('电话咨询', lang)}} 185 8285 8936</view>
+    </view>
+    <view class="socials">小红书 · Instagram · TikTok：kuenmaoshe</view>
+  </view>
+
+  <!-- 页脚 -->
+  <view class="footer">
+    <view class="serif fbrand">SHAKOSHAKO</view>
+    <view>© 2026 Shakoshako Maine Coon Cattery · Chengdu, China</view>
+  </view>
+
+</view>

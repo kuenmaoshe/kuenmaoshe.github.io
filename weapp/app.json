@@ -1,0 +1,11 @@
+{
+  "pages": ["pages/index/index", "pages/guide/guide"],
+  "window": {
+    "navigationBarBackgroundColor": "#0b0b09",
+    "navigationBarTitleText": "Shakoshako 猫舍",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#0b0b09",
+    "backgroundTextStyle": "dark"
+  },
+  "sitemapLocation": "sitemap.json"
+}

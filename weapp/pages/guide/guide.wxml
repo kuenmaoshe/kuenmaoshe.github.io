@@ -1,0 +1,124 @@
+<view class="gpage">
+
+  <!-- hero -->
+  <view class="ghero">
+    <view class="gkicker">SHAKOSHAKO · FEEDING GUIDE</view>
+    <view class="gh1 serif">缅因猫喂养指南</view>
+    <view class="glead">请家长务必仔细查阅，祝猫帅家润。</view>
+    <view class="gpaw">🐾</view>
+    <view class="wxpill" bindtap="copyWx">💬 kuenmaoshe · 点击复制微信号</view>
+  </view>
+
+  <!-- 悬浮目录 -->
+  <view class="gnav">
+    <view class="gnav-box">
+      <text class="gchip {{active===item.id?'on':''}}" wx:for="{{nav}}" wx:key="id" bindtap="jump" data-id="{{item.id}}">
+        <text class="gno">{{item.no}}</text>{{item.ico}} {{item.label}}
+      </text>
+    </view>
+  </view>
+
+  <view class="gwrap">
+
+    <!-- 01 -->
+    <view class="gsec" id="tips">
+      <view class="gsec-head"><text class="gsec-num serif">01</text><text class="gsec-h2 serif">新猫到家注意事项</text></view>
+      <view class="gcard" wx:for="{{tips}}" wx:key="title">
+        <view class="gcard-h serif"><text class="gico">{{item.ico}}</text>{{item.title}}</view>
+        <view class="gli" wx:for="{{item.items}}" wx:for-item="li" wx:key="*this">· {{li}}</view>
+      </view>
+    </view>
+
+    <!-- 02 -->
+    <view class="gsec" id="supplies">
+      <view class="gsec-head"><text class="gsec-num serif">02</text><text class="gsec-h2 serif">生活用品与常备药品</text></view>
+      <view class="gsub">接猫前照着这份清单备齐，猫咪到家就能安顿下来。</view>
+      <view class="gcard" wx:for="{{supplies}}" wx:key="title">
+        <view class="gcard-h serif"><text class="gico">{{item.ico}}</text>{{item.title}}</view>
+        <view class="gli" wx:for="{{item.items}}" wx:for-item="li" wx:key="*this">· {{li}}</view>
+      </view>
+    </view>
+
+    <!-- 03 -->
+    <view class="gsec" id="raw">
+      <view class="gsec-head"><text class="gsec-num serif">03</text><text class="gsec-h2 serif">生骨肉指南</text></view>
+      <view class="gsub">主食优先级：生骨肉＞猫饭＞罐头＞冻干＞猫粮。生骨肉推荐品牌 SIEE，猫粮推荐爱肯拿、百利；没有把握自制生骨肉的家长，建议罐头为主。以下从配方、喂食量、喂骨到选肉，一次讲全。</view>
+
+      <view class="gcard">
+        <view class="gcard-h serif"><text class="gico">✨</text>为什么喂生骨肉 · 优势</view>
+        <view class="gli" wx:for="{{advantages}}" wx:key="*this">· {{item}}</view>
+      </view>
+
+      <view class="gsubhead serif">均衡分配与配方 🥣</view>
+      <view class="gtable">
+        <view class="gtr gth"><text class="gtd">组成</text><text class="gtd">占比</text><text class="gtd wide">说明</text></view>
+        <view class="gtr" wx:for="{{ratio}}" wx:key="a">
+          <text class="gtd">{{item.a}}</text><text class="gtd">{{item.b}}</text><text class="gtd wide">{{item.c}}</text>
+        </view>
+      </view>
+
+      <view class="gcard" wx:for="{{recipes}}" wx:key="title">
+        <view class="gcard-h serif"><text class="gico">{{item.ico}}</text>{{item.title}}</view>
+        <view class="gli" wx:for="{{item.mix}}" wx:for-item="li" wx:key="*this">· {{li}}</view>
+        <view class="gcard-sub">额外添加进生骨肉</view>
+        <view class="gli" wx:for="{{item.add}}" wx:for-item="li" wx:key="*this">· {{li}}</view>
+        <view class="gcard-sub">喂食当日添加</view>
+        <view class="gli" wx:for="{{item.day}}" wx:for-item="li" wx:key="*this">· {{li}}</view>
+      </view>
+
+      <view class="gsubhead serif">喂食量与频率 ⚖️</view>
+      <view class="gsub">按月龄和体重查表即可；喂罐头/猫粮的家庭可参考包装建议量。</view>
+      <view class="gtable" wx:for="{{amounts}}" wx:key="cap">
+        <view class="gcap serif">{{item.cap}}</view>
+        <scroll-view scroll-x="true" class="gscroll">
+          <view class="gtr gth">
+            <text class="gtd fix">体重</text>
+            <text class="gtd" wx:for="{{item.w}}" wx:for-item="w" wx:key="*this">{{w}}</text>
+          </view>
+          <view class="gtr">
+            <text class="gtd fix">喂食量</text>
+            <text class="gtd" wx:for="{{item.g}}" wx:for-item="g" wx:key="*this">{{g}}</text>
+          </view>
+        </scroll-view>
+      </view>
+      <view class="gnote">肥胖猫：每日食量为体重的 2%–2.5%。</view>
+      <view class="gcard" wx:for="{{freq}}" wx:key="title">
+        <view class="gcard-h serif"><text class="gico">{{item.ico}}</text>{{item.title}}</view>
+        <view class="gli" wx:for="{{item.items}}" wx:for-item="li" wx:key="*this">· {{li}}</view>
+      </view>
+
+      <view class="gsubhead serif">喂骨参考 · 骨骼含比 🦴</view>
+      <view class="gsub">生骨肉中骨的那 7% 怎么喂？先看参考值，再按部位含骨量换算。</view>
+      <view class="gcard" wx:for="{{bone}}" wx:key="title">
+        <view class="gcard-h serif"><text class="gico">{{item.ico}}</text>{{item.title}}</view>
+        <view class="gli" wx:for="{{item.items}}" wx:for-item="li" wx:key="*this">{{li}}</view>
+      </view>
+      <view class="gtable">
+        <view class="gcap serif">常见部位骨骼含量</view>
+        <view class="gtr gth"><text class="gtd wide">部位</text><text class="gtd">含骨量</text><text class="gtd wide">部位</text><text class="gtd">含骨量</text></view>
+        <view class="gtr" wx:for="{{boneTable}}" wx:key="a">
+          <text class="gtd wide">{{item.a}}</text><text class="gtd">{{item.b}}</text>
+          <text class="gtd wide">{{item.c}}</text><text class="gtd">{{item.d}}</text>
+        </view>
+      </view>
+      <view class="gnote warn">注意：牛、羊、猪的骨骼不适合猫咪直接啃食（狗可以适量吃）。</view>
+
+      <view class="gsubhead serif">选肉渠道与常见答疑 🛒</view>
+      <view class="gcard" wx:for="{{meat}}" wx:key="title">
+        <view class="gcard-h serif"><text class="gico">{{item.ico}}</text>{{item.title}}</view>
+        <view class="gli" wx:for="{{item.items}}" wx:for-item="li" wx:key="*this">· {{li}}</view>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- outro -->
+  <view class="goutro">
+    <view class="gpaw">🐾</view>
+    <view class="gout-p serif">有空请跟猫舍分享猫咪在家的状态，我们超级期待小朋友长大。</view>
+    <view class="gout-p serif">猫咪的成长过程遇到任何疑虑，随时联系猫舍咨询，我们会协助你照顾好TA。</view>
+    <view class="wxpill" bindtap="copyWx">💬 kuenmaoshe · 点击复制微信号</view>
+    <view class="gfoot">© 2026 Shakoshako Maine Coon Cattery · Chengdu, China</view>
+  </view>
+
+</view>

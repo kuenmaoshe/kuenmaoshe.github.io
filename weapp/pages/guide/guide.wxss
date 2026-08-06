@@ -1,0 +1,99 @@
+.gpage { background: #eee9df; min-height: 100vh; }
+
+/* hero */
+.ghero {
+  background: radial-gradient(circle at 50% -10%, #26200f, #0b0b09 62%);
+  padding: 80rpx 40rpx 66rpx; text-align: center;
+}
+.gkicker { color: #c6a15b; font-size: 20rpx; letter-spacing: 8rpx; }
+.gh1 { color: #f1ede4; font-size: 58rpx; letter-spacing: 6rpx; margin: 22rpx 0 16rpx; }
+.glead { color: #b7b1a4; font-size: 25rpx; letter-spacing: 2rpx; }
+.gpaw { font-size: 34rpx; margin-top: 22rpx; }
+.wxpill {
+  display: inline-block; margin-top: 26rpx;
+  border: 1rpx solid rgba(198,161,91,.6); border-radius: 999rpx;
+  padding: 16rpx 34rpx; color: #e2c98d; font-size: 24rpx; letter-spacing: 2rpx;
+  background: rgba(198,161,91,.08);
+}
+
+/* floating toc */
+.gnav { position: sticky; top: 0; z-index: 10; padding: 0 20rpx; margin-top: -26rpx; }
+.gnav-box {
+  background: rgba(247,243,234,.97); border: 1rpx solid #d8cebc; border-radius: 14rpx;
+  box-shadow: 0 12rpx 34rpx rgba(48,36,18,.14);
+  padding: 14rpx 12rpx; display: flex; gap: 10rpx; justify-content: center; flex-wrap: wrap;
+}
+.gchip {
+  border: 1rpx solid rgba(198,161,91,.45); border-radius: 999rpx;
+  padding: 8rpx 18rpx; font-size: 22rpx; color: #8c6b31;
+}
+.gchip.on { background: #8c6b31; color: #f7f3ea; border-color: #8c6b31; }
+.gno { font-family: Georgia, serif; color: #c6a15b; margin-right: 8rpx; }
+.gchip.on .gno { color: #f7f3ea; }
+
+.gwrap { padding: 0 30rpx; }
+
+/* sections */
+.gsec { padding: 66rpx 0 10rpx; }
+.gsec-head { display: flex; align-items: baseline; gap: 20rpx; border-bottom: 1rpx solid #d8cebc; padding-bottom: 18rpx; }
+.gsec-num { color: #c6a15b; font-size: 56rpx; }
+.gsec-h2 { color: #17140f; font-size: 40rpx; letter-spacing: 3rpx; }
+.gsub { color: #655e52; font-size: 24rpx; line-height: 1.9; margin: 16rpx 0 8rpx; }
+.gsubhead {
+  color: #17140f; font-size: 32rpx; letter-spacing: 3rpx; margin: 54rpx 0 6rpx;
+  padding-left: 44rpx; position: relative;
+}
+.gsubhead::before {
+  content: ""; position: absolute; left: 0; top: 50%;
+  width: 30rpx; height: 1rpx; background: #c6a15b;
+}
+
+/* cards */
+.gcard {
+  background: #f7f3ea; border: 1rpx solid #d8cebc; border-top: 3rpx solid rgba(198,161,91,.5);
+  border-radius: 16rpx; padding: 26rpx 28rpx; margin: 20rpx 0;
+  box-shadow: 0 8rpx 26rpx rgba(48,36,18,.05);
+}
+.gcard-h {
+  color: #8c6b31; font-size: 30rpx; letter-spacing: 3rpx;
+  display: flex; align-items: center; gap: 14rpx; margin-bottom: 12rpx;
+}
+.gico {
+  width: 62rpx; height: 62rpx; border-radius: 18rpx; flex: none;
+  background: linear-gradient(145deg, rgba(198,161,91,.22), rgba(198,161,91,.1));
+  border: 1rpx solid rgba(198,161,91,.35);
+  display: flex; align-items: center; justify-content: center; font-size: 30rpx;
+}
+.gcard-sub { color: #8c6b31; font-size: 24rpx; letter-spacing: 2rpx; margin: 18rpx 0 4rpx; }
+.gli { color: #3c362c; font-size: 25rpx; line-height: 1.9; margin: 6rpx 0; }
+
+/* tables */
+.gtable { margin: 18rpx 0; }
+.gcap { color: #8c6b31; font-size: 26rpx; letter-spacing: 2rpx; margin-bottom: 10rpx; }
+.gscroll { width: 100%; white-space: nowrap; }
+.gtr { display: flex; }
+.gtr .gtd {
+  flex: 1; min-width: 120rpx; border: 1rpx solid #d8cebc; background: #f7f3ea;
+  padding: 14rpx 10rpx; font-size: 22rpx; color: #3c362c; text-align: center;
+}
+.gtr .gtd.wide { flex: 2; min-width: 200rpx; }
+.gtr .gtd.fix { flex: none; width: 120rpx; }
+.gtr.gth .gtd { background: #14110c; color: #e2c98d; }
+
+.gnote {
+  background: rgba(198,161,91,.12); border: 1rpx solid rgba(198,161,91,.4);
+  border-left: 5rpx solid #8c6b31; border-radius: 10rpx;
+  padding: 16rpx 22rpx; color: #6f5320; font-size: 23rpx; margin: 18rpx 0;
+}
+.gnote.warn {
+  background: rgba(160,70,45,.08); border-color: rgba(160,70,45,.35);
+  border-left-color: #a0462d; color: #7c3722;
+}
+
+/* outro */
+.goutro {
+  background: radial-gradient(circle at 50% 120%, #26200f, #0b0b09 65%);
+  text-align: center; padding: 80rpx 40rpx 70rpx; margin-top: 70rpx;
+}
+.gout-p { color: #e4ddcf; font-size: 28rpx; line-height: 2; margin-bottom: 16rpx; }
+.gfoot { color: #7b756a; font-size: 20rpx; letter-spacing: 2rpx; margin-top: 40rpx; }

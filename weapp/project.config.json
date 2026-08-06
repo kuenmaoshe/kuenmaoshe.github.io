@@ -1,0 +1,21 @@
+{
+  "appid": "touristappid",
+  "projectname": "shakoshako-cattery",
+  "compileType": "miniprogram",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "libVersion": "latest",
+  "srcMiniprogramRoot": "",
+  "miniprogramRoot": "",
+  "description": "Shakoshako 缅因猫舍小程序"
+}
