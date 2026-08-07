@@ -727,37 +727,36 @@ function weightField(label, row, idx) {
   var f = el("div", "field");
   f.appendChild(el("label", null, label));
   var box = el("div");
-  function parse() {
-    return String(row[idx] || "").split(/[,，]/).map(function (s) { return s.trim(); })
-      .filter(Boolean).map(function (e) {
-        var t = e.split(/\s*·\s*/);
-        return { d: (t[0] || "").trim(), v: t.slice(1).join(" · ").trim() };
-      });
-  }
-  function write(list) {
+  // 以内存里的 list 为渲染依据：空行只在写回表格时才过滤掉。
+  // 若改成每次从表格重新解析，刚点出来的空行会当场被滤掉，按钮看起来毫无反应。
+  var list = String(row[idx] || "").split(/[,，]/).map(function (s) { return s.trim(); })
+    .filter(Boolean).map(function (e) {
+      var t = e.split(/\s*·\s*/);
+      return { d: (t[0] || "").trim(), v: t.slice(1).join(" · ").trim() };
+    });
+  function commit() {
     row[idx] = list.filter(function (e) { return e.d || e.v; })
       .map(function (e) { return e.v ? e.d + " · " + e.v : e.d; }).join(",");
     touch();
   }
   function draw() {
     box.innerHTML = "";
-    var list = parse();
     list.forEach(function (e, i) {
       var line = el("div", "row2"); line.style.marginBottom = "7px";
       var d = document.createElement("input"); d.type = "date"; d.value = e.d;
       var v = document.createElement("input"); v.type = "text"; v.value = e.v; v.placeholder = "如 1.2kg";
-      d.oninput = function () { list[i].d = d.value; write(list); };
-      v.oninput = function () { list[i].v = v.value; write(list); };
+      d.oninput = function () { e.d = d.value; commit(); };
+      v.oninput = function () { e.v = v.value; commit(); };
       var right = el("div"); right.style.display = "flex"; right.style.gap = "7px";
       v.style.flex = "1"; right.appendChild(v);
       var x = el("button", "btn sm danger", "删");
-      x.onclick = function () { list.splice(i, 1); write(list); draw(); };
+      x.onclick = function () { list.splice(i, 1); commit(); draw(); };
       right.appendChild(x);
       line.appendChild(d); line.appendChild(right);
       box.appendChild(line);
     });
     var add = el("button", "btn sm", "+ 加一条记录");
-    add.onclick = function () { var l = parse(); l.push({ d: "", v: "" }); write(l); draw(); };
+    add.onclick = function () { list.push({ d: "", v: "" }); draw(); };
     box.appendChild(add);
   }
   draw();
@@ -778,6 +777,12 @@ function render(toTop) {
   else if (tab === S_SET) renderSettings(v);
   else renderHelp(v);
   window.scrollTo(0, toTop ? 0 : y);
+}
+// 新增的条目可能落在屏幕外（列表长时加在末尾），滚过去让用户看见
+function scrollToOpen() {
+  var body = document.querySelector("#view .card-body");
+  if (body && body.parentNode.scrollIntoView)
+    body.parentNode.scrollIntoView({ block: "center", behavior: "smooth" });
 }
 function renderTabs() {
   var t = $("tabs"); t.innerHTML = "";
@@ -932,7 +937,7 @@ function renderParents(v) {
   var bar = el("div", "toolbar");
   var add = el("button", "btn primary", "+ 新增种猫");
   add.onclick = function () {
-    rows.push(["", "种母", "", ""]); openRow = rows.length - 1; touch(); render();
+    rows.push(["", "种母", "", ""]); openRow = rows.length - 1; touch(); render(); scrollToOpen();
   };
   bar.appendChild(add); v.appendChild(bar);
 
@@ -981,7 +986,7 @@ function renderFeedback(v) {
   add.onclick = function () {
     var d = new Date(), p = function (n) { return ("0" + n).slice(-2); };
     rows.splice(1, 0, [d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()), "", "", ""]);
-    openRow = 1; touch(); render();
+    openRow = 1; touch(); render(); scrollToOpen();
   };
   bar.appendChild(add); v.appendChild(bar);
   v.appendChild(el("div", "note", "「小猫名字」要和小猫表里的名字一致,反馈才会出现在那只猫的侧边面板里。"));
@@ -1023,7 +1028,7 @@ function renderFaq(v) {
   var rows = state.sheets[S_FAQ];
   var bar = el("div", "toolbar");
   var add = el("button", "btn primary", "+ 新增问答");
-  add.onclick = function () { rows.push(["", ""]); openRow = rows.length - 1; touch(); render(); };
+  add.onclick = function () { rows.push(["", ""]); openRow = rows.length - 1; touch(); render(); scrollToOpen(); };
   bar.appendChild(add); v.appendChild(bar);
   for (var i = 1; i < rows.length; i++) {
     (function (i) {
