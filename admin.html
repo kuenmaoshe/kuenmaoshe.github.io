@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>猫舍后台 · Shakoshako</title>
+<link rel="icon" href="assets/favicon.svg">
+<style>
+:root{
+  --ink:#0d0c0a; --panel:#17150f; --panel2:#201d15; --line:#3a3428;
+  --gold:#c6a15b; --gold-light:#e2c98d; --paper:#f1ede4; --muted:#a49c8c;
+  --ok:#6fbf8b; --warn:#e0a960; --bad:#e07a6a;
+  --radius:12px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--ink); color:var(--paper); min-height:100vh;
+  font-family:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Segoe UI,sans-serif;
+  font-size:15px; line-height:1.6; -webkit-text-size-adjust:100%;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--gold)}
+h1,h2,h3{font-weight:600;margin:0}
+
+/* ---------- shell ---------- */
+.topbar{
+  position:sticky; top:0; z-index:40; background:rgba(13,12,10,.96);
+  border-bottom:1px solid var(--line); padding:10px 14px;
+  padding-top:calc(10px + env(safe-area-inset-top));
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:9px;margin-right:auto;min-width:0}
+.brand img{width:26px;height:26px;object-fit:contain;flex:none}
+.brand b{font-size:15px;letter-spacing:.06em;white-space:nowrap}
+.brand span{font-size:11px;color:var(--muted);letter-spacing:.2em}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding:8px 10px 0;-webkit-overflow-scrolling:touch}
+.tabs button{
+  background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);
+  padding:8px 12px;white-space:nowrap;cursor:pointer;border-radius:6px 6px 0 0;font-size:14px;
+}
+.tabs button.active{color:var(--gold-light);border-color:var(--gold);background:var(--panel)}
+.tabs button .n{font-size:11px;color:var(--muted);margin-left:4px}
+main{padding:14px;padding-bottom:calc(90px + env(safe-area-inset-bottom));max-width:940px;margin:0 auto}
+
+/* ---------- buttons ---------- */
+.btn{
+  background:var(--panel2);border:1px solid var(--line);border-radius:9px;
+  padding:8px 13px;cursor:pointer;transition:.15s;white-space:nowrap;font-size:14px;
+}
+.btn:hover:not(:disabled){border-color:var(--gold);color:var(--gold-light)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--gold);color:#1a1509;border-color:var(--gold);font-weight:600}
+.btn.primary:hover:not(:disabled){background:var(--gold-light);color:#1a1509}
+.btn.danger{color:var(--bad);border-color:#523a34}
+.btn.danger:hover:not(:disabled){background:#3a201c;border-color:var(--bad);color:#ffb4a6}
+.btn.sm{padding:5px 9px;font-size:13px;border-radius:7px}
+.btn.ghost{background:none}
+
+/* ---------- cards / forms ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+.card-head{display:flex;align-items:center;gap:11px;padding:10px 12px;cursor:pointer;user-select:none}
+.card-head:hover{background:var(--panel2)}
+.card-head .thumb{width:52px;height:52px;border-radius:9px;object-fit:cover;background:var(--panel2);flex:none}
+.card-head .meta{min-width:0;flex:1}
+.card-head .meta b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-head .meta small{color:var(--muted);font-size:12.5px}
+.card-body{padding:4px 12px 14px;border-top:1px solid var(--line)}
+.pill{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);flex:none}
+.pill.avail{color:var(--ok);border-color:#2f5a41}
+.pill.sold{color:var(--gold);border-color:#5a4a28}
+.pill.new{color:#1a1509;background:var(--gold-light);border-color:var(--gold-light);font-weight:600}
+
+.field{margin-top:13px}
+.field>label{display:block;font-size:12.5px;color:var(--muted);letter-spacing:.05em;margin-bottom:5px}
+.field .hint{font-size:11.5px;color:#7d766a;margin-top:4px;line-height:1.5}
+input[type=text],input[type=date],input[type=password],input[type=number],select,textarea{
+  width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;
+  padding:9px 11px;outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+textarea{min-height:84px;resize:vertical;line-height:1.6}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:520px){.row2{grid-template-columns:1fr}}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{
+  background:var(--panel2);border:1px solid var(--line);border-radius:999px;
+  padding:6px 14px;cursor:pointer;color:var(--muted);font-size:14px;
+}
+.seg button.on{background:var(--gold);border-color:var(--gold);color:#1a1509;font-weight:600}
+
+/* ---------- media manager ---------- */
+.media-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.media-item{position:relative;width:78px;height:78px;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:var(--panel2)}
+.media-item img,.media-item video{width:100%;height:100%;object-fit:cover;display:block}
+.media-item .badge{position:absolute;left:3px;top:3px;background:rgba(198,161,91,.92);color:#1a1509;font-size:9.5px;padding:1px 5px;border-radius:4px;font-weight:600}
+.media-item .ops{position:absolute;inset:auto 0 0 0;display:flex;background:rgba(0,0,0,.68)}
+.media-item .ops button{flex:1;background:none;border:0;color:#fff;font-size:13px;padding:3px 0;cursor:pointer;line-height:1}
+.media-item .ops button:hover{background:rgba(198,161,91,.4)}
+.media-add{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------- misc ---------- */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar input[type=text]{flex:1;min-width:150px;width:auto}
+.empty{color:var(--muted);text-align:center;padding:34px 12px;border:1px dashed var(--line);border-radius:var(--radius)}
+.savebar{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(13,12,10,.97);
+  border-top:1px solid var(--line);padding:10px 14px;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom));
+  display:flex;align-items:center;gap:10px;
+}
+.savebar .status{flex:1;min-width:0;font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.savebar.dirty{border-top-color:var(--gold)}
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:60;max-width:92vw;
+  background:var(--panel2);border:1px solid var(--gold);border-radius:10px;padding:10px 16px;
+  box-shadow:0 8px 30px rgba(0,0,0,.6);display:none;
+}
+.toast.bad{border-color:var(--bad)}
+.mask{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);max-width:720px;width:100%;max-height:88vh;display:flex;flex-direction:column}
+.modal header{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.modal .body{padding:12px 14px;overflow:auto}
+.modal footer{padding:11px 14px;border-top:1px solid var(--line);display:flex;gap:9px;justify-content:flex-end}
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.pick-grid .p{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:2px solid transparent;cursor:pointer;background:var(--panel2)}
+.pick-grid .p.on{border-color:var(--gold)}
+.pick-grid .p img,.pick-grid .p video{width:100%;height:100%;object-fit:cover}
+.pick-grid .p .k{position:absolute;right:3px;top:3px;background:var(--gold);color:#1a1509;border-radius:999px;width:17px;height:17px;font-size:11px;display:none;align-items:center;justify-content:center;font-weight:700}
+.pick-grid .p.on .k{display:flex}
+
+/* ---------- login ---------- */
+.login{max-width:430px;margin:8vh auto;padding:22px}
+.login h1{font-size:21px;letter-spacing:.05em;margin-bottom:6px}
+.login p{color:var(--muted);font-size:13.5px}
+.login .card{padding:18px;margin-top:18px}
+.note{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;padding:10px 12px;font-size:13px;color:#cdc6b7;line-height:1.7}
+.note b{color:var(--gold-light)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13.5px}
+.kv b{color:var(--muted);font-weight:400;white-space:nowrap}
+.hide{display:none !important}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+ol.steps{padding-left:20px;margin:8px 0;font-size:13.5px;color:#cdc6b7;line-height:1.85}
+ol.steps code{background:var(--panel2);padding:1px 5px;border-radius:4px;font-size:12.5px;color:var(--gold-light)}
+</style>
+</head>
+<body>
+
+<!-- ============ 登录 ============ -->
+<div id="login" class="login">
+  <h1>猫舍后台</h1>
+  <p>登录后可直接在网页里管理小猫、种猫、家长反馈和网站设置,保存即发布。</p>
+  <div class="card">
+    <div class="field">
+      <label>GitHub 访问令牌 (Personal access token)</label>
+      <input id="tok" type="password" placeholder="github_pat_… 或 ghp_…" autocomplete="current-password">
+      <div class="hint"><label style="display:inline-flex;gap:6px;align-items:center;color:#cdc6b7">
+        <input id="remember" type="checkbox" checked style="width:auto"> 在这台设备上记住(下次免输)
+      </label></div>
+    </div>
+    <div class="field"><button id="loginBtn" class="btn primary" style="width:100%">登录</button></div>
+    <div id="loginMsg" class="field hint"></div>
+  </div>
+  <details class="card" style="padding:14px">
+    <summary style="cursor:pointer;color:var(--gold-light)">还没有令牌?点这里看怎么生成</summary>
+    <ol class="steps">
+      <li>用<b>猫舍的 GitHub 账号</b>登录 github.com</li>
+      <li>打开 <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Settings → Developer settings → Fine-grained tokens → Generate new token</a></li>
+      <li>Repository access 选 <code>Only select repositories</code> → 勾上 <code>kuenmaoshe.github.io</code></li>
+      <li>Permissions → Repository permissions → <code>Contents</code> 设为 <code>Read and write</code></li>
+      <li>有效期(Expiration)按需要选,例如 1 年;生成后<b>复制那串字符</b>粘到上面</li>
+    </ol>
+    <div class="note">令牌只保存在这台设备的浏览器里,不会上传到别处。若手机丢失或令牌泄露,去 GitHub 设置里把它 Revoke 即可。</div>
+  </details>
+</div>
+
+<!-- ============ 主界面 ============ -->
+<div id="app" class="hide">
+  <div class="topbar">
+    <div class="brand">
+      <img src="assets/favicon.svg" alt="">
+      <div><b>猫舍后台</b> <span id="repoName"></span></div>
+    </div>
+    <a class="btn sm ghost" href="index.html" target="_blank" rel="noopener">看网站</a>
+    <button class="btn sm ghost" id="reloadBtn">重新载入</button>
+    <button class="btn sm ghost" id="logoutBtn">退出</button>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <main id="view"></main>
+  <div class="savebar" id="savebar">
+    <div class="status" id="status">已是最新</div>
+    <button class="btn" id="discardBtn" disabled>放弃改动</button>
+    <button class="btn primary" id="saveBtn" disabled>保存并发布</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="modalHost"></div>
+
+<script src="assets/vendor/xlsx.full.min.js"></script>
+<script>
+(function () {
+"use strict";
+
+/* ================= 仓库定位 ================= */
+var host = location.hostname || "";
+var REPO = { owner: "kuenmaoshe", repo: "kuenmaoshe.github.io", branch: "main" };
+if (/\.github\.io$/i.test(host)) {
+  REPO.owner = host.replace(/\.github\.io$/i, "");
+  var seg = location.pathname.split("/").filter(Boolean);
+  // 用户主页仓库 (owner.github.io);项目页则第一段是仓库名
+  REPO.repo = (seg.length && !/\.html?$/i.test(seg[0])) ? seg[0] : host;
+}
+var API = "https://api.github.com/repos/" + REPO.owner + "/" + REPO.repo;
+var XLSX_PATH = "data/kittens.xlsx", JSON_PATH = "data/sheets.json";
+
+/* ================= 表结构 ================= */
+var S_KITTEN = "小猫数据", S_PARENT = "种猫", S_NEWS = "新闻",
+    S_FEED = "家长反馈", S_FAQ = "常见问题", S_SET = "设置";
+var HEADERS = {};
+HEADERS[S_KITTEN] = ["花色","性别","图片路径","是否出售","生日","新家地址","爸爸","妈妈","名字","定新家日期","出发照片","打疫苗日期","血清检测日期","出发日期","体重记录"];
+HEADERS[S_PARENT] = ["名字","角色","花色","图片路径"];
+HEADERS[S_FEED]   = ["日期","小猫名字","内容","图片路径"];
+HEADERS[S_FAQ]    = ["问题","答案"];
+HEADERS[S_SET]    = ["项目","值"];
+var EDITABLE = [S_KITTEN, S_PARENT, S_FEED, S_FAQ, S_SET];
+var COLORS = ["银虎斑","棕虎斑","蓝虎斑","红虎斑","烟灰色","纯黑色","纯蓝色","凯米尔色",
+              "浅色银虎斑","银虎斑补丁","棕虎斑玳瑁","浅色烟灰色"];
+var MAX_SIDE = 1300, THUMB_SIDE = 500, TARGET_KB = 260;
+
+/* ================= 状态 ================= */
+var token = "", state = null, dirty = false, tab = S_KITTEN, kittenQuery = "", openRow = -1;
+
+var $ = function (id) { return document.getElementById(id); };
+function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+  return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+function toast(msg, bad) {
+  var t = $("toast"); t.textContent = msg; t.className = "toast" + (bad ? " bad" : "");
+  t.style.display = "block"; clearTimeout(toast._t);
+  toast._t = setTimeout(function () { t.style.display = "none"; }, bad ? 6000 : 3000);
+}
+
+/* ================= base64 ================= */
+function bytesToB64(bytes) {
+  var bin = "", chunk = 0x8000;
+  for (var i = 0; i < bytes.length; i += chunk)
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  return btoa(bin);
+}
+function b64ToBytes(b64) {
+  var bin = atob(String(b64).replace(/\s/g, "")), out = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function textToB64(str) { return bytesToB64(new TextEncoder().encode(str)); }
+
+/* ================= GitHub API ================= */
+function gh(method, path, body) {
+  return fetch(API + path, {
+    method: method,
+    headers: {
+      Authorization: "Bearer " + token,
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+      "Content-Type": "application/json"
+    },
+    body: body ? JSON.stringify(body) : undefined,
+    cache: "no-store"
+  }).then(function (res) {
+    if (res.status === 401) throw new Error("令牌无效或已过期,请重新登录");
+    if (res.status === 403) throw new Error("没有写入权限:令牌需要对本仓库开 Contents 读写");
+    if (res.status === 404) throw new Error("找不到 " + path + "(仓库名或权限不对)");
+    if (!res.ok) return res.text().then(function (t) {
+      if (/not a fast forward/i.test(t))
+        throw new Error("仓库刚刚有新的改动,请点「重新载入」后再改一次");
+      if (res.status === 422 && /too large|size/i.test(t))
+        throw new Error("文件太大,GitHub 拒收(单个文件请控制在 25MB 以内)");
+      throw new Error("GitHub " + res.status + ": " + t.slice(0, 200));
+    });
+    return res.status === 204 ? null : res.json();
+  });
+}
+
+/* ================= 载入 ================= */
+function loadAll() {
+  setStatus("载入中…", true);
+  return gh("GET", "/git/ref/heads/" + REPO.branch).then(function (ref) {
+    var head = ref.object.sha;
+    return gh("GET", "/contents/" + XLSX_PATH + "?ref=" + head).then(function (f) {
+      var bytes = f.content ? b64ToBytes(f.content)
+        : fetch(f.download_url).then(function (r) { return r.arrayBuffer(); }).then(function (b) { return new Uint8Array(b); });
+      return Promise.resolve(bytes).then(function (bs) {
+        var wb = XLSX.read(bs, { type: "array" });
+        var sheets = {};
+        wb.SheetNames.forEach(function (n) {
+          sheets[n] = XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: false, defval: "" });
+        });
+        EDITABLE.forEach(function (n) {
+          if (!sheets[n]) { sheets[n] = [HEADERS[n].slice()]; wb.SheetNames.push(n); }
+          if (!sheets[n].length) sheets[n] = [HEADERS[n].slice()];
+          var w = HEADERS[n].length;
+          sheets[n] = sheets[n].map(function (r) {
+            r = (r || []).map(function (v) { return v == null ? "" : String(v); });
+            while (r.length < w) r.push("");
+            return r;
+          });
+          // 丢掉整行空白
+          sheets[n] = [sheets[n][0]].concat(sheets[n].slice(1).filter(function (r) {
+            return r.some(function (v) { return String(v).trim() !== ""; });
+          }));
+        });
+        state = { wb: wb, sheets: sheets, head: head, uploads: [], assets: null };
+        dirty = false; openRow = -1;
+        render(); setStatus("已是最新");
+      });
+    });
+  }).catch(function (e) { setStatus("载入失败:" + e.message); toast(e.message, true); throw e; });
+}
+
+/* ================= 保存 ================= */
+function buildXlsxBytes() {
+  EDITABLE.forEach(function (n) {
+    var rows = state.sheets[n];
+    var clean = [rows[0]].concat(rows.slice(1).filter(function (r) {
+      return r.some(function (v) { return String(v).trim() !== ""; });
+    }));
+    state.wb.Sheets[n] = XLSX.utils.aoa_to_sheet(clean);
+    if (state.wb.SheetNames.indexOf(n) < 0) state.wb.SheetNames.push(n);
+  });
+  return new Uint8Array(XLSX.write(state.wb, { bookType: "xlsx", type: "array" }));
+}
+// 完全复刻 scripts/xlsx-to-json.mjs,保证 Action 重跑时 diff 为空
+function buildSheetsJson(xlsxBytes) {
+  var wb = XLSX.read(xlsxBytes, { type: "array" });
+  var out = { __first: wb.SheetNames[0] };
+  wb.SheetNames.forEach(function (n) {
+    out[n] = XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: false, defval: "" });
+  });
+  return JSON.stringify(out);
+}
+
+// 提交前提醒明显不完整的小猫（网站要求花色和图片都有才显示）
+function incompleteKittens() {
+  return state.sheets[S_KITTEN].slice(1).filter(function (r) {
+    return !String(r[0] || "").trim() || !String(r[2] || "").trim();
+  }).map(function (r) { return kittenTitle(r) || "（空白行）"; });
+}
+
+function save() {
+  if (!dirty) return;
+  var bad = incompleteKittens();
+  if (bad.length && !confirm("这些小猫缺花色或照片,保存后不会显示在网站上:\n\n· " +
+      bad.join("\n· ") + "\n\n仍要保存吗?(可以先保存,之后再补)")) return;
+  var btn = $("saveBtn"); btn.disabled = true;
+  setStatus("检查仓库状态…", true);
+
+  gh("GET", "/git/ref/heads/" + REPO.branch).then(function (ref) {
+    var head = ref.object.sha;
+    if (head !== state.head) {
+      var ok = confirm("仓库里已有别人(或自动任务)的新改动。\n\n继续保存会用你当前编辑的内容覆盖小猫数据表。\n建议先「取消」→ 点「重新载入」→ 重新修改。\n\n仍要覆盖保存吗?");
+      if (!ok) throw new Error("__abort__");
+    }
+    return gh("GET", "/git/commits/" + head).then(function (c) { return { head: head, tree: c.tree.sha }; });
+  }).then(function (base) {
+    setStatus("打包数据…", true);
+    var xlsxBytes = buildXlsxBytes();
+    var jsonStr = buildSheetsJson(xlsxBytes);
+    var files = [
+      { path: XLSX_PATH, b64: bytesToB64(xlsxBytes) },
+      { path: JSON_PATH, b64: textToB64(jsonStr) }
+    ].concat(state.uploads.map(function (u) { return { path: u.path, b64: bytesToB64(u.bytes) }; }));
+
+    var done = 0;
+    return files.reduce(function (chain, f) {
+      return chain.then(function (acc) {
+        setStatus("上传 " + (++done) + "/" + files.length + " · " + f.path, true);
+        return gh("POST", "/git/blobs", { content: f.b64, encoding: "base64" })
+          .then(function (b) { acc.push({ path: f.path, mode: "100644", type: "blob", sha: b.sha }); return acc; });
+      });
+    }, Promise.resolve([])).then(function (entries) {
+      setStatus("提交中…", true);
+      return gh("POST", "/git/trees", { base_tree: base.tree, tree: entries });
+    }).then(function (tree) {
+      var n = state.uploads.length;
+      return gh("POST", "/git/commits", {
+        message: "后台更新猫舍数据" + (n ? "(含 " + n + " 个新文件)" : ""),
+        tree: tree.sha, parents: [base.head]
+      });
+    }).then(function (commit) {
+      // GitHub 的读引用是 /git/ref/,写引用是 /git/refs/;两种都试一次以防端点差异
+      return gh("PATCH", "/git/refs/heads/" + REPO.branch, { sha: commit.sha, force: false })
+        .catch(function (e) {
+          if (!/找不到/.test(e.message)) throw e;
+          return gh("PATCH", "/git/ref/heads/" + REPO.branch, { sha: commit.sha, force: false });
+        })
+        .then(function () { return commit.sha; });
+    });
+  }).then(function (sha) {
+    state.head = sha;
+    state.uploads.forEach(function (u) { if (u.url) URL.revokeObjectURL(u.url); });
+    state.uploads = []; state.assets = null;
+    setDirty(false);
+    setStatus("已发布 · 网站约 1 分钟后更新");
+    toast("保存成功!网站约 1 分钟后自动更新");
+    render();
+  }).catch(function (e) {
+    btn.disabled = false;
+    if (e && e.message === "__abort__") { setStatus("已取消保存"); return; }
+    setStatus("保存失败:" + e.message);
+    toast("保存失败:" + e.message, true);
+  });
+}
+
+function setStatus(msg, busy) {
+  $("status").innerHTML = (busy ? '<span class="spin"></span> ' : "") + esc(msg);
+}
+function setDirty(v) {
+  dirty = v;
+  $("saveBtn").disabled = !v; $("discardBtn").disabled = !v;
+  $("savebar").className = "savebar" + (v ? " dirty" : "");
+  if (v) setStatus("有未保存的改动" + (state.uploads.length ? " · " + state.uploads.length + " 个待上传文件" : ""));
+}
+function touch() { setDirty(true); }
+
+window.addEventListener("beforeunload", function (e) {
+  if (dirty) { e.preventDefault(); e.returnValue = ""; }
+});
+
+/* ================= 图片处理 ================= */
+function loadBitmap(file) {
+  if (window.createImageBitmap) {
+    return createImageBitmap(file, { imageOrientation: "from-image" }).catch(function () { return loadViaImg(file); });
+  }
+  return loadViaImg(file);
+}
+function loadViaImg(file) {
+  return new Promise(function (res, rej) {
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function () { URL.revokeObjectURL(url); res(img); };
+    img.onerror = function () { URL.revokeObjectURL(url); rej(new Error("图片读取失败")); };
+    img.src = url;
+  });
+}
+function scaleTo(src, maxSide) {
+  var w = src.width || src.naturalWidth, h = src.height || src.naturalHeight;
+  var s = Math.min(1, maxSide / Math.max(w, h));
+  var c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(w * s)); c.height = Math.max(1, Math.round(h * s));
+  c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
+  return c;
+}
+function canvasBlob(canvas, type, q) {
+  return new Promise(function (res) { canvas.toBlob(function (b) { res(b); }, type, q); });
+}
+function blobBytes(blob) {
+  return blob.arrayBuffer().then(function (b) { return new Uint8Array(b); });
+}
+// canvas 在隐私模式/受限环境下可能返回 null 或抛异常,不能让它拖垮整个页面
+var webpOK = (function () {
+  try {
+    var c = document.createElement("canvas"); c.width = c.height = 1;
+    return String(c.toDataURL("image/webp") || "").indexOf("data:image/webp") === 0;
+  } catch (e) { return false; }
+})();
+
+function newBase() {
+  return Date.now() + "-" + Math.random().toString(36).slice(2, 12);
+}
+
+// 返回 { path } 并把待上传文件塞进 state.uploads
+function ingestFile(file) {
+  var isVideo = /^video\//.test(file.type) || /\.mp4$/i.test(file.name);
+  if (isVideo) {
+    if (file.size > 20 * 1024 * 1024) return Promise.reject(new Error("视频超过 20MB,请先压缩:" + file.name));
+    var vpath = "assets/parents/" + newBase() + ".mp4";
+    return blobBytes(file).then(function (bytes) {
+      state.uploads.push({ path: vpath, bytes: bytes, url: URL.createObjectURL(file) });
+      return vpath;
+    });
+  }
+  if (!/^image\//.test(file.type)) return Promise.reject(new Error("不支持的文件类型:" + file.name));
+
+  return loadBitmap(file).then(function (src) {
+    var base = newBase();
+    var fullCanvas = scaleTo(src, MAX_SIDE);
+    var thumbCanvas = scaleTo(src, THUMB_SIDE);
+    // 逐步降质直到体积达标
+    function encodeFull(q) {
+      return canvasBlob(fullCanvas, "image/jpeg", q).then(function (b) {
+        if (b && b.size > TARGET_KB * 1024 && q > 0.55) return encodeFull(q - 0.08);
+        return b;
+      });
+    }
+    return encodeFull(0.86).then(function (fullBlob) {
+      return canvasBlob(thumbCanvas, webpOK ? "image/webp" : "image/jpeg", 0.82).then(function (thumbBlob) {
+        if (!fullBlob || !thumbBlob)
+          throw new Error("这个浏览器压不了图(" + file.name + "),请换 Chrome / Edge / Safari 试试");
+        return Promise.all([blobBytes(fullBlob), blobBytes(thumbBlob)]).then(function (r) {
+          var path = "assets/" + base + ".jpg";
+          state.uploads.push({ path: path, bytes: r[0], url: URL.createObjectURL(fullBlob) });
+          state.uploads.push({ path: "assets/thumb/" + base + ".webp", bytes: r[1] });
+          if (src.close) src.close();
+          return path;
+        });
+      });
+    });
+  });
+}
+
+function pendingUrl(path) {
+  for (var i = 0; i < state.uploads.length; i++)
+    if (state.uploads[i].path === path && state.uploads[i].url) return state.uploads[i].url;
+  return null;
+}
+function isPending(path) { return state.uploads.some(function (u) { return u.path === path; }); }
+
+/* ================= 媒体字段编辑器 ================= */
+function mediaEditor(getVal, setVal, opts) {
+  opts = opts || {};
+  var wrap = el("div");
+  function paths() {
+    return String(getVal() || "").split(/[,，]/).map(function (s) { return s.trim(); }).filter(Boolean);
+  }
+  function write(list) { setVal(list.join(",")); touch(); draw(); }
+  function draw() {
+    wrap.innerHTML = "";
+    var list = paths();
+    var grid = el("div", "media-grid");
+    list.forEach(function (p, i) {
+      var item = el("div", "media-item");
+      var src = pendingUrl(p) || p;
+      if (/\.mp4(\?|$)/i.test(p)) {
+        var v = document.createElement("video");
+        v.src = src; v.muted = true; v.playsInline = true; v.preload = "metadata";
+        item.appendChild(v);
+      } else {
+        var img = document.createElement("img");
+        img.loading = "lazy"; img.alt = p;
+        img.onerror = function () { this.onerror = null; this.style.opacity = ".25"; };
+        img.src = src; item.appendChild(img);
+      }
+      if (i === 0) item.appendChild(el("span", "badge", "封面"));
+      else if (isPending(p)) item.appendChild(el("span", "badge", "新"));
+      var ops = el("div", "ops");
+      var left = el("button", null, "‹"); left.title = "前移";
+      left.onclick = function (e) { e.stopPropagation(); if (i > 0) { var l = paths(); var t = l[i - 1]; l[i - 1] = l[i]; l[i] = t; write(l); } };
+      var right = el("button", null, "›"); right.title = "后移";
+      right.onclick = function (e) { e.stopPropagation(); var l = paths(); if (i < l.length - 1) { var t = l[i + 1]; l[i + 1] = l[i]; l[i] = t; write(l); } };
+      var del = el("button", null, "×"); del.title = "移除";
+      del.onclick = function (e) { e.stopPropagation(); var l = paths(); l.splice(i, 1); write(l); };
+      ops.appendChild(left); ops.appendChild(right); ops.appendChild(del);
+      item.appendChild(ops);
+      grid.appendChild(item);
+    });
+    if (!list.length) grid.appendChild(el("div", "hint", "还没有照片"));
+    wrap.appendChild(grid);
+
+    var bar = el("div", "media-add");
+    var up = el("button", "btn sm", "上传照片" + (opts.video ? " / 视频" : ""));
+    var input = document.createElement("input");
+    input.type = "file"; input.accept = opts.video ? "image/*,video/mp4" : "image/*";
+    input.multiple = true; input.className = "hide";
+    up.onclick = function () { input.click(); };
+    input.onchange = function () {
+      var files = Array.prototype.slice.call(input.files || []);
+      input.value = "";
+      if (!files.length) return;
+      up.disabled = true; up.textContent = "处理中 0/" + files.length;
+      var acc = paths(), n = 0;
+      files.reduce(function (chain, f) {
+        return chain.then(function () {
+          return ingestFile(f).then(function (p) { acc.push(p); up.textContent = "处理中 " + (++n) + "/" + files.length; });
+        }).catch(function (e) { toast(e.message, true); });
+      }, Promise.resolve()).then(function () {
+        up.disabled = false; write(acc);
+        if (!webpOK) toast("此浏览器无法生成 WebP 缩略图,已用 JPEG 代替(显示正常,略大)", true);
+      });
+    };
+    bar.appendChild(up); bar.appendChild(input);
+
+    var pick = el("button", "btn sm ghost", "从已有照片选");
+    pick.onclick = function () { openPicker(paths(), function (sel) { write(sel); }); };
+    bar.appendChild(pick);
+
+    wrap.appendChild(bar);
+    wrap.appendChild(el("div", "hint", "第一张是封面;照片会自动压到 " + MAX_SIDE + "px 并生成缩略图。移除只是不再显示,仓库里的原文件不会被删。"));
+  }
+  draw();
+  return wrap;
+}
+
+/* ================= 已有素材选择器 ================= */
+function listAssets() {
+  if (state.assets) return Promise.resolve(state.assets);
+  var dirs = ["assets", "assets/parents", "assets/feedback", "assets/diary", "assets/videos"];
+  return Promise.all(dirs.map(function (d) {
+    return gh("GET", "/contents/" + d + "?ref=" + REPO.branch).catch(function () { return []; });
+  })).then(function (all) {
+    var out = [];
+    all.forEach(function (items) {
+      (items || []).forEach(function (it) {
+        if (it.type === "file" && /\.(jpe?g|png|webp|mp4)$/i.test(it.name)) out.push(it.path);
+      });
+    });
+    out.sort().reverse();
+    state.assets = out;
+    return out;
+  });
+}
+function openPicker(selected, onDone) {
+  var mask = el("div", "mask");
+  var modal = el("div", "modal");
+  var head = el("header"); head.appendChild(el("h3", null, "选择照片"));
+  var q = document.createElement("input"); q.type = "text"; q.placeholder = "搜文件名…"; q.style.maxWidth = "220px";
+  head.appendChild(q); modal.appendChild(head);
+  var body = el("div", "body"); body.innerHTML = '<div class="hint"><span class="spin"></span> 读取仓库图片…</div>';
+  modal.appendChild(body);
+  var foot = el("footer");
+  var cancel = el("button", "btn", "取消"), ok = el("button", "btn primary", "确定");
+  foot.appendChild(cancel); foot.appendChild(ok); modal.appendChild(foot);
+  mask.appendChild(modal); $("modalHost").appendChild(mask);
+
+  var sel = selected.slice();
+  function close() { $("modalHost").innerHTML = ""; }
+  cancel.onclick = close;
+  mask.onclick = function (e) { if (e.target === mask) close(); };
+  ok.onclick = function () { close(); onDone(sel); };
+
+  listAssets().then(function (files) {
+    function draw() {
+      var kw = q.value.trim().toLowerCase();
+      body.innerHTML = "";
+      var hits = files.filter(function (p) { return !kw || p.toLowerCase().indexOf(kw) > -1; });
+      var LIMIT = 400;
+      if (hits.length > LIMIT)
+        body.appendChild(el("div", "hint", "共 " + hits.length + " 个文件,先显示最新的 " + LIMIT + " 个;要找更早的请用上面的搜索框。"));
+      var grid = el("div", "pick-grid");
+      hits.slice(0, LIMIT).forEach(function (p) {
+          var d = el("div", "p" + (sel.indexOf(p) > -1 ? " on" : ""));
+          if (/\.mp4$/i.test(p)) { var v = document.createElement("video"); v.src = p; v.muted = true; v.preload = "metadata"; d.appendChild(v); }
+          else { var i = document.createElement("img"); i.loading = "lazy"; i.src = p; d.appendChild(i); }
+          var k = el("div", "k", String(sel.indexOf(p) + 1)); d.appendChild(k);
+          d.onclick = function () {
+            var at = sel.indexOf(p);
+            if (at > -1) sel.splice(at, 1); else sel.push(p);
+            draw();
+          };
+          grid.appendChild(d);
+        });
+      if (!grid.children.length) body.appendChild(el("div", "empty", "没有匹配的文件"));
+      else body.appendChild(grid);
+    }
+    q.oninput = draw; draw();
+  }).catch(function (e) { body.innerHTML = '<div class="empty">' + esc(e.message) + "</div>"; });
+}
+
+/* ================= 通用字段控件 ================= */
+function textField(label, row, idx, hint, type, listId) {
+  var f = el("div", "field");
+  f.appendChild(el("label", null, label));
+  var i = document.createElement("input");
+  i.type = type || "text"; i.value = row[idx] || "";
+  if (listId) i.setAttribute("list", listId);
+  i.oninput = function () { row[idx] = i.value; touch(); };
+  f.appendChild(i);
+  if (hint) f.appendChild(el("div", "hint", hint));
+  return f;
+}
+function areaField(label, row, idx, hint) {
+  var f = el("div", "field");
+  f.appendChild(el("label", null, label));
+  var t = document.createElement("textarea");
+  t.value = row[idx] || "";
+  t.oninput = function () { row[idx] = t.value; touch(); };
+  f.appendChild(t);
+  if (hint) f.appendChild(el("div", "hint", hint));
+  return f;
+}
+function segField(label, row, idx, options, hint, onChange) {
+  var f = el("div", "field");
+  f.appendChild(el("label", null, label));
+  var box = el("div", "seg");
+  options.forEach(function (o) {
+    var b = el("button", (String(row[idx] || "") === o.v ? "on" : ""), o.t);
+    b.onclick = function () {
+      row[idx] = o.v; touch();
+      Array.prototype.forEach.call(box.children, function (c) { c.className = ""; });
+      b.className = "on";
+      if (onChange) onChange();
+    };
+    box.appendChild(b);
+  });
+  f.appendChild(box);
+  if (hint) f.appendChild(el("div", "hint", hint));
+  return f;
+}
+function selectField(label, row, idx, values, hint) {
+  var f = el("div", "field");
+  f.appendChild(el("label", null, label));
+  var s = document.createElement("select");
+  var opts = [""].concat(values);
+  if (row[idx] && opts.indexOf(row[idx]) < 0) opts.push(row[idx]);
+  opts.forEach(function (v) {
+    var o = document.createElement("option"); o.value = v; o.textContent = v || "（不填）";
+    if (String(row[idx] || "") === v) o.selected = true;
+    s.appendChild(o);
+  });
+  s.onchange = function () { row[idx] = s.value; touch(); };
+  f.appendChild(s);
+  if (hint) f.appendChild(el("div", "hint", hint));
+  return f;
+}
+function mediaField(label, row, idx, hint, opts) {
+  var f = el("div", "field");
+  f.appendChild(el("label", null, label));
+  f.appendChild(mediaEditor(function () { return row[idx]; },
+                            function (v) { row[idx] = v; }, opts));
+  if (hint) f.appendChild(el("div", "hint", hint));
+  return f;
+}
+// 体重记录:「日期 · 描述」若干条,逗号分隔
+function weightField(label, row, idx) {
+  var f = el("div", "field");
+  f.appendChild(el("label", null, label));
+  var box = el("div");
+  function parse() {
+    return String(row[idx] || "").split(/[,，]/).map(function (s) { return s.trim(); })
+      .filter(Boolean).map(function (e) {
+        var t = e.split(/\s*·\s*/);
+        return { d: (t[0] || "").trim(), v: t.slice(1).join(" · ").trim() };
+      });
+  }
+  function write(list) {
+    row[idx] = list.filter(function (e) { return e.d || e.v; })
+      .map(function (e) { return e.v ? e.d + " · " + e.v : e.d; }).join(",");
+    touch();
+  }
+  function draw() {
+    box.innerHTML = "";
+    var list = parse();
+    list.forEach(function (e, i) {
+      var line = el("div", "row2"); line.style.marginBottom = "7px";
+      var d = document.createElement("input"); d.type = "date"; d.value = e.d;
+      var v = document.createElement("input"); v.type = "text"; v.value = e.v; v.placeholder = "如 1.2kg";
+      d.oninput = function () { list[i].d = d.value; write(list); };
+      v.oninput = function () { list[i].v = v.value; write(list); };
+      var right = el("div"); right.style.display = "flex"; right.style.gap = "7px";
+      v.style.flex = "1"; right.appendChild(v);
+      var x = el("button", "btn sm danger", "删");
+      x.onclick = function () { list.splice(i, 1); write(list); draw(); };
+      right.appendChild(x);
+      line.appendChild(d); line.appendChild(right);
+      box.appendChild(line);
+    });
+    var add = el("button", "btn sm", "+ 加一条记录");
+    add.onclick = function () { var l = parse(); l.push({ d: "", v: "" }); write(l); draw(); };
+    box.appendChild(add);
+  }
+  draw();
+  f.appendChild(box);
+  f.appendChild(el("div", "hint", "显示在已安家小猫的「小猫日记 · 成长记录」里"));
+  return f;
+}
+
+/* ================= 渲染 ================= */
+function render(toTop) {
+  var y = window.scrollY;
+  renderTabs();
+  var v = $("view"); v.innerHTML = "";
+  if (tab === S_KITTEN) renderKittens(v);
+  else if (tab === S_PARENT) renderParents(v);
+  else if (tab === S_FEED) renderFeedback(v);
+  else if (tab === S_FAQ) renderFaq(v);
+  else if (tab === S_SET) renderSettings(v);
+  else renderHelp(v);
+  window.scrollTo(0, toTop ? 0 : y);
+}
+function renderTabs() {
+  var t = $("tabs"); t.innerHTML = "";
+  [[S_KITTEN, "小猫"], [S_PARENT, "种猫"], [S_FEED, "家长反馈"], [S_FAQ, "常见问题"], [S_SET, "设置"], ["帮助", "帮助"]]
+    .forEach(function (p) {
+      var b = el("button", tab === p[0] ? "active" : "");
+      b.appendChild(document.createTextNode(p[1]));
+      if (state.sheets[p[0]]) {
+        var n = el("span", "n", String(Math.max(0, state.sheets[p[0]].length - 1)));
+        b.appendChild(n);
+      }
+      b.onclick = function () { tab = p[0]; openRow = -1; render(true); };
+      t.appendChild(b);
+    });
+}
+
+function monthsOld(birth) {
+  var m = String(birth || "").match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+  if (!m) return null;
+  var b = new Date(+m[1], +m[2] - 1, +m[3]), now = new Date();
+  var mo = (now.getFullYear() - b.getFullYear()) * 12 + now.getMonth() - b.getMonth();
+  if (now.getDate() < b.getDate()) mo--;
+  return Math.max(0, mo);
+}
+function kittenTitle(r) {
+  return (r[8] || "").trim() || ((r[0] || "") + (r[1] || ""));
+}
+
+function renderKittens(v) {
+  var rows = state.sheets[S_KITTEN];
+  var parents = state.sheets[S_PARENT].slice(1);
+  var dads = parents.filter(function (p) { return (p[1] || "").indexOf("公") > -1; }).map(function (p) { return p[0]; });
+  var moms = parents.filter(function (p) { return (p[1] || "").indexOf("母") > -1; }).map(function (p) { return p[0]; });
+
+  var dl = document.createElement("datalist"); dl.id = "colorList";
+  COLORS.forEach(function (c) { var o = document.createElement("option"); o.value = c; dl.appendChild(o); });
+  v.appendChild(dl);
+
+  var bar = el("div", "toolbar");
+  var q = document.createElement("input"); q.type = "text"; q.placeholder = "搜花色 / 名字 / 新家…"; q.value = kittenQuery;
+  q.oninput = function () { kittenQuery = q.value; drawList(); };
+  bar.appendChild(q);
+  var add = el("button", "btn primary", "+ 新增小猫");
+  add.onclick = function () {
+    var r = HEADERS[S_KITTEN].map(function () { return ""; });
+    r[1] = "妹妹"; r[3] = "否";
+    rows.splice(1, 0, r);
+    kittenQuery = ""; openRow = 1; touch(); render(true);
+  };
+  bar.appendChild(add);
+  v.appendChild(bar);
+
+  var list = el("div");
+  v.appendChild(list);
+
+  function drawList() {
+    list.innerHTML = "";
+    var kw = kittenQuery.trim().toLowerCase();
+    var shown = 0;
+    for (var i = 1; i < rows.length; i++) {
+      (function (i) {
+        var r = rows[i];
+        if (kw && r.join(" ").toLowerCase().indexOf(kw) < 0) return;
+        shown++;
+        var card = el("div", "card");
+        var head = el("div", "card-head");
+        var img = document.createElement("img"); img.className = "thumb"; img.loading = "lazy"; img.alt = "";
+        var first = String(r[2] || "").split(/[,，]/)[0].trim();
+        if (first) img.src = pendingUrl(first) || first;
+        img.onerror = function () { this.onerror = null; this.style.opacity = ".2"; };
+        head.appendChild(img);
+        var meta = el("div", "meta");
+        meta.appendChild(el("b", null, kittenTitle(r) || "（未填）"));
+        var mo = monthsOld(r[4]);
+        var bits = [];
+        if (r[8]) bits.push((r[0] || "") + (r[1] || ""));
+        if (mo != null) bits.push(mo + " 个月");
+        if (r[5]) bits.push("→ " + r[5]);
+        if (String(r[2] || "").trim()) bits.push(String(r[2]).split(/[,，]/).filter(Boolean).length + " 张图");
+        else bits.push("⚠ 缺图片,网站不会显示");
+        meta.appendChild(el("small", null, bits.join(" · ")));
+        head.appendChild(meta);
+        var pill = el("span", "pill");
+        function paintPill() {
+          var sold = ["是", "预定", "已预订", "已预定"].indexOf(String(r[3] || "").trim()) > -1;
+          pill.className = "pill " + (sold ? "sold" : "avail");
+          pill.textContent = sold ? "已安家" : "可预订";
+        }
+        paintPill();
+        head.appendChild(pill);
+        head.onclick = function () { openRow = (openRow === i ? -1 : i); drawList(); };
+        card.appendChild(head);
+
+        if (openRow === i) {
+          var b = el("div", "card-body");
+          var g1 = el("div", "row2");
+          g1.appendChild(textField("花色", r, 0, "如 银虎斑、浅色烟灰色", "text", "colorList"));
+          g1.appendChild(segField("性别", r, 1, [{ v: "弟弟", t: "弟弟" }, { v: "妹妹", t: "妹妹" }]));
+          b.appendChild(g1);
+          b.appendChild(textField("名字（可选）", r, 8, "填了以后卡片标题显示名字,花色性别变小字"));
+          b.appendChild(segField("是否出售", r, 3, [{ v: "否", t: "可预订" }, { v: "是", t: "已安家" }], null, paintPill));
+          var g2 = el("div", "row2");
+          g2.appendChild(textField("生日", r, 4, "网站按生日自动算月龄", "date"));
+          g2.appendChild(textField("新家地址", r, 5, "如 北京 / 荷兰,会在地图打点"));
+          b.appendChild(g2);
+          var g3 = el("div", "row2");
+          g3.appendChild(selectField("爸爸", r, 6, dads, "来自「种猫」表"));
+          g3.appendChild(selectField("妈妈", r, 7, moms, "来自「种猫」表"));
+          b.appendChild(g3);
+          b.appendChild(mediaField("照片", r, 2, null, {}));
+
+          var det = document.createElement("details");
+          det.style.marginTop = "16px";
+          var sum = document.createElement("summary");
+          sum.style.cssText = "cursor:pointer;color:var(--gold-light);padding:6px 0";
+          sum.textContent = "小猫日记（已安家的猫才显示在网站上）";
+          det.appendChild(sum);
+          var dd = el("div");
+          var g4 = el("div", "row2");
+          g4.appendChild(textField("定新家日期", r, 9, null, "date"));
+          g4.appendChild(textField("打疫苗日期", r, 11, null, "date"));
+          dd.appendChild(g4);
+          var g5 = el("div", "row2");
+          g5.appendChild(textField("血清检测日期", r, 12, null, "date"));
+          g5.appendChild(textField("出发日期", r, 13, "填未来的日期会显示「预计出发」", "date"));
+          dd.appendChild(g5);
+          dd.appendChild(weightField("体重记录", r, 14));
+          dd.appendChild(mediaField("出发照片", r, 10, null, {}));
+          det.appendChild(dd);
+          b.appendChild(det);
+
+          var ops = el("div", "field");
+          var del = el("button", "btn danger", "删除这只小猫");
+          del.onclick = function () {
+            if (!confirm("确定从网站移除「" + (kittenTitle(r) || "这只猫") + "」?\n(照片文件仍留在仓库里)")) return;
+            rows.splice(i, 1); openRow = -1; touch(); render();
+          };
+          ops.appendChild(del);
+          b.appendChild(ops);
+          card.appendChild(b);
+        }
+        list.appendChild(card);
+      })(i);
+    }
+    if (!shown) list.appendChild(el("div", "empty", kittenQuery ? "没有匹配的小猫" : "还没有小猫,点右上角「新增小猫」"));
+  }
+  drawList();
+}
+
+function renderParents(v) {
+  var rows = state.sheets[S_PARENT];
+  var bar = el("div", "toolbar");
+  var add = el("button", "btn primary", "+ 新增种猫");
+  add.onclick = function () {
+    rows.push(["", "种母", "", ""]); openRow = rows.length - 1; touch(); render();
+  };
+  bar.appendChild(add); v.appendChild(bar);
+
+  for (var i = 1; i < rows.length; i++) {
+    (function (i) {
+      var r = rows[i], card = el("div", "card"), head = el("div", "card-head");
+      var img = document.createElement("img"); img.className = "thumb"; img.loading = "lazy"; img.alt = "";
+      var first = String(r[3] || "").split(/[,，]/)[0].trim();
+      if (first && !/\.mp4$/i.test(first)) img.src = pendingUrl(first) || first;
+      img.onerror = function () { this.onerror = null; this.style.opacity = ".2"; };
+      head.appendChild(img);
+      var meta = el("div", "meta");
+      meta.appendChild(el("b", null, r[0] || "（未命名）"));
+      meta.appendChild(el("small", null, [r[1], r[2]].filter(Boolean).join(" · ")));
+      head.appendChild(meta);
+      head.appendChild(el("span", "pill", r[1] || "?"));
+      head.onclick = function () { openRow = (openRow === i ? -1 : i); render(); };
+      card.appendChild(head);
+      if (openRow === i) {
+        var b = el("div", "card-body");
+        var g = el("div", "row2");
+        g.appendChild(textField("名字", r, 0));
+        g.appendChild(segField("角色", r, 1, [{ v: "种公", t: "种公" }, { v: "种母", t: "种母" }]));
+        b.appendChild(g);
+        b.appendChild(textField("花色", r, 2, null, "text", "colorList"));
+        b.appendChild(mediaField("照片 / 视频", r, 3, "mp4 视频会在卡片上自动循环播放", { video: true }));
+        var del = el("button", "btn danger", "删除这只种猫");
+        del.onclick = function () {
+          if (!confirm("确定删除种猫「" + (r[0] || "") + "」?小猫表里填了它的爸妈字段需要一并改。")) return;
+          rows.splice(i, 1); openRow = -1; touch(); render();
+        };
+        var f = el("div", "field"); f.appendChild(del); b.appendChild(f);
+        card.appendChild(b);
+      }
+      v.appendChild(card);
+    })(i);
+  }
+  if (rows.length <= 1) v.appendChild(el("div", "empty", "还没有种猫"));
+}
+
+function renderFeedback(v) {
+  var rows = state.sheets[S_FEED];
+  var names = state.sheets[S_KITTEN].slice(1).map(function (r) { return (r[8] || "").trim(); }).filter(Boolean);
+  var bar = el("div", "toolbar");
+  var add = el("button", "btn primary", "+ 新增反馈");
+  add.onclick = function () {
+    var d = new Date(), p = function (n) { return ("0" + n).slice(-2); };
+    rows.splice(1, 0, [d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()), "", "", ""]);
+    openRow = 1; touch(); render();
+  };
+  bar.appendChild(add); v.appendChild(bar);
+  v.appendChild(el("div", "note", "「小猫名字」要和小猫表里的名字一致,反馈才会出现在那只猫的侧边面板里。"));
+
+  for (var i = 1; i < rows.length; i++) {
+    (function (i) {
+      var r = rows[i], card = el("div", "card"), head = el("div", "card-head");
+      var img = document.createElement("img"); img.className = "thumb"; img.loading = "lazy"; img.alt = "";
+      var first = String(r[3] || "").split(/[,，]/)[0].trim();
+      if (first) img.src = pendingUrl(first) || first;
+      img.onerror = function () { this.onerror = null; this.style.opacity = ".2"; };
+      head.appendChild(img);
+      var meta = el("div", "meta");
+      meta.appendChild(el("b", null, (r[1] || "（未指定小猫）") + " · " + (r[0] || "")));
+      meta.appendChild(el("small", null, String(r[2] || "").slice(0, 46)));
+      head.appendChild(meta);
+      head.onclick = function () { openRow = (openRow === i ? -1 : i); render(); };
+      card.appendChild(head);
+      if (openRow === i) {
+        var b = el("div", "card-body");
+        var g = el("div", "row2");
+        g.appendChild(textField("日期", r, 0, null, "date"));
+        g.appendChild(selectField("小猫名字", r, 1, names, "只列出小猫表里填了名字的猫"));
+        b.appendChild(g);
+        b.appendChild(areaField("内容", r, 2));
+        b.appendChild(mediaField("照片", r, 3, null, {}));
+        var del = el("button", "btn danger", "删除这条反馈");
+        del.onclick = function () { if (confirm("删除这条家长反馈?")) { rows.splice(i, 1); openRow = -1; touch(); render(); } };
+        var f = el("div", "field"); f.appendChild(del); b.appendChild(f);
+        card.appendChild(b);
+      }
+      v.appendChild(card);
+    })(i);
+  }
+  if (rows.length <= 1) v.appendChild(el("div", "empty", "还没有家长反馈"));
+}
+
+function renderFaq(v) {
+  var rows = state.sheets[S_FAQ];
+  var bar = el("div", "toolbar");
+  var add = el("button", "btn primary", "+ 新增问答");
+  add.onclick = function () { rows.push(["", ""]); openRow = rows.length - 1; touch(); render(); };
+  bar.appendChild(add); v.appendChild(bar);
+  for (var i = 1; i < rows.length; i++) {
+    (function (i) {
+      var r = rows[i], card = el("div", "card"), head = el("div", "card-head");
+      var meta = el("div", "meta");
+      meta.appendChild(el("b", null, r[0] || "（未填问题）"));
+      meta.appendChild(el("small", null, String(r[1] || "").slice(0, 52)));
+      head.appendChild(meta);
+      var up = el("button", "btn sm ghost", "↑");
+      up.onclick = function (e) { e.stopPropagation(); if (i > 1) { var t = rows[i - 1]; rows[i - 1] = rows[i]; rows[i] = t; openRow = -1; touch(); render(); } };
+      head.appendChild(up);
+      head.onclick = function () { openRow = (openRow === i ? -1 : i); render(); };
+      card.appendChild(head);
+      if (openRow === i) {
+        var b = el("div", "card-body");
+        b.appendChild(textField("问题", r, 0));
+        b.appendChild(areaField("答案", r, 1));
+        var del = el("button", "btn danger", "删除");
+        del.onclick = function () { if (confirm("删除这条问答?")) { rows.splice(i, 1); openRow = -1; touch(); render(); } };
+        var f = el("div", "field"); f.appendChild(del); b.appendChild(f);
+        card.appendChild(b);
+      }
+      v.appendChild(card);
+    })(i);
+  }
+  if (rows.length <= 1) v.appendChild(el("div", "empty", "还没有常见问题"));
+}
+
+function renderSettings(v) {
+  var rows = state.sheets[S_SET];
+  var HINTS = {
+    "成立日期": "如 2022 或 2022-06,显示在「关于我们」的统计里",
+    "新家礼包": "顿号分隔的物品清单,显示在购买流程下方",
+    "访客地区": "顿号分隔的国家/省份,地图会点亮对应位置(国家已由每日任务自动更新,这里主要填省份)"
+  };
+  var card = el("div", "card"); var b = el("div", "card-body");
+  for (var i = 1; i < rows.length; i++) {
+    (function (i) {
+      var r = rows[i];
+      var f = el("div", "field");
+      f.appendChild(el("label", null, r[0] || "（未命名项目）"));
+      var t = document.createElement("textarea"); t.style.minHeight = "56px"; t.value = r[1] || "";
+      t.oninput = function () { r[1] = t.value; touch(); };
+      f.appendChild(t);
+      if (HINTS[r[0]]) f.appendChild(el("div", "hint", HINTS[r[0]]));
+      b.appendChild(f);
+    })(i);
+  }
+  card.appendChild(b); v.appendChild(card);
+
+  var vis = el("div", "card"); var vb = el("div", "card-body");
+  vb.appendChild(el("h3", null, "自动任务"));
+  vb.appendChild(el("div", "hint", "访客国家每天自动抓取一次并更新地图;Excel 一改动,网站数据会自动重建。这两件事不需要手动做。"));
+  vis.appendChild(vb); v.appendChild(vis);
+}
+
+function renderHelp(v) {
+  var c = el("div", "card"); var b = el("div", "card-body");
+  b.innerHTML =
+    "<h3 style='margin:10px 0'>这个后台是怎么工作的</h3>" +
+    "<div class='hint' style='font-size:13.5px;line-height:1.9'>" +
+    "你在这里的每次「保存并发布」,等于替你完成了原来的手工流程:改 <code>data/kittens.xlsx</code>、生成 <code>data/sheets.json</code>、上传新照片和缩略图,一次性提交到 GitHub。网站约 1 分钟后自动更新。" +
+    "</div>" +
+    "<h3 style='margin:20px 0 10px'>几条要记住的</h3>" +
+    "<div class='hint' style='font-size:13.5px;line-height:1.9'>" +
+    "· 照片上传时会自动压到 " + MAX_SIDE + "px 并生成 500px 缩略图,不用自己压缩。<br>" +
+    "· 删掉一只猫/一张图,只是网站不再显示,原文件仍在仓库里,可以从「从已有照片选」找回。<br>" +
+    "· 别人(或另一台设备)同时改了仓库,保存时会提示,建议先「重新载入」再改。<br>" +
+    "· Excel 仍然可以照常下载修改上传,两种方式改的是同一份数据。<br>" +
+    "· 令牌过期后需要在 GitHub 重新生成一个,再回来登录。" +
+    "</div>" +
+    "<h3 style='margin:20px 0 10px'>当前连接</h3>" +
+    "<div class='kv' style='margin-top:6px'><b>仓库</b><span>" + esc(REPO.owner + "/" + REPO.repo) + "</span>" +
+    "<b>分支</b><span>" + esc(REPO.branch) + "</span>" +
+    "<b>版本</b><span style='font-family:monospace;font-size:12px'>" + esc(state.head.slice(0, 10)) + "</span></div>";
+  c.appendChild(b); v.appendChild(c);
+}
+
+/* ================= 登录流程 ================= */
+function storeToken(t, remember) {
+  try {
+    if (remember) localStorage.setItem("kms_admin_token", t);
+    else sessionStorage.setItem("kms_admin_token", t);
+  } catch (e) {}
+}
+function readToken() {
+  try { return localStorage.getItem("kms_admin_token") || sessionStorage.getItem("kms_admin_token") || ""; }
+  catch (e) { return ""; }
+}
+function clearToken() {
+  try { localStorage.removeItem("kms_admin_token"); sessionStorage.removeItem("kms_admin_token"); } catch (e) {}
+}
+
+function enterApp() {
+  $("login").className = "hide";
+  $("app").className = "";
+  $("repoName").textContent = REPO.owner + "/" + REPO.repo;
+  return loadAll().catch(function () {});
+}
+
+function doLogin(t, remember, silent) {
+  token = t;
+  $("loginMsg").innerHTML = '<span class="spin"></span> 验证中…';
+  return gh("GET", "").then(function (info) {
+    if (info.permissions && info.permissions.push === false)
+      throw new Error("这个令牌没有写权限,请给它 Contents: Read and write");
+    storeToken(t, remember);
+    $("loginMsg").textContent = "";
+    return enterApp();
+  }).catch(function (e) {
+    token = "";
+    if (!silent) $("loginMsg").innerHTML = '<span style="color:var(--bad)">' + esc(e.message) + "</span>";
+    else $("loginMsg").textContent = "";
+    throw e;
+  });
+}
+
+$("loginBtn").onclick = function () {
+  var t = $("tok").value.trim();
+  if (!t) { $("loginMsg").innerHTML = '<span style="color:var(--bad)">请先粘贴令牌</span>'; return; }
+  $("loginBtn").disabled = true;
+  doLogin(t, $("remember").checked, false).catch(function () {}).then(function () { $("loginBtn").disabled = false; });
+};
+$("tok").addEventListener("keydown", function (e) { if (e.key === "Enter") $("loginBtn").click(); });
+
+$("logoutBtn").onclick = function () {
+  if (dirty && !confirm("有未保存的改动,确定退出?")) return;
+  clearToken(); location.reload();
+};
+$("reloadBtn").onclick = function () {
+  if (dirty && !confirm("有未保存的改动,重新载入会丢掉它们,继续?")) return;
+  state.uploads.forEach(function (u) { if (u.url) URL.revokeObjectURL(u.url); });
+  loadAll().catch(function () {});
+};
+$("discardBtn").onclick = function () {
+  if (!confirm("放弃所有未保存的改动?")) return;
+  state.uploads.forEach(function (u) { if (u.url) URL.revokeObjectURL(u.url); });
+  loadAll().catch(function () {});
+};
+$("saveBtn").onclick = save;
+
+/* 自动登录 */
+var saved = readToken();
+if (saved) {
+  $("loginMsg").innerHTML = '<span class="spin"></span> 正在用已保存的令牌登录…';
+  doLogin(saved, true, true).catch(function () {
+    clearToken();
+    $("loginMsg").innerHTML = '<span style="color:var(--warn)">保存的令牌已失效,请重新粘贴</span>';
+  });
+}
+})();
+</script>
+</body>
+</html>
