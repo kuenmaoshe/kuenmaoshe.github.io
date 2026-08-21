@@ -1216,12 +1216,14 @@ function renderStats(v) {
   });
   b.appendChild(grid);
 
-  function barSection(title, pairs, note) {
+  function barSection(title, pairs, note, cap) {
     b.appendChild(el("div", "stat-sec", title));
     if (!pairs.length) { b.appendChild(el("div", "hint", "暂无数据")); return; }
-    var max = pairs[0][1];
-    pairs.forEach(function (p2) { if (p2[1] > max) max = p2[1]; });
-    pairs.forEach(function (p2) {
+    var shown = pairs, rest = [];
+    if (cap && pairs.length > cap) { shown = pairs.slice(0, cap); rest = pairs.slice(cap); }
+    var max = shown[0][1];
+    shown.forEach(function (p2) { if (p2[1] > max) max = p2[1]; });
+    shown.forEach(function (p2) {
       var row = el("div", "bar-row");
       row.appendChild(el("span", "lbl", p2[0]));
       var bar = el("span", "bar");
@@ -1230,6 +1232,11 @@ function renderStats(v) {
       row.appendChild(el("span", "val", String(p2[1])));
       b.appendChild(row);
     });
+    if (rest.length) {
+      var m = 0; rest.forEach(function (p2) { m += p2[1]; });
+      b.appendChild(el("div", "hint", "其余 " + rest.length + " 项共 " + m + " 只:" +
+        rest.map(function (p2) { return p2[0] + (p2[1] > 1 ? "×" + p2[1] : ""); }).join("、")));
+    }
     if (note) b.appendChild(el("div", "hint", note));
   }
 
@@ -1237,14 +1244,14 @@ function renderStats(v) {
   barSection("月度成交（按定新家/出发日期）", mKeys.map(function (k) { return [k, monthly[k]]; }),
     unknownDate ? "另有 " + unknownDate + " 只已安家的猫未填日期,未计入上图" : null);
 
-  function topCount(list, keyFn, n) {
+  function topCount(list, keyFn) {
     var m = {};
     list.forEach(function (r) { var k = String(keyFn(r) || "").trim(); if (k) m[k] = (m[k] || 0) + 1; });
     return Object.keys(m).map(function (k) { return [k, m[k]]; })
-      .sort(function (a, b2) { return b2[1] - a[1]; }).slice(0, n);
+      .sort(function (a, b2) { return b2[1] - a[1]; });
   }
-  barSection("热门花色（已安家）", topCount(sold, function (r) { return r[0]; }, 10), null);
-  barSection("新家地区", topCount(sold, function (r) { return r[5]; }, 10), null);
+  barSection("热门花色（已安家）", topCount(sold, function (r) { return r[0]; }), null, 12);
+  barSection("新家地区", topCount(sold, function (r) { return r[5]; }), null, 12);
 
   var st = {};
   rows.forEach(function (r) { var k = String(r[15] || "").trim(); if (k) st[k] = (st[k] || 0) + 1; });
