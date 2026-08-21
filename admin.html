@@ -1051,7 +1051,7 @@ function renderKittens(v) {
     var sep = el("span"); sep.style.cssText = "width:6px"; fbar.appendChild(sep);
   }
   chips([["全部", ""], ["待出售", "avail"], ["已安家", "sold"]], "status");
-  chips([["弟弟", "弟弟"], ["妹妹", "妹妹"]], "gender");
+  chips([["全部", ""], ["弟弟", "弟弟"], ["妹妹", "妹妹"]], "gender");
   function dropdown(key, label, values) {
     var sel = document.createElement("select");
     sel.style.cssText = "max-width:170px";
