@@ -251,6 +251,7 @@ var MAX_SIDE = 1300, THUMB_SIDE = 500, TARGET_KB = 260;
 
 /* ================= 状态 ================= */
 var token = "", state = null, dirty = false, tab = S_KITTEN, kittenQuery = "", openRow = -1;
+var kittenFilter = { status: "", gender: "", color: "", birth: "" };
 
 var $ = function (id) { return document.getElementById(id); };
 function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
@@ -1032,10 +1033,55 @@ function renderKittens(v) {
     var r = HEADERS[S_KITTEN].map(function () { return ""; });
     r[1] = "妹妹"; r[3] = "否";
     rows.splice(1, 0, r);
-    kittenQuery = ""; openRow = 1; touch(); render(true);
+    kittenQuery = ""; kittenFilter = { status: "", gender: "", color: "", birth: "" };
+    openRow = 1; touch(); render(true);
   };
   bar.appendChild(add);
   v.appendChild(bar);
+
+  // 筛选条:状态 / 性别 chips + 花色 / 生日 下拉
+  var fbar = el("div");
+  fbar.style.cssText = "display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:-2px 0 12px";
+  function chips(defs, key) {
+    defs.forEach(function (o) {
+      var b = el("button", "btn sm" + (kittenFilter[key] === o[1] ? " primary" : ""), o[0]);
+      b.onclick = function () { kittenFilter[key] = o[1]; render(); };
+      fbar.appendChild(b);
+    });
+    var sep = el("span"); sep.style.cssText = "width:6px"; fbar.appendChild(sep);
+  }
+  chips([["全部", ""], ["待出售", "avail"], ["已安家", "sold"]], "status");
+  chips([["弟弟", "弟弟"], ["妹妹", "妹妹"]], "gender");
+  function dropdown(key, label, values) {
+    var sel = document.createElement("select");
+    sel.style.cssText = "max-width:170px";
+    var o0 = document.createElement("option"); o0.value = ""; o0.textContent = label; sel.appendChild(o0);
+    values.forEach(function (vv) {
+      var o = document.createElement("option"); o.value = vv[0]; o.textContent = vv[0] + " · " + vv[1] + "只";
+      if (kittenFilter[key] === vv[0]) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.onchange = function () { kittenFilter[key] = sel.value; render(); };
+    fbar.appendChild(sel);
+  }
+  function distinct(idx, sortByCount) {
+    var m = {};
+    rows.slice(1).forEach(function (r) { var k = String(r[idx] || "").trim(); if (k) m[k] = (m[k] || 0) + 1; });
+    var out = Object.keys(m).map(function (k) { return [k, m[k]]; });
+    out.sort(sortByCount ? function (a, b) { return b[1] - a[1]; } : function (a, b) { return a[0] < b[0] ? 1 : -1; });
+    return out;
+  }
+  dropdown("color", "全部花色", distinct(0, true));
+  dropdown("birth", "全部生日", distinct(4, false));
+  if (kittenFilter.status || kittenFilter.gender || kittenFilter.color || kittenFilter.birth) {
+    var clr = el("button", "btn sm ghost", "✕ 清除筛选");
+    clr.onclick = function () { kittenFilter = { status: "", gender: "", color: "", birth: "" }; render(); };
+    fbar.appendChild(clr);
+  }
+  var cnt = el("span");
+  cnt.style.cssText = "margin-left:auto;color:var(--muted);font-size:13px";
+  fbar.appendChild(cnt);
+  v.appendChild(fbar);
 
   var list = el("div");
   v.appendChild(list);
@@ -1048,6 +1094,11 @@ function renderKittens(v) {
       (function (i) {
         var r = rows[i];
         if (kw && r.join(" ").toLowerCase().indexOf(kw) < 0) return;
+        if (kittenFilter.status === "avail" && isSoldRow(r)) return;
+        if (kittenFilter.status === "sold" && !isSoldRow(r)) return;
+        if (kittenFilter.gender && String(r[1] || "").trim() !== kittenFilter.gender) return;
+        if (kittenFilter.color && String(r[0] || "").trim() !== kittenFilter.color) return;
+        if (kittenFilter.birth && String(r[4] || "").trim() !== kittenFilter.birth) return;
         shown++;
         var card = el("div", "card");
         var head = el("div", "card-head");
@@ -1113,7 +1164,8 @@ function renderKittens(v) {
         list.appendChild(card);
       })(i);
     }
-    if (!shown) list.appendChild(el("div", "empty", kittenQuery ? "没有匹配的小猫" : "还没有小猫,点右上角「新增小猫」"));
+    cnt.textContent = "显示 " + shown + " / " + (rows.length - 1) + " 只";
+    if (!shown) list.appendChild(el("div", "empty", (kittenQuery || kittenFilter.status || kittenFilter.gender || kittenFilter.color || kittenFilter.birth) ? "没有匹配的小猫,试试清除筛选" : "还没有小猫,点右上角「新增小猫」"));
   }
   drawList();
 }
@@ -1342,7 +1394,9 @@ function renderTodos(v) {
     };
     item.appendChild(ig);
     item.onclick = function () {
-      tab = S_KITTEN; kittenQuery = ""; openRow = td.row;
+      tab = S_KITTEN; kittenQuery = "";
+      kittenFilter = { status: "", gender: "", color: "", birth: "" };
+      openRow = td.row;
       render(true); scrollToOpen();
     };
     v.appendChild(item);
