@@ -889,8 +889,8 @@ function renderKittens(v) {
         if (mo != null) bits.push(mo + " 个月");
         if (r[5]) bits.push("→ " + r[5]);
         if (String(r[2] || "").trim()) bits.push(String(r[2]).split(/[,，]/).filter(Boolean).length + " 张图");
-        if (String(r[15] || "").trim()) bits.push("〔" + r[15] + "〕");
         else bits.push("⚠ 缺图片,网站不会显示");
+        if (String(r[15] || "").trim()) bits.push("〔" + r[15] + "〕");
         meta.appendChild(el("small", null, bits.join(" · ")));
         head.appendChild(meta);
         var pill = el("span", "pill");
