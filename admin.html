@@ -1152,6 +1152,18 @@ function renderTodos(v) {
     var ok = el("div", "empty", "✅ 一切正常,暂时没有需要处理的事项");
     ok.style.fontSize = "16px";
     v.appendChild(ok);
+  } else {
+    var bar = el("div", "toolbar");
+    bar.style.justifyContent = "flex-end";
+    var igAll = el("button", "btn sm", "全部忽略（" + todos.length + " 条）");
+    igAll.onclick = function () {
+      var list = readIgnoredTodos();
+      todos.forEach(function (td) { if (list.indexOf(td.key) < 0) list.push(td.key); });
+      writeIgnoredTodos(list);
+      render();
+    };
+    bar.appendChild(igAll);
+    v.appendChild(bar);
   }
   var dots = ["todo-red", "todo-yellow", "todo-gray"];
   todos.forEach(function (td) {
