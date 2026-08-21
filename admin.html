@@ -238,7 +238,7 @@ var XLSX_PATH = "data/kittens.xlsx", JSON_PATH = "data/sheets.json";
 var S_KITTEN = "小猫数据", S_PARENT = "种猫", S_NEWS = "新闻",
     S_FEED = "家长反馈", S_FAQ = "常见问题", S_SET = "设置";
 var HEADERS = {};
-HEADERS[S_KITTEN] = ["花色","性别","图片路径","是否出售","生日","新家地址","爸爸","妈妈","名字","定新家日期","出发照片","打疫苗日期","血清检测日期","出发日期","体重记录","交易阶段"];
+HEADERS[S_KITTEN] = ["花色","性别","图片路径","是否出售","生日","新家地址","爸爸","妈妈","名字","定新家日期","出发照片","打疫苗日期","血清检测日期","出发日期","体重记录","交易阶段","价格","描述","展示描述"];
 var STAGES = ["咨询中","已付定金","已付尾款","已接猫"];
 HEADERS[S_PARENT] = ["名字","角色","花色","图片路径"];
 HEADERS[S_FEED]   = ["日期","小猫名字","内容","图片路径"];
@@ -1050,7 +1050,7 @@ function renderKittens(v) {
   var add = el("button", "btn primary", "+ 新增小猫");
   add.onclick = function () {
     var r = HEADERS[S_KITTEN].map(function () { return ""; });
-    r[1] = "妹妹"; r[3] = "否";
+    r[1] = "妹妹"; r[3] = "否"; r[18] = "否";
     rows.splice(1, 0, r);
     kittenQuery = ""; kittenFilter = { status: "", gender: "", color: "", birth: "", home: "" };
     openRow = 1; touch(); render(true);
@@ -1138,6 +1138,7 @@ function renderKittens(v) {
         if (String(r[2] || "").trim()) bits.push(String(r[2]).split(/[,，]/).filter(Boolean).length + " 张图");
         else bits.push("⚠ 缺图片,网站不会显示");
         if (String(r[15] || "").trim()) bits.push("〔" + r[15] + "〕");
+        if (String(r[16] || "").trim()) bits.push("\u00a5" + r[16]);
         meta.appendChild(el("small", null, bits.join(" · ")));
         head.appendChild(meta);
         var pill = el("span", "pill");
@@ -1160,6 +1161,9 @@ function renderKittens(v) {
           b.appendChild(textField("名字（可选）", r, 8, "填了以后卡片标题显示名字,花色性别变小字"));
           b.appendChild(segField("是否出售", r, 3, [{ v: "否", t: "待出售" }, { v: "是", t: "已安家" }], null, paintPill));
           b.appendChild(selectField("交易阶段（可选）", r, 15, STAGES, "记录这只猫走到哪一步了,只在后台和统计里用,网站不显示"));
+          b.appendChild(textField("价格（仅后台可见）", r, 16, "网站页面不会显示;如 12000 或 12000-15000"));
+          b.appendChild(areaField("描述", r, 17, "对这只猫的介绍,可换行"));
+          b.appendChild(segField("描述是否在网站展示", r, 18, [{ v: "否", t: "不展示" }, { v: "是", t: "展示" }], "展示时会出现在小猫侧边面板的名字下方"));
           var g2 = el("div", "row2");
           g2.appendChild(textField("生日", r, 4, "网站按生日自动算月龄", "date"));
           g2.appendChild(textField("新家地址", r, 5, "如 北京 / 荷兰,会在地图打点"));
