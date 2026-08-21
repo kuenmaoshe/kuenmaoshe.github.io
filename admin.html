@@ -834,7 +834,6 @@ function diaryField(r) {
   var dd = el("div"); det.appendChild(dd);
 
   var SINGLE = [
-    { name: "定下新家", idx: 9 },
     { name: "出发", idx: 13, imgsIdx: 10, hint: "填未来的日期会显示「预计出发」" }
   ];
   var REPEAT = ["打疫苗", "血清检测", "驱虫", "体检"];
@@ -977,7 +976,7 @@ function diaryField(r) {
       var o = document.createElement("option"); o.value = t; dl.appendChild(o);
     });
     dd.appendChild(dl);
-    dd.appendChild(el("div", "hint", "每条记录:事项名 · 日期 · 描述 · 图片(均可改)。事项名随便填(输入框有常用建议),同名可以加多条,如打疫苗第一针、第二针;定下新家和出发各一条。"));
+    dd.appendChild(el("div", "hint", "每条记录:事项名 · 日期 · 描述 · 图片(均可改)。事项名随便填(输入框有常用建议),同名可以加多条,如打疫苗第一针、第二针;出发一条(带出发照片)。新家日期在上方「出售信息」里填。"));
   }
   draw();
   return det;
@@ -1155,25 +1154,33 @@ function renderKittens(v) {
 
         if (openRow === i) {
           var b = el("div", "card-body");
+          b.appendChild(el("div", "stat-sec", "基础信息"));
           var g1 = el("div", "row2");
           g1.appendChild(textField("花色", r, 0, "如 银虎斑、浅色烟灰色", "text", "colorList"));
           g1.appendChild(segField("性别", r, 1, [{ v: "弟弟", t: "弟弟" }, { v: "妹妹", t: "妹妹" }]));
           b.appendChild(g1);
-          b.appendChild(textField("名字（可选）", r, 8, "填了以后卡片标题显示名字,花色性别变小字"));
-          b.appendChild(segField("是否出售", r, 3, [{ v: "否", t: "待出售" }, { v: "是", t: "已安家" }], null, paintPill));
-          b.appendChild(selectField("交易阶段（可选）", r, 15, STAGES, "记录这只猫走到哪一步了,只在后台和统计里用,网站不显示"));
-          b.appendChild(textField("价格（仅后台可见）", r, 16, "如 12000 或 12000-15000。网站页面不会显示;但本站是公开仓库+纯静态,价格会存在公开的数据文件里,懂技术的访客翻源数据仍能看到,请酌情填写"));
-          b.appendChild(areaField("描述", r, 17, "对这只猫的介绍,可换行"));
-          b.appendChild(segField("描述是否在网站展示", r, 18, [{ v: "否", t: "不展示" }, { v: "是", t: "展示" }], "展示时会出现在小猫侧边面板的名字下方"));
           var g2 = el("div", "row2");
+          g2.appendChild(textField("名字（可选）", r, 8, "填了以后卡片标题显示名字,花色性别变小字"));
           g2.appendChild(textField("生日", r, 4, "网站按生日自动算月龄", "date"));
-          g2.appendChild(textField("新家地址", r, 5, "如 北京 / 荷兰,会在地图打点"));
           b.appendChild(g2);
           var g3 = el("div", "row2");
           g3.appendChild(selectField("爸爸", r, 6, dads, "来自「种猫」表"));
           g3.appendChild(selectField("妈妈", r, 7, moms, "来自「种猫」表"));
           b.appendChild(g3);
           b.appendChild(mediaField("照片", r, 2, null, { tag: "小猫照片" }));
+          b.appendChild(areaField("描述", r, 17, "对这只猫的介绍,可换行"));
+          b.appendChild(segField("描述是否在网站展示", r, 18, [{ v: "否", t: "不展示" }, { v: "是", t: "展示" }], "展示时会出现在小猫侧边面板的名字下方"));
+
+          b.appendChild(el("div", "stat-sec", "出售信息"));
+          b.appendChild(segField("是否出售", r, 3, [{ v: "否", t: "待出售" }, { v: "是", t: "已安家" }], null, paintPill));
+          var g4 = el("div", "row2");
+          g4.appendChild(textField("新家日期", r, 9, "定下新家的日期,网站日记显示「定下新家」", "date"));
+          g4.appendChild(textField("新家地址", r, 5, "如 北京 / 荷兰,会在地图打点"));
+          b.appendChild(g4);
+          var g5 = el("div", "row2");
+          g5.appendChild(selectField("交易阶段", r, 15, STAGES, "只在后台和统计里用,网站不显示"));
+          g5.appendChild(textField("价格（仅后台可见）", r, 16, "网站页面不显示;但数据文件是公开的,翻源数据能看到,请酌情填写"));
+          b.appendChild(g5);
 
           b.appendChild(diaryField(r));
 
