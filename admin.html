@@ -42,6 +42,24 @@ h1,h2,h3{font-weight:600;margin:0}
 }
 .tabs button.active{color:var(--gold-light);border-color:var(--gold);background:var(--panel)}
 .tabs button .n{font-size:11px;color:var(--muted);margin-left:4px}
+.tabs button .n.hot{color:#1a1509;background:var(--warn);border-radius:8px;padding:0 6px;font-weight:600}
+/* ---------- 待办 / 统计 ---------- */
+.todo-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:var(--panel);cursor:pointer;transition:.15s}
+.todo-item:hover{border-color:var(--gold)}
+.todo-dot{width:9px;height:9px;border-radius:50%;flex:none;margin-top:7px}
+.todo-red{background:var(--bad)}.todo-yellow{background:var(--warn)}.todo-gray{background:var(--muted)}
+.todo-item b{font-weight:600}
+.todo-item small{display:block;color:var(--muted)}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:6px}
+.stat-tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}
+.stat-tile b{font-size:24px;color:var(--gold-light);display:block;line-height:1.3}
+.stat-tile span{font-size:12px;color:var(--muted)}
+.stat-sec{margin:20px 0 8px;color:var(--gold-light);font-size:15px;font-weight:600}
+.bar-row{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:13px}
+.bar-row .lbl{width:96px;flex:none;text-align:right;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-row .bar{height:15px;background:linear-gradient(90deg,#8c6b31,var(--gold));border-radius:4px;min-width:3px;flex:none}
+.bar-row .val{color:var(--gold-light)}
+
 main{padding:14px;padding-bottom:calc(90px + env(safe-area-inset-bottom));max-width:940px;margin:0 auto}
 
 /* ---------- buttons ---------- */
@@ -220,7 +238,8 @@ var XLSX_PATH = "data/kittens.xlsx", JSON_PATH = "data/sheets.json";
 var S_KITTEN = "小猫数据", S_PARENT = "种猫", S_NEWS = "新闻",
     S_FEED = "家长反馈", S_FAQ = "常见问题", S_SET = "设置";
 var HEADERS = {};
-HEADERS[S_KITTEN] = ["花色","性别","图片路径","是否出售","生日","新家地址","爸爸","妈妈","名字","定新家日期","出发照片","打疫苗日期","血清检测日期","出发日期","体重记录"];
+HEADERS[S_KITTEN] = ["花色","性别","图片路径","是否出售","生日","新家地址","爸爸","妈妈","名字","定新家日期","出发照片","打疫苗日期","血清检测日期","出发日期","体重记录","交易阶段"];
+var STAGES = ["咨询中","已付定金","已付尾款","已接猫"];
 HEADERS[S_PARENT] = ["名字","角色","花色","图片路径"];
 HEADERS[S_FEED]   = ["日期","小猫名字","内容","图片路径"];
 HEADERS[S_FAQ]    = ["问题","答案"];
@@ -231,7 +250,7 @@ var COLORS = ["银虎斑","棕虎斑","蓝虎斑","红虎斑","烟灰色","纯�
 var MAX_SIDE = 1300, THUMB_SIDE = 500, TARGET_KB = 260;
 
 /* ================= 状态 ================= */
-var token = "", state = null, dirty = false, tab = S_KITTEN, kittenQuery = "", openRow = -1;
+var token = "", state = null, dirty = false, tab = "待办", kittenQuery = "", openRow = -1;
 
 var $ = function (id) { return document.getElementById(id); };
 function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
@@ -308,6 +327,9 @@ function loadAll() {
             while (r.length < w) r.push("");
             return r;
           });
+          // 新增列(如 交易阶段)自动补表头
+          for (var ci = 0; ci < w; ci++)
+            if (!String(sheets[n][0][ci] || "").trim()) sheets[n][0][ci] = HEADERS[n][ci];
           // 丢掉整行空白
           sheets[n] = [sheets[n][0]].concat(sheets[n].slice(1).filter(function (r) {
             return r.some(function (v) { return String(v).trim() !== ""; });
@@ -770,7 +792,9 @@ function render(toTop) {
   var y = window.scrollY;
   renderTabs();
   var v = $("view"); v.innerHTML = "";
-  if (tab === S_KITTEN) renderKittens(v);
+  if (tab === "待办") renderTodos(v);
+  else if (tab === "统计") renderStats(v);
+  else if (tab === S_KITTEN) renderKittens(v);
   else if (tab === S_PARENT) renderParents(v);
   else if (tab === S_FEED) renderFeedback(v);
   else if (tab === S_FAQ) renderFaq(v);
@@ -786,11 +810,14 @@ function scrollToOpen() {
 }
 function renderTabs() {
   var t = $("tabs"); t.innerHTML = "";
-  [[S_KITTEN, "小猫"], [S_PARENT, "种猫"], [S_FEED, "家长反馈"], [S_FAQ, "常见问题"], [S_SET, "设置"], ["帮助", "帮助"]]
+  [["待办", "待办"], [S_KITTEN, "小猫"], [S_PARENT, "种猫"], [S_FEED, "家长反馈"], [S_FAQ, "常见问题"], [S_SET, "设置"], ["统计", "统计"], ["帮助", "帮助"]]
     .forEach(function (p) {
       var b = el("button", tab === p[0] ? "active" : "");
       b.appendChild(document.createTextNode(p[1]));
-      if (state.sheets[p[0]]) {
+      if (p[0] === "待办") {
+        var todos = computeTodos();
+        if (todos.length) b.appendChild(el("span", "n hot", String(todos.length)));
+      } else if (state.sheets[p[0]]) {
         var n = el("span", "n", String(Math.max(0, state.sheets[p[0]].length - 1)));
         b.appendChild(n);
       }
@@ -862,6 +889,7 @@ function renderKittens(v) {
         if (mo != null) bits.push(mo + " 个月");
         if (r[5]) bits.push("→ " + r[5]);
         if (String(r[2] || "").trim()) bits.push(String(r[2]).split(/[,，]/).filter(Boolean).length + " 张图");
+        if (String(r[15] || "").trim()) bits.push("〔" + r[15] + "〕");
         else bits.push("⚠ 缺图片,网站不会显示");
         meta.appendChild(el("small", null, bits.join(" · ")));
         head.appendChild(meta);
@@ -869,7 +897,7 @@ function renderKittens(v) {
         function paintPill() {
           var sold = ["是", "预定", "已预订", "已预定"].indexOf(String(r[3] || "").trim()) > -1;
           pill.className = "pill " + (sold ? "sold" : "avail");
-          pill.textContent = sold ? "已安家" : "可预订";
+          pill.textContent = sold ? "已安家" : "待出售";
         }
         paintPill();
         head.appendChild(pill);
@@ -883,7 +911,8 @@ function renderKittens(v) {
           g1.appendChild(segField("性别", r, 1, [{ v: "弟弟", t: "弟弟" }, { v: "妹妹", t: "妹妹" }]));
           b.appendChild(g1);
           b.appendChild(textField("名字（可选）", r, 8, "填了以后卡片标题显示名字,花色性别变小字"));
-          b.appendChild(segField("是否出售", r, 3, [{ v: "否", t: "可预订" }, { v: "是", t: "已安家" }], null, paintPill));
+          b.appendChild(segField("是否出售", r, 3, [{ v: "否", t: "待出售" }, { v: "是", t: "已安家" }], null, paintPill));
+          b.appendChild(selectField("交易阶段（可选）", r, 15, STAGES, "记录这只猫走到哪一步了,只在后台和统计里用,网站不显示"));
           var g2 = el("div", "row2");
           g2.appendChild(textField("生日", r, 4, "网站按生日自动算月龄", "date"));
           g2.appendChild(textField("新家地址", r, 5, "如 北京 / 荷兰,会在地图打点"));
@@ -1055,6 +1084,144 @@ function renderFaq(v) {
     })(i);
   }
   if (rows.length <= 1) v.appendChild(el("div", "empty", "还没有常见问题"));
+}
+
+/* ================= 待办 ================= */
+function parseYmd(v) {
+  var m = String(v || "").match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+}
+function daysFromToday(d) {
+  var t = new Date(); t.setHours(0, 0, 0, 0);
+  return Math.round((d - t) / 864e5);
+}
+function isSoldRow(r) {
+  return ["是", "预定", "已预订", "已预定"].indexOf(String(r[3] || "").trim()) > -1;
+}
+// 从小猫数据自动算出的待办事项,打开后台即可看到,无需维护
+function computeTodos() {
+  if (!state) return [];
+  var out = [];
+  var rows = state.sheets[S_KITTEN];
+  for (var i = 1; i < rows.length; i++) {
+    var r = rows[i], name = kittenTitle(r) || "第 " + i + " 行的小猫";
+    var sold = isSoldRow(r);
+    if (!String(r[0] || "").trim() || !String(r[2] || "").trim())
+      out.push({ lv: 0, row: i, t: name + " 缺花色或照片", d: "网站不会显示这只猫,补全后才会出现" });
+    var dep = parseYmd(r[13]);
+    if (dep) {
+      var dd = daysFromToday(dep);
+      if (dd >= 0 && dd <= 14) {
+        out.push({ lv: 0, row: i, t: name + (dd === 0 ? " 今天出发" : " " + dd + " 天后出发"), d: "准备新家礼包、疫苗本和运输安排" });
+        if (!String(r[12] || "").trim())
+          out.push({ lv: 1, row: i, t: name + " 出发在即,血清检测日期未填", d: "如出境需要血清检测,请确认并补填" });
+      }
+    }
+    if (!sold) {
+      var mo = monthsOld(r[4]);
+      if (mo != null && mo >= 2 && !String(r[11] || "").trim())
+        out.push({ lv: 1, row: i, t: name + " 该安排疫苗了", d: "已 " + mo + " 个月,还没填打疫苗日期" });
+      if (!String(r[4] || "").trim())
+        out.push({ lv: 2, row: i, t: name + " 缺生日", d: "网站不会显示它的月龄" });
+    } else {
+      if (!String(r[5] || "").trim())
+        out.push({ lv: 2, row: i, t: name + " 缺新家地址", d: "足迹地图不会为它打点" });
+      if (String(r[15] || "").trim() === "已付定金" && !String(r[9] || "").trim())
+        out.push({ lv: 2, row: i, t: name + " 已付定金,可填「定新家日期」", d: "网站的小猫日记会显示这一步" });
+    }
+  }
+  out.sort(function (a, b) { return a.lv - b.lv; });
+  return out;
+}
+function renderTodos(v) {
+  var todos = computeTodos();
+  v.appendChild(el("div", "note", "以下事项每次打开后台时从小猫数据自动算出,处理完对应数据后自动消失。点击条目直达那只猫的编辑页。"));
+  if (!todos.length) {
+    var ok = el("div", "empty", "✅ 一切正常,暂时没有需要处理的事项");
+    ok.style.fontSize = "16px";
+    v.appendChild(ok);
+    return;
+  }
+  var dots = ["todo-red", "todo-yellow", "todo-gray"];
+  todos.forEach(function (td) {
+    var item = el("div", "todo-item");
+    item.appendChild(el("span", "todo-dot " + dots[td.lv]));
+    var m = el("div");
+    m.appendChild(el("b", null, td.t));
+    m.appendChild(el("small", null, td.d));
+    item.appendChild(m);
+    item.onclick = function () {
+      tab = S_KITTEN; kittenQuery = ""; openRow = td.row;
+      render(true); scrollToOpen();
+    };
+    v.appendChild(item);
+  });
+}
+
+/* ================= 统计 ================= */
+function renderStats(v) {
+  var rows = state.sheets[S_KITTEN].slice(1);
+  var sold = rows.filter(isSoldRow);
+  var avail = rows.filter(function (r) { return !isSoldRow(r); });
+  var now = new Date();
+  var curKey = now.getFullYear() + "-" + ("0" + (now.getMonth() + 1)).slice(-2);
+  function dealMonth(r) {
+    var d = parseYmd(r[9]) || parseYmd(r[13]);
+    return d ? d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) : null;
+  }
+  var monthly = {}, unknownDate = 0;
+  sold.forEach(function (r) {
+    var k = dealMonth(r);
+    if (k) monthly[k] = (monthly[k] || 0) + 1; else unknownDate++;
+  });
+
+  var card = el("div", "card"), b = el("div", "card-body");
+  var grid = el("div", "stat-grid");
+  [[String(avail.length), "待出售"], [String(sold.length), "已安家"],
+   [String(monthly[curKey] || 0), "本月成交"], [String(rows.length), "合计"]].forEach(function (t) {
+    var tile = el("div", "stat-tile");
+    tile.appendChild(el("b", null, t[0]));
+    tile.appendChild(el("span", null, t[1]));
+    grid.appendChild(tile);
+  });
+  b.appendChild(grid);
+
+  function barSection(title, pairs, note) {
+    b.appendChild(el("div", "stat-sec", title));
+    if (!pairs.length) { b.appendChild(el("div", "hint", "暂无数据")); return; }
+    var max = pairs[0][1];
+    pairs.forEach(function (p2) { if (p2[1] > max) max = p2[1]; });
+    pairs.forEach(function (p2) {
+      var row = el("div", "bar-row");
+      row.appendChild(el("span", "lbl", p2[0]));
+      var bar = el("span", "bar");
+      bar.style.width = Math.max(3, Math.round(p2[1] / max * 55)) + "%";
+      row.appendChild(bar);
+      row.appendChild(el("span", "val", String(p2[1])));
+      b.appendChild(row);
+    });
+    if (note) b.appendChild(el("div", "hint", note));
+  }
+
+  var mKeys = Object.keys(monthly).sort().slice(-12);
+  barSection("月度成交（按定新家/出发日期）", mKeys.map(function (k) { return [k, monthly[k]]; }),
+    unknownDate ? "另有 " + unknownDate + " 只已安家的猫未填日期,未计入上图" : null);
+
+  function topCount(list, keyFn, n) {
+    var m = {};
+    list.forEach(function (r) { var k = String(keyFn(r) || "").trim(); if (k) m[k] = (m[k] || 0) + 1; });
+    return Object.keys(m).map(function (k) { return [k, m[k]]; })
+      .sort(function (a, b2) { return b2[1] - a[1]; }).slice(0, n);
+  }
+  barSection("热门花色（已安家）", topCount(sold, function (r) { return r[0]; }, 10), null);
+  barSection("新家地区", topCount(sold, function (r) { return r[5]; }, 10), null);
+
+  var st = {};
+  rows.forEach(function (r) { var k = String(r[15] || "").trim(); if (k) st[k] = (st[k] || 0) + 1; });
+  var stPairs = STAGES.filter(function (k) { return st[k]; }).map(function (k) { return [k, st[k]]; });
+  if (stPairs.length) barSection("交易阶段分布", stPairs, null);
+
+  card.appendChild(b); v.appendChild(card);
 }
 
 function renderSettings(v) {
