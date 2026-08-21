@@ -1161,7 +1161,7 @@ function renderKittens(v) {
           b.appendChild(textField("名字（可选）", r, 8, "填了以后卡片标题显示名字,花色性别变小字"));
           b.appendChild(segField("是否出售", r, 3, [{ v: "否", t: "待出售" }, { v: "是", t: "已安家" }], null, paintPill));
           b.appendChild(selectField("交易阶段（可选）", r, 15, STAGES, "记录这只猫走到哪一步了,只在后台和统计里用,网站不显示"));
-          b.appendChild(textField("价格（仅后台可见）", r, 16, "网站页面不会显示;如 12000 或 12000-15000"));
+          b.appendChild(textField("价格（仅后台可见）", r, 16, "如 12000 或 12000-15000。网站页面不会显示;但本站是公开仓库+纯静态,价格会存在公开的数据文件里,懂技术的访客翻源数据仍能看到,请酌情填写"));
           b.appendChild(areaField("描述", r, 17, "对这只猫的介绍,可换行"));
           b.appendChild(segField("描述是否在网站展示", r, 18, [{ v: "否", t: "不展示" }, { v: "是", t: "展示" }], "展示时会出现在小猫侧边面板的名字下方"));
           var g2 = el("div", "row2");
