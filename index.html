@@ -1189,15 +1189,29 @@ window.addEventListener("error", function (e) {
       if (parentsHtml) pages.push({ k: 1, html: dpage(false, "\ud83d\udc3e", "\u7238\u7238\u5988\u5988", "", "", parentsHtml, true) });
       pages.push({ k: dkey(r.reserve) || 2, html: dpage(false, "\ud83c\udfe1", "\u5b9a\u4e0b\u65b0\u5bb6",
         esc(r.reserve || ""), r.home ? esc(r.home) : "\u4e0e\u65b0\u5bb6\u5ead\u7ed3\u7f18\u5566", "", false) });
-      if (r.vac) pages.push({ k: dkey(r.vac) || 3, html: dpage(false, "\ud83d\udc89", "\u6253\u75ab\u82d7", esc(r.vac), "", "", false) });
-      if (r.weights && r.weights.length) {
-        var gEntries = r.weights.map(function (entry) {
-          var toks = String(entry).split(/\s*\u00b7\s*/).map(function (t) { return t.trim(); }).filter(Boolean);
-          var media = toks.filter(function (t) { return t.indexOf("assets/") === 0; });
-          var dTok = toks.filter(function (t) { return t.indexOf("assets/") !== 0 && dkey(t); })[0] || "";
-          var texts = toks.filter(function (t) { return t.indexOf("assets/") !== 0 && t !== dTok; });
-          return { d: dTok, texts: texts, media: media };
-        });
+      // 体重记录列已扩展为通用日记事项:条目里第一个文字段若是已知事项名,则单独成页
+      var EVT_ICON = { "打疫苗": "\ud83d\udc89", "血清检测": "\ud83e\uddea", "驱虫": "\ud83d\udc8a", "体检": "\ud83e\ude7a" };
+      var gAll = (r.weights || []).map(function (entry) {
+        var toks = String(entry).split(/\s*\u00b7\s*/).map(function (t) { return t.trim(); }).filter(Boolean);
+        var media = toks.filter(function (t) { return t.indexOf("assets/") === 0; });
+        var dTok = toks.filter(function (t) { return t.indexOf("assets/") !== 0 && dkey(t); })[0] || "";
+        var texts = toks.filter(function (t) { return t.indexOf("assets/") !== 0 && t !== dTok; });
+        return { d: dTok, texts: texts, media: media };
+      });
+      var typedEvents = [], gEntries = [];
+      gAll.forEach(function (e) {
+        var t0 = e.texts[0];
+        if (t0 && EVT_ICON[t0]) typedEvents.push({ type: t0, d: e.d, texts: e.texts.slice(1), media: e.media });
+        else gEntries.push(e);
+      });
+      typedEvents.forEach(function (e) {
+        var body = e.media.length ? '<div class="diary-photo" data-media="' + esc(e.media.join("|")) + '" data-title="' + esc(name) + '">' + mediaTag(e.media[0], "shk-drawer-media") + "</div>" : "";
+        pages.push({ k: dkey(e.d) || 3, html: dpage(false, EVT_ICON[e.type], e.type, esc(e.d), e.texts.map(esc).join(" \u00b7 "), body, !!body) });
+      });
+      var hasTypedVac = typedEvents.some(function (e) { return e.type === "打疫苗" && e.d === r.vac; });
+      var hasTypedSero = typedEvents.some(function (e) { return e.type === "血清检测" && e.d === r.sero; });
+      if (r.vac && !hasTypedVac) pages.push({ k: dkey(r.vac) || 3, html: dpage(false, "\ud83d\udc89", "\u6253\u75ab\u82d7", esc(r.vac), "", "", false) });
+      if (gEntries.length) {
         var gk = gEntries.map(function (e) { return dkey(e.d); }).filter(Boolean).sort()[0] || 4;
         var gMedia = gEntries.some(function (e) { return e.media.length; });
         if (gMedia || gEntries.length > 1) {
@@ -1213,7 +1227,7 @@ window.addEventListener("error", function (e) {
           pages.push({ k: gk, html: dpage(false, "\u2696\ufe0f", "\u6210\u957f\u8bb0\u5f55", esc(e0.d), e0.texts.map(esc).join(" \u00b7 "), "", false) });
         }
       }
-      if (r.sero) pages.push({ k: dkey(r.sero) || 5, html: dpage(false, "\ud83e\uddea", "\u8840\u6e05\u68c0\u6d4b", esc(r.sero), "", "", false) });
+      if (r.sero && !hasTypedSero) pages.push({ k: dkey(r.sero) || 5, html: dpage(false, "\ud83e\uddea", "\u8840\u6e05\u68c0\u6d4b", esc(r.sero), "", "", false) });
       var dd = parseBirth(r.departDate);
       var isFuture = dd ? new Date(dd.y, dd.m - 1, dd.d) > new Date() : !!r.departDate;
       var depTitle = isFuture ? "\u9884\u8ba1\u51fa\u53d1" : "\u51fa\u53d1";

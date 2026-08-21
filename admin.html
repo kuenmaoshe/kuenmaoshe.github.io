@@ -494,7 +494,8 @@ function newBase() {
 }
 
 // 返回 { path } 并把待上传文件塞进 state.uploads
-function ingestFile(file) {
+function ingestFile(file, folder) {
+  folder = folder || "";
   var isVideo = /^video\//.test(file.type) || /\.mp4$/i.test(file.name);
   if (isVideo) {
     if (file.size > 20 * 1024 * 1024) return Promise.reject(new Error("视频超过 20MB,请先压缩:" + file.name));
@@ -522,7 +523,7 @@ function ingestFile(file) {
         if (!fullBlob || !thumbBlob)
           throw new Error("这个浏览器压不了图(" + file.name + "),请换 Chrome / Edge / Safari 试试");
         return Promise.all([blobBytes(fullBlob), blobBytes(thumbBlob)]).then(function (r) {
-          var path = "assets/" + base + ".jpg";
+          var path = "assets/" + folder + base + ".jpg";
           state.uploads.push({ path: path, bytes: r[0], url: URL.createObjectURL(fullBlob) });
           state.uploads.push({ path: "assets/thumb/" + base + ".webp", bytes: r[1] });
           if (src.close) src.close();
@@ -595,7 +596,7 @@ function mediaEditor(getVal, setVal, opts) {
       var acc = paths(), n = 0;
       files.reduce(function (chain, f) {
         return chain.then(function () {
-          return ingestFile(f).then(function (p) { acc.push(p); up.textContent = "处理中 " + (++n) + "/" + files.length; });
+          return ingestFile(f, opts.folder).then(function (p) { acc.push(p); up.textContent = "处理中 " + (++n) + "/" + files.length; });
         }).catch(function (e) { toast(e.message, true); });
       }, Promise.resolve()).then(function () {
         up.disabled = false; write(acc);
@@ -605,7 +606,7 @@ function mediaEditor(getVal, setVal, opts) {
     bar.appendChild(up); bar.appendChild(input);
 
     var pick = el("button", "btn sm ghost", "从已有照片选");
-    pick.onclick = function () { openPicker(paths(), function (sel) { write(sel); }); };
+    pick.onclick = function () { openPicker(paths(), function (sel) { write(sel); }, opts.tag); };
     bar.appendChild(pick);
 
     wrap.appendChild(bar);
@@ -633,12 +634,21 @@ function listAssets() {
     return out;
   });
 }
-function openPicker(selected, onDone) {
+function assetCat(p) {
+  if (p.indexOf("assets/diary/") === 0) return "小猫日记";
+  if (p.indexOf("assets/feedback/") === 0) return "家长反馈";
+  if (p.indexOf("assets/parents/") === 0) return "种猫";
+  return "小猫照片";
+}
+function openPicker(selected, onDone, defCat) {
   var mask = el("div", "mask");
   var modal = el("div", "modal");
   var head = el("header"); head.appendChild(el("h3", null, "选择照片"));
-  var q = document.createElement("input"); q.type = "text"; q.placeholder = "搜文件名…"; q.style.maxWidth = "220px";
-  head.appendChild(q); modal.appendChild(head);
+  var cat = defCat || null;
+  var catBar = el("div");
+  catBar.style.cssText = "display:flex;gap:5px;flex-wrap:wrap";
+  var q = document.createElement("input"); q.type = "text"; q.placeholder = "搜文件名…"; q.style.maxWidth = "160px";
+  head.appendChild(catBar); head.appendChild(q); modal.appendChild(head);
   var body = el("div", "body"); body.innerHTML = '<div class="hint"><span class="spin"></span> 读取仓库图片…</div>';
   modal.appendChild(body);
   var foot = el("footer");
@@ -653,10 +663,23 @@ function openPicker(selected, onDone) {
   ok.onclick = function () { close(); onDone(sel); };
 
   listAssets().then(function (files) {
+    function drawCats() {
+      catBar.innerHTML = "";
+      ["全部", "小猫照片", "小猫日记", "家长反馈", "种猫"].forEach(function (c) {
+        var v = c === "全部" ? null : c;
+        var b = el("button", "btn sm" + ((v || null) === cat ? " primary" : ""), c);
+        b.onclick = function () { cat = v; drawCats(); draw(); };
+        catBar.appendChild(b);
+      });
+    }
+    drawCats();
     function draw() {
       var kw = q.value.trim().toLowerCase();
       body.innerHTML = "";
-      var hits = files.filter(function (p) { return !kw || p.toLowerCase().indexOf(kw) > -1; });
+      var hits = files.filter(function (p) {
+        if (cat && assetCat(p) !== cat) return false;
+        return !kw || p.toLowerCase().indexOf(kw) > -1;
+      });
       var LIMIT = 400;
       if (hits.length > LIMIT)
         body.appendChild(el("div", "hint", "共 " + hits.length + " 个文件,先显示最新的 " + LIMIT + " 个;要找更早的请用上面的搜索框。"));
@@ -744,8 +767,8 @@ function mediaField(label, row, idx, hint, opts) {
   if (hint) f.appendChild(el("div", "hint", hint));
   return f;
 }
-// 照片条:缩略图 + 上传/从已有选,复用统一上传管线
-function photoStrip(getImgs, setImgs) {
+// 照片条:缩略图 + 上传/从已有选,复用统一上传管线;folder 决定存储目录(分类标签)
+function photoStrip(getImgs, setImgs, folder, tag) {
   var wrap = el("div");
   wrap.style.cssText = "display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:7px";
   function draw() {
@@ -778,7 +801,7 @@ function photoStrip(getImgs, setImgs) {
       var acc = getImgs();
       files.reduce(function (chain, fl) {
         return chain.then(function () {
-          return ingestFile(fl).then(function (pth) { acc.push(pth); });
+          return ingestFile(fl, folder).then(function (pth) { acc.push(pth); });
         }).catch(function (err) { toast(err.message, true); });
       }, Promise.resolve()).then(function () { setImgs(acc); draw(); });
     };
@@ -787,7 +810,7 @@ function photoStrip(getImgs, setImgs) {
       openPicker(getImgs().slice(), function (sel) {
         setImgs(sel.filter(function (pth) { return !/\.mp4$/i.test(pth); }));
         draw();
-      });
+      }, tag);
     };
     wrap.appendChild(up); wrap.appendChild(input); wrap.appendChild(pick);
   }
@@ -796,7 +819,9 @@ function photoStrip(getImgs, setImgs) {
 }
 
 /* 小猫日记:统一的事项列表(事项 · 日期 · 描述 · 图片)。
-   数据仍写回原有各列:定新家/打疫苗/血清检测/出发日期、出发照片、体重记录(成长记录)。 */
+   定下新家/出发 各一条(写回原日期列);打疫苗/血清检测/驱虫/体检/成长记录 可多条,
+   存进「体重记录」列(格式:日期 · 事项名 · 描述 · 图片…),网站按事项名分别渲染;
+   最早的打疫苗/血清检测日期同时镜像回原日期列,保持旧版页面与待办提醒兼容。 */
 function diaryField(r) {
   var det = document.createElement("details");
   det.style.marginTop = "16px";
@@ -806,28 +831,41 @@ function diaryField(r) {
   det.appendChild(sum);
   var dd = el("div"); det.appendChild(dd);
 
-  var MILE = [
+  var SINGLE = [
     { name: "定下新家", idx: 9 },
-    { name: "打疫苗", idx: 11 },
-    { name: "血清检测", idx: 12 },
     { name: "出发", idx: 13, imgsIdx: 10, hint: "填未来的日期会显示「预计出发」" }
   ];
-  // 行的存在与否用内存记录:清空日期时行不消失,点「删」才移除
-  var active = {};
-  MILE.forEach(function (m) {
-    if (String(r[m.idx] || "").trim() || (m.imgsIdx != null && String(r[m.imgsIdx] || "").trim())) active[m.name] = 1;
+  var REPEAT = ["打疫苗", "血清检测", "驱虫", "体检"];
+  var activeSingle = {};
+  SINGLE.forEach(function (m) {
+    if (String(r[m.idx] || "").trim() || (m.imgsIdx != null && String(r[m.imgsIdx] || "").trim())) activeSingle[m.name] = 1;
   });
-  // 成长记录(体重记录列):日期 · 描述 · assets/图…,逗号分隔多条
-  var growth = String(r[14] || "").split(/[,，]/).map(function (x) { return x.trim(); })
+  var DATE_RE = /^\d{4}\D\d{1,2}\D\d{1,2}$/;
+  var items = String(r[14] || "").split(/[,，]/).map(function (x) { return x.trim(); })
     .filter(Boolean).map(function (e) {
       var t = e.split(/\s*·\s*/).map(function (x) { return x.trim(); }).filter(Boolean);
       var imgs = t.filter(function (x) { return x.indexOf("assets/") === 0; });
       var rest = t.filter(function (x) { return x.indexOf("assets/") !== 0; });
-      return { d: rest[0] || "", v: rest.slice(1).join(" · "), imgs: imgs };
+      var d = "";
+      for (var j = 0; j < rest.length; j++) if (DATE_RE.test(rest[j])) { d = rest.splice(j, 1)[0]; break; }
+      var type = REPEAT.indexOf(rest[0]) > -1 ? rest.shift() : "成长记录";
+      return { type: type, d: d, v: rest.join(" · "), imgs: imgs };
     });
-  function commitGrowth() {
-    r[14] = growth.filter(function (e) { return e.d || e.v || e.imgs.length; })
-      .map(function (e) { return [e.d, e.v].concat(e.imgs).filter(Boolean).join(" · "); }).join(",");
+  // 旧数据的单日期列 → 转成对应条目(保存时自动迁入通用格式)
+  [["打疫苗", 11], ["血清检测", 12]].forEach(function (m) {
+    var d = String(r[m[1]] || "").trim();
+    if (d && !items.some(function (e) { return e.type === m[0] && e.d === d; }))
+      items.unshift({ type: m[0], d: d, v: "", imgs: [] });
+  });
+  function commitItems() {
+    r[14] = items.filter(function (e) { return e.d || e.v || e.imgs.length; })
+      .map(function (e) {
+        return [e.d, e.type !== "成长记录" ? e.type : "", e.v].concat(e.imgs).filter(Boolean).join(" · ");
+      }).join(",");
+    ["打疫苗", "血清检测"].forEach(function (t, ti) {
+      var ds = items.filter(function (e) { return e.type === t && e.d; }).map(function (e) { return e.d; }).sort();
+      r[ti === 0 ? 11 : 12] = ds[0] || "";
+    });
     touch();
   }
   function csv(v) { return String(v || "").split(/[,，]/).map(function (x) { return x.trim(); }).filter(Boolean); }
@@ -844,11 +882,15 @@ function diaryField(r) {
     if (hint) card.appendChild(el("div", "hint", hint));
     return { card: card, line: line };
   }
+  function today() {
+    var n = new Date(), pd = function (x) { return ("0" + x).slice(-2); };
+    return n.getFullYear() + "-" + pd(n.getMonth() + 1) + "-" + pd(n.getDate());
+  }
 
   function draw() {
     dd.innerHTML = "";
-    MILE.forEach(function (m) {
-      if (!active[m.name]) return;
+    SINGLE.forEach(function (m) {
+      if (!activeSingle[m.name]) return;
       var c = entryCard(m.name, m.hint);
       var d = document.createElement("input");
       d.type = "date"; d.value = r[m.idx] || ""; d.style.flex = "1"; d.style.maxWidth = "190px";
@@ -856,7 +898,7 @@ function diaryField(r) {
       c.line.appendChild(d);
       var x = el("button", "btn sm danger", "删");
       x.onclick = function () {
-        delete active[m.name];
+        delete activeSingle[m.name];
         r[m.idx] = "";
         if (m.imgsIdx != null) r[m.imgsIdx] = "";
         touch(); draw();
@@ -865,50 +907,56 @@ function diaryField(r) {
       if (m.imgsIdx != null) {
         c.card.appendChild(photoStrip(
           function () { return csv(r[m.imgsIdx]); },
-          function (l) { r[m.imgsIdx] = l.join(","); touch(); }
+          function (l) { r[m.imgsIdx] = l.join(","); touch(); },
+          "diary/", "小猫日记"
         ));
       }
       dd.appendChild(c.card);
     });
-    growth.forEach(function (e, i) {
-      var c = entryCard("成长记录");
+    items.forEach(function (e, i) {
+      var c = entryCard(e.type);
       var d = document.createElement("input");
       d.type = "date"; d.value = e.d; d.style.maxWidth = "170px";
-      d.oninput = function () { e.d = d.value; commitGrowth(); };
+      d.oninput = function () { e.d = d.value; commitItems(); };
       c.line.appendChild(d);
       var v = document.createElement("input");
-      v.type = "text"; v.value = e.v; v.placeholder = "描述,如 6.2斤 · 五个月啦"; v.style.flex = "1"; v.style.minWidth = "150px";
-      v.oninput = function () { e.v = v.value; commitGrowth(); };
+      v.type = "text"; v.value = e.v;
+      v.placeholder = e.type === "成长记录" ? "描述,如 6.2斤 · 五个月啦" : "描述(可选),如 第二针";
+      v.style.flex = "1"; v.style.minWidth = "150px";
+      v.oninput = function () { e.v = v.value; commitItems(); };
       c.line.appendChild(v);
       var x = el("button", "btn sm danger", "删");
-      x.onclick = function () { growth.splice(i, 1); commitGrowth(); draw(); };
+      x.onclick = function () { items.splice(i, 1); commitItems(); draw(); };
       c.line.appendChild(x);
       c.card.appendChild(photoStrip(
         function () { return e.imgs; },
-        function (l) { e.imgs = l; commitGrowth(); }
+        function (l) { e.imgs = l; commitItems(); },
+        "diary/", "小猫日记"
       ));
       dd.appendChild(c.card);
     });
     var bar = el("div");
     bar.style.cssText = "display:flex;gap:7px;flex-wrap:wrap;margin-top:4px";
-    MILE.forEach(function (m) {
-      if (active[m.name]) return;
+    SINGLE.forEach(function (m) {
+      if (activeSingle[m.name]) return;
       var b2 = el("button", "btn sm", "+ " + m.name);
       b2.onclick = function () {
-        active[m.name] = 1;
-        if (!String(r[m.idx] || "").trim()) {
-          var n = new Date(), pd = function (x) { return ("0" + x).slice(-2); };
-          r[m.idx] = n.getFullYear() + "-" + pd(n.getMonth() + 1) + "-" + pd(n.getDate());
-        }
+        activeSingle[m.name] = 1;
+        if (!String(r[m.idx] || "").trim()) r[m.idx] = today();
         touch(); draw();
       };
       bar.appendChild(b2);
     });
-    var g2 = el("button", "btn sm", "+ 成长记录");
-    g2.onclick = function () { growth.push({ d: "", v: "", imgs: [] }); draw(); };
-    bar.appendChild(g2);
+    REPEAT.concat(["成长记录"]).forEach(function (t) {
+      var b2 = el("button", "btn sm", "+ " + t);
+      b2.onclick = function () {
+        items.push({ type: t, d: t === "成长记录" ? "" : today(), v: "", imgs: [] });
+        commitItems(); draw();
+      };
+      bar.appendChild(b2);
+    });
     dd.appendChild(bar);
-    dd.appendChild(el("div", "hint", "每条事项:名称 · 日期 · 描述 · 图片(可选)。定下新家/打疫苗/血清检测/出发 各一条;成长记录可加多条,描述和照片会显示在网站的日记页上。"));
+    dd.appendChild(el("div", "hint", "每条事项:名称 · 日期 · 描述 · 图片(可选)。打疫苗/血清检测/驱虫/体检/成长记录都可以加多条(如第一针、第二针);定下新家和出发各一条。"));
   }
   draw();
   return det;
@@ -1048,7 +1096,7 @@ function renderKittens(v) {
           g3.appendChild(selectField("爸爸", r, 6, dads, "来自「种猫」表"));
           g3.appendChild(selectField("妈妈", r, 7, moms, "来自「种猫」表"));
           b.appendChild(g3);
-          b.appendChild(mediaField("照片", r, 2, null, {}));
+          b.appendChild(mediaField("照片", r, 2, null, { tag: "小猫照片" }));
 
           b.appendChild(diaryField(r));
 
@@ -1101,7 +1149,7 @@ function renderParents(v) {
         g.appendChild(segField("角色", r, 1, [{ v: "种公", t: "种公" }, { v: "种母", t: "种母" }]));
         b.appendChild(g);
         b.appendChild(textField("花色", r, 2, null, "text", "colorList"));
-        b.appendChild(mediaField("照片 / 视频", r, 3, "mp4 视频会在卡片上自动循环播放", { video: true }));
+        b.appendChild(mediaField("照片 / 视频", r, 3, "mp4 视频会在卡片上自动循环播放", { video: true, folder: "parents/", tag: "种猫" }));
         var del = el("button", "btn danger", "删除这只种猫");
         del.onclick = function () {
           if (!confirm("确定删除种猫「" + (r[0] || "") + "」?小猫表里填了它的爸妈字段需要一并改。")) return;
@@ -1150,7 +1198,7 @@ function renderFeedback(v) {
         g.appendChild(selectField("小猫名字", r, 1, names, "只列出小猫表里填了名字的猫"));
         b.appendChild(g);
         b.appendChild(areaField("内容", r, 2));
-        b.appendChild(mediaField("照片", r, 3, null, {}));
+        b.appendChild(mediaField("照片", r, 3, null, { folder: "feedback/", tag: "家长反馈" }));
         var del = el("button", "btn danger", "删除这条反馈");
         del.onclick = function () { if (confirm("删除这条家长反馈?")) { rows.splice(i, 1); openRow = -1; touch(); render(); } };
         var f = el("div", "field"); f.appendChild(del); b.appendChild(f);
