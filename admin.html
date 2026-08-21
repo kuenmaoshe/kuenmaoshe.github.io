@@ -1350,28 +1350,11 @@ function computeTodos() {
     var sold = isSoldRow(r);
     // 条目的稳定标识:类型 + 第一张图(或名字),行号会变所以不能用行号
     var kid = String(r[2] || "").split(/[,，]/)[0].trim() || name;
-    if (!String(r[0] || "").trim() || !String(r[2] || "").trim())
-      out.push({ lv: 0, row: i, key: "photo|" + kid, t: name + " 缺花色或照片", d: "网站不会显示这只猫,补全后才会出现" });
-    var dep = parseYmd(r[13]);
-    if (dep) {
-      var dd = daysFromToday(dep);
-      if (dd >= 0 && dd <= 14) {
-        out.push({ lv: 0, row: i, key: "depart|" + kid, t: name + (dd === 0 ? " 今天出发" : " " + dd + " 天后出发"), d: "准备新家礼包、疫苗本和运输安排" });
-        if (!String(r[12] || "").trim())
-          out.push({ lv: 1, row: i, key: "serum|" + kid, t: name + " 出发在即,血清检测日期未填", d: "如出境需要血清检测,请确认并补填" });
-      }
-    }
     if (!sold) {
       var mo = monthsOld(r[4]);
       if (mo != null && mo >= 2 && !String(r[11] || "").trim())
         out.push({ lv: 1, row: i, key: "vaccine|" + kid, t: name + " 该安排疫苗了", d: "已 " + mo + " 个月,还没填打疫苗日期" });
-      if (!String(r[4] || "").trim())
-        out.push({ lv: 2, row: i, key: "birth|" + kid, t: name + " 缺生日", d: "网站不会显示它的月龄" });
     } else {
-      if (!String(r[5] || "").trim())
-        out.push({ lv: 2, row: i, key: "home|" + kid, t: name + " 缺新家地址", d: "足迹地图不会为它打点" });
-      if (String(r[15] || "").trim() === "已付定金" && !String(r[9] || "").trim())
-        out.push({ lv: 2, row: i, key: "deposit|" + kid, t: name + " 已付定金,可填「定新家日期」", d: "网站的小猫日记会显示这一步" });
       if (!String(r[15] || "").trim())
         out.push({ lv: 2, row: i, key: "stage|" + kid, t: name + " 未填交易阶段", d: "在编辑页选择:咨询中 / 已付定金 / 已付尾款 / 已接猫" });
     }
@@ -1382,10 +1365,7 @@ function computeTodos() {
   visible.sort(function (a, b) { return a.lv - b.lv; });
   return visible;
 }
-var TODO_TYPES = {
-  photo: "缺花色/照片", depart: "即将出发", serum: "血清检测", vaccine: "疫苗提醒",
-  birth: "缺生日", home: "缺新家地址", deposit: "定金跟进", stage: "交易阶段"
-};
+var TODO_TYPES = { vaccine: "疫苗提醒", stage: "交易阶段" };
 function renderTodos(v) {
   var all = computeTodos();
   v.appendChild(el("div", "note", "以下事项每次打开后台时从小猫数据自动算出,处理完对应数据后自动消失。点击条目直达那只猫的编辑页;不想再看到的条目点「忽略」(只影响本设备的显示,不改数据)。"));
@@ -1399,11 +1379,6 @@ function renderTodos(v) {
   if (all.length) {
     var fbar = el("div");
     fbar.style.cssText = "display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:12px";
-    [["全部", ""], ["🔴 紧急", "0"], ["🟡 提醒", "1"], ["⚪ 补全", "2"]].forEach(function (o) {
-      var b = el("button", "btn sm" + (todoFilter.lv === o[1] ? " primary" : ""), o[0]);
-      b.onclick = function () { todoFilter.lv = o[1]; render(); };
-      fbar.appendChild(b);
-    });
     var tc = {};
     all.forEach(function (td) { var t = td.key.split("|")[0]; tc[t] = (tc[t] || 0) + 1; });
     var sel = document.createElement("select");
