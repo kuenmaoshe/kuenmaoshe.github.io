@@ -744,92 +744,174 @@ function mediaField(label, row, idx, hint, opts) {
   if (hint) f.appendChild(el("div", "hint", hint));
   return f;
 }
-// 体重记录:「日期 · 描述 · 照片…」若干条,逗号分隔;以 assets/ 开头的段是照片(与网站解析一致)
-function weightField(label, row, idx) {
-  var f = el("div", "field");
-  f.appendChild(el("label", null, label));
-  var box = el("div");
-  // 以内存里的 list 为渲染依据：空行只在写回表格时才过滤掉。
-  // 若改成每次从表格重新解析，刚点出来的空行会当场被滤掉，按钮看起来毫无反应。
-  var list = String(row[idx] || "").split(/[,，]/).map(function (s) { return s.trim(); })
+// 照片条:缩略图 + 上传/从已有选,复用统一上传管线
+function photoStrip(getImgs, setImgs) {
+  var wrap = el("div");
+  wrap.style.cssText = "display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:7px";
+  function draw() {
+    wrap.innerHTML = "";
+    var imgs = getImgs();
+    imgs.forEach(function (pth, pi) {
+      var cell = el("div"); cell.style.cssText = "position:relative;width:52px;height:52px";
+      var im = document.createElement("img");
+      im.style.cssText = "width:52px;height:52px;object-fit:cover;border-radius:7px;border:1px solid var(--line)";
+      im.loading = "lazy"; im.alt = "";
+      im.src = pendingUrl(pth) || pth;
+      im.onerror = function () { this.onerror = null; this.style.opacity = ".25"; };
+      cell.appendChild(im);
+      var rm = el("button", null, "×");
+      rm.style.cssText = "position:absolute;top:-6px;right:-6px;width:19px;height:19px;line-height:1;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--bad);cursor:pointer;padding:0;font-size:12px";
+      rm.title = "移除这张照片(仓库里的原文件不会被删)";
+      rm.onclick = function () { var l = getImgs(); l.splice(pi, 1); setImgs(l); draw(); };
+      cell.appendChild(rm);
+      wrap.appendChild(cell);
+    });
+    var up = el("button", "btn sm", "传图");
+    var input = document.createElement("input");
+    input.type = "file"; input.accept = "image/*"; input.multiple = true; input.className = "hide";
+    up.onclick = function () { input.click(); };
+    input.onchange = function () {
+      var files = Array.prototype.slice.call(input.files || []);
+      input.value = "";
+      if (!files.length) return;
+      up.disabled = true; up.textContent = "处理中…";
+      var acc = getImgs();
+      files.reduce(function (chain, fl) {
+        return chain.then(function () {
+          return ingestFile(fl).then(function (pth) { acc.push(pth); });
+        }).catch(function (err) { toast(err.message, true); });
+      }, Promise.resolve()).then(function () { setImgs(acc); draw(); });
+    };
+    var pick = el("button", "btn sm ghost", "从已有选");
+    pick.onclick = function () {
+      openPicker(getImgs().slice(), function (sel) {
+        setImgs(sel.filter(function (pth) { return !/\.mp4$/i.test(pth); }));
+        draw();
+      });
+    };
+    wrap.appendChild(up); wrap.appendChild(input); wrap.appendChild(pick);
+  }
+  draw();
+  return wrap;
+}
+
+/* 小猫日记:统一的事项列表(事项 · 日期 · 描述 · 图片)。
+   数据仍写回原有各列:定新家/打疫苗/血清检测/出发日期、出发照片、体重记录(成长记录)。 */
+function diaryField(r) {
+  var det = document.createElement("details");
+  det.style.marginTop = "16px";
+  var sum = document.createElement("summary");
+  sum.style.cssText = "cursor:pointer;color:var(--gold-light);padding:6px 0";
+  sum.textContent = "小猫日记（已安家的猫才显示在网站上）";
+  det.appendChild(sum);
+  var dd = el("div"); det.appendChild(dd);
+
+  var MILE = [
+    { name: "定下新家", idx: 9 },
+    { name: "打疫苗", idx: 11 },
+    { name: "血清检测", idx: 12 },
+    { name: "出发", idx: 13, imgsIdx: 10, hint: "填未来的日期会显示「预计出发」" }
+  ];
+  // 行的存在与否用内存记录:清空日期时行不消失,点「删」才移除
+  var active = {};
+  MILE.forEach(function (m) {
+    if (String(r[m.idx] || "").trim() || (m.imgsIdx != null && String(r[m.imgsIdx] || "").trim())) active[m.name] = 1;
+  });
+  // 成长记录(体重记录列):日期 · 描述 · assets/图…,逗号分隔多条
+  var growth = String(r[14] || "").split(/[,，]/).map(function (x) { return x.trim(); })
     .filter(Boolean).map(function (e) {
       var t = e.split(/\s*·\s*/).map(function (x) { return x.trim(); }).filter(Boolean);
       var imgs = t.filter(function (x) { return x.indexOf("assets/") === 0; });
       var rest = t.filter(function (x) { return x.indexOf("assets/") !== 0; });
-      return { d: (rest[0] || "").trim(), v: rest.slice(1).join(" · ").trim(), imgs: imgs };
+      return { d: rest[0] || "", v: rest.slice(1).join(" · "), imgs: imgs };
     });
-  function commit() {
-    row[idx] = list.filter(function (e) { return e.d || e.v || e.imgs.length; })
+  function commitGrowth() {
+    r[14] = growth.filter(function (e) { return e.d || e.v || e.imgs.length; })
       .map(function (e) { return [e.d, e.v].concat(e.imgs).filter(Boolean).join(" · "); }).join(",");
     touch();
   }
-  function draw() {
-    box.innerHTML = "";
-    list.forEach(function (e, i) {
-      var entry = el("div"); entry.style.cssText = "border:1px solid var(--line);border-radius:9px;padding:9px;margin-bottom:8px";
-      var line = el("div", "row2"); line.style.marginBottom = "7px";
-      var d = document.createElement("input"); d.type = "date"; d.value = e.d;
-      var v = document.createElement("input"); v.type = "text"; v.value = e.v; v.placeholder = "如 6.2斤 · 五个月啦";
-      d.oninput = function () { e.d = d.value; commit(); };
-      v.oninput = function () { e.v = v.value; commit(); };
-      var right = el("div"); right.style.display = "flex"; right.style.gap = "7px";
-      v.style.flex = "1"; right.appendChild(v);
-      var x = el("button", "btn sm danger", "删");
-      x.onclick = function () { list.splice(i, 1); commit(); draw(); };
-      right.appendChild(x);
-      line.appendChild(d); line.appendChild(right);
-      entry.appendChild(line);
+  function csv(v) { return String(v || "").split(/[,，]/).map(function (x) { return x.trim(); }).filter(Boolean); }
 
-      var media = el("div"); media.style.cssText = "display:flex;gap:7px;align-items:center;flex-wrap:wrap";
-      e.imgs.forEach(function (pth, pi) {
-        var cell = el("div"); cell.style.cssText = "position:relative;width:52px;height:52px";
-        var im = document.createElement("img");
-        im.style.cssText = "width:52px;height:52px;object-fit:cover;border-radius:7px;border:1px solid var(--line)";
-        im.loading = "lazy"; im.alt = "";
-        im.src = pendingUrl(pth) || pth;
-        im.onerror = function () { this.onerror = null; this.style.opacity = ".25"; };
-        cell.appendChild(im);
-        var rm = el("button", null, "×");
-        rm.style.cssText = "position:absolute;top:-6px;right:-6px;width:19px;height:19px;line-height:1;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--bad);cursor:pointer;padding:0;font-size:12px";
-        rm.title = "移除这张照片(仓库里的原文件不会被删)";
-        rm.onclick = function () { e.imgs.splice(pi, 1); commit(); draw(); };
-        cell.appendChild(rm);
-        media.appendChild(cell);
-      });
-      var up = el("button", "btn sm", "上传照片");
-      var input = document.createElement("input");
-      input.type = "file"; input.accept = "image/*"; input.multiple = true; input.className = "hide";
-      up.onclick = function () { input.click(); };
-      input.onchange = function () {
-        var files = Array.prototype.slice.call(input.files || []);
-        input.value = "";
-        if (!files.length) return;
-        up.disabled = true; up.textContent = "处理中…";
-        files.reduce(function (chain, fl) {
-          return chain.then(function () {
-            return ingestFile(fl).then(function (pth) { e.imgs.push(pth); });
-          }).catch(function (err) { toast(err.message, true); });
-        }, Promise.resolve()).then(function () { commit(); draw(); });
+  function entryCard(name, hint) {
+    var card = el("div");
+    card.style.cssText = "border:1px solid var(--line);border-radius:9px;padding:9px 10px;margin-bottom:8px";
+    var line = el("div");
+    line.style.cssText = "display:flex;gap:8px;align-items:center;flex-wrap:wrap";
+    var tag = el("b", null, name);
+    tag.style.cssText = "color:var(--gold-light);min-width:64px";
+    line.appendChild(tag);
+    card.appendChild(line);
+    if (hint) card.appendChild(el("div", "hint", hint));
+    return { card: card, line: line };
+  }
+
+  function draw() {
+    dd.innerHTML = "";
+    MILE.forEach(function (m) {
+      if (!active[m.name]) return;
+      var c = entryCard(m.name, m.hint);
+      var d = document.createElement("input");
+      d.type = "date"; d.value = r[m.idx] || ""; d.style.flex = "1"; d.style.maxWidth = "190px";
+      d.oninput = function () { r[m.idx] = d.value; touch(); };
+      c.line.appendChild(d);
+      var x = el("button", "btn sm danger", "删");
+      x.onclick = function () {
+        delete active[m.name];
+        r[m.idx] = "";
+        if (m.imgsIdx != null) r[m.imgsIdx] = "";
+        touch(); draw();
       };
-      var pick = el("button", "btn sm ghost", "从已有照片选");
-      pick.onclick = function () {
-        openPicker(e.imgs.slice(), function (sel) {
-          e.imgs = sel.filter(function (pth) { return !/\.mp4$/i.test(pth); });
-          commit(); draw();
-        });
-      };
-      media.appendChild(up); media.appendChild(input); media.appendChild(pick);
-      entry.appendChild(media);
-      box.appendChild(entry);
+      c.line.appendChild(x);
+      if (m.imgsIdx != null) {
+        c.card.appendChild(photoStrip(
+          function () { return csv(r[m.imgsIdx]); },
+          function (l) { r[m.imgsIdx] = l.join(","); touch(); }
+        ));
+      }
+      dd.appendChild(c.card);
     });
-    var add = el("button", "btn sm", "+ 加一条记录");
-    add.onclick = function () { list.push({ d: "", v: "", imgs: [] }); draw(); };
-    box.appendChild(add);
+    growth.forEach(function (e, i) {
+      var c = entryCard("成长记录");
+      var d = document.createElement("input");
+      d.type = "date"; d.value = e.d; d.style.maxWidth = "170px";
+      d.oninput = function () { e.d = d.value; commitGrowth(); };
+      c.line.appendChild(d);
+      var v = document.createElement("input");
+      v.type = "text"; v.value = e.v; v.placeholder = "描述,如 6.2斤 · 五个月啦"; v.style.flex = "1"; v.style.minWidth = "150px";
+      v.oninput = function () { e.v = v.value; commitGrowth(); };
+      c.line.appendChild(v);
+      var x = el("button", "btn sm danger", "删");
+      x.onclick = function () { growth.splice(i, 1); commitGrowth(); draw(); };
+      c.line.appendChild(x);
+      c.card.appendChild(photoStrip(
+        function () { return e.imgs; },
+        function (l) { e.imgs = l; commitGrowth(); }
+      ));
+      dd.appendChild(c.card);
+    });
+    var bar = el("div");
+    bar.style.cssText = "display:flex;gap:7px;flex-wrap:wrap;margin-top:4px";
+    MILE.forEach(function (m) {
+      if (active[m.name]) return;
+      var b2 = el("button", "btn sm", "+ " + m.name);
+      b2.onclick = function () {
+        active[m.name] = 1;
+        if (!String(r[m.idx] || "").trim()) {
+          var n = new Date(), pd = function (x) { return ("0" + x).slice(-2); };
+          r[m.idx] = n.getFullYear() + "-" + pd(n.getMonth() + 1) + "-" + pd(n.getDate());
+        }
+        touch(); draw();
+      };
+      bar.appendChild(b2);
+    });
+    var g2 = el("button", "btn sm", "+ 成长记录");
+    g2.onclick = function () { growth.push({ d: "", v: "", imgs: [] }); draw(); };
+    bar.appendChild(g2);
+    dd.appendChild(bar);
+    dd.appendChild(el("div", "hint", "每条事项:名称 · 日期 · 描述 · 图片(可选)。定下新家/打疫苗/血清检测/出发 各一条;成长记录可加多条,描述和照片会显示在网站的日记页上。"));
   }
   draw();
-  f.appendChild(box);
-  f.appendChild(el("div", "hint", "显示在已安家小猫的「小猫日记 · 成长记录」里;照片会出现在对应的日记页上"));
-  return f;
+  return det;
 }
 
 /* ================= 渲染 ================= */
@@ -968,25 +1050,7 @@ function renderKittens(v) {
           b.appendChild(g3);
           b.appendChild(mediaField("照片", r, 2, null, {}));
 
-          var det = document.createElement("details");
-          det.style.marginTop = "16px";
-          var sum = document.createElement("summary");
-          sum.style.cssText = "cursor:pointer;color:var(--gold-light);padding:6px 0";
-          sum.textContent = "小猫日记（已安家的猫才显示在网站上）";
-          det.appendChild(sum);
-          var dd = el("div");
-          var g4 = el("div", "row2");
-          g4.appendChild(textField("定新家日期", r, 9, null, "date"));
-          g4.appendChild(textField("打疫苗日期", r, 11, null, "date"));
-          dd.appendChild(g4);
-          var g5 = el("div", "row2");
-          g5.appendChild(textField("血清检测日期", r, 12, null, "date"));
-          g5.appendChild(textField("出发日期", r, 13, "填未来的日期会显示「预计出发」", "date"));
-          dd.appendChild(g5);
-          dd.appendChild(weightField("体重记录", r, 14));
-          dd.appendChild(mediaField("出发照片", r, 10, null, {}));
-          det.appendChild(dd);
-          b.appendChild(det);
+          b.appendChild(diaryField(r));
 
           var ops = el("div", "field");
           var del = el("button", "btn danger", "删除这只小猫");
