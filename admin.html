@@ -251,7 +251,7 @@ var MAX_SIDE = 1300, THUMB_SIDE = 500, TARGET_KB = 260;
 
 /* ================= 状态 ================= */
 var token = "", state = null, dirty = false, tab = S_KITTEN, kittenQuery = "", openRow = -1;
-var kittenFilter = { status: "", gender: "", color: "", birth: "" };
+var kittenFilter = { status: "", gender: "", color: "", birth: "", home: "" };
 
 var $ = function (id) { return document.getElementById(id); };
 function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
@@ -849,7 +849,10 @@ function diaryField(r) {
       var rest = t.filter(function (x) { return x.indexOf("assets/") !== 0; });
       var d = "";
       for (var j = 0; j < rest.length; j++) if (DATE_RE.test(rest[j])) { d = rest.splice(j, 1)[0]; break; }
-      var type = REPEAT.indexOf(rest[0]) > -1 ? rest.shift() : "成长记录";
+      var type = "成长记录";
+      var bm = (rest[0] || "").match(/^「(.+)」$/);
+      if (bm) { type = bm[1]; rest.shift(); }
+      else if (REPEAT.indexOf(rest[0]) > -1) type = rest.shift();
       return { type: type, d: d, v: rest.join(" · "), imgs: imgs };
     });
   // 旧数据的单日期列 → 转成对应条目(保存时自动迁入通用格式)
@@ -861,7 +864,8 @@ function diaryField(r) {
   function commitItems() {
     r[14] = items.filter(function (e) { return e.d || e.v || e.imgs.length; })
       .map(function (e) {
-        return [e.d, e.type !== "成长记录" ? e.type : "", e.v].concat(e.imgs).filter(Boolean).join(" · ");
+        var t = String(e.type || "").trim();
+        return [e.d, (t && t !== "成长记录") ? "「" + t + "」" : "", e.v].concat(e.imgs).filter(Boolean).join(" · ");
       }).join(",");
     ["打疫苗", "血清检测"].forEach(function (t, ti) {
       var ds = items.filter(function (e) { return e.type === t && e.d; }).map(function (e) { return e.d; }).sort();
@@ -876,9 +880,11 @@ function diaryField(r) {
     card.style.cssText = "border:1px solid var(--line);border-radius:9px;padding:9px 10px;margin-bottom:8px";
     var line = el("div");
     line.style.cssText = "display:flex;gap:8px;align-items:center;flex-wrap:wrap";
-    var tag = el("b", null, name);
-    tag.style.cssText = "color:var(--gold-light);min-width:64px";
-    line.appendChild(tag);
+    if (name) {
+      var tag = el("b", null, name);
+      tag.style.cssText = "color:var(--gold-light);min-width:64px";
+      line.appendChild(tag);
+    }
     card.appendChild(line);
     if (hint) card.appendChild(el("div", "hint", hint));
     return { card: card, line: line };
@@ -915,14 +921,21 @@ function diaryField(r) {
       dd.appendChild(c.card);
     });
     items.forEach(function (e, i) {
-      var c = entryCard(e.type);
+      var c = entryCard(null);
+      var t = document.createElement("input");
+      t.type = "text"; t.value = e.type;
+      t.placeholder = "事项名,如 打疫苗";
+      t.setAttribute("list", "diaryTypeList");
+      t.style.cssText = "max-width:130px;font-weight:600;color:var(--gold-light)";
+      t.oninput = function () { e.type = t.value.trim() || "成长记录"; commitItems(); };
+      c.line.insertBefore(t, c.line.firstChild);
       var d = document.createElement("input");
       d.type = "date"; d.value = e.d; d.style.maxWidth = "170px";
       d.oninput = function () { e.d = d.value; commitItems(); };
       c.line.appendChild(d);
       var v = document.createElement("input");
       v.type = "text"; v.value = e.v;
-      v.placeholder = e.type === "成长记录" ? "描述,如 6.2斤 · 五个月啦" : "描述(可选),如 第二针";
+      v.placeholder = "描述(可选),如 第二针 / 6.2斤";
       v.style.flex = "1"; v.style.minWidth = "150px";
       v.oninput = function () { e.v = v.value; commitItems(); };
       c.line.appendChild(v);
@@ -948,16 +961,22 @@ function diaryField(r) {
       };
       bar.appendChild(b2);
     });
-    REPEAT.concat(["成长记录"]).forEach(function (t) {
-      var b2 = el("button", "btn sm", "+ " + t);
-      b2.onclick = function () {
-        items.push({ type: t, d: t === "成长记录" ? "" : today(), v: "", imgs: [] });
-        commitItems(); draw();
-      };
-      bar.appendChild(b2);
-    });
+    var b2 = el("button", "btn sm primary", "+ 新增记录");
+    b2.onclick = function () {
+      items.push({ type: "成长记录", d: today(), v: "", imgs: [] });
+      commitItems(); draw();
+      var inputs = dd.querySelectorAll('input[list="diaryTypeList"]');
+      var last = inputs[inputs.length - 1];
+      if (last) { last.value = ""; last.focus(); }
+    };
+    bar.appendChild(b2);
     dd.appendChild(bar);
-    dd.appendChild(el("div", "hint", "每条事项:名称 · 日期 · 描述 · 图片(可选)。打疫苗/血清检测/驱虫/体检/成长记录都可以加多条(如第一针、第二针);定下新家和出发各一条。"));
+    var dl = document.createElement("datalist"); dl.id = "diaryTypeList";
+    ["打疫苗", "血清检测", "驱虫", "体检", "绝育", "洗澡", "成长记录"].forEach(function (t) {
+      var o = document.createElement("option"); o.value = t; dl.appendChild(o);
+    });
+    dd.appendChild(dl);
+    dd.appendChild(el("div", "hint", "每条记录:事项名 · 日期 · 描述 · 图片(均可改)。事项名随便填(输入框有常用建议),同名可以加多条,如打疫苗第一针、第二针;定下新家和出发各一条。"));
   }
   draw();
   return det;
@@ -1033,7 +1052,7 @@ function renderKittens(v) {
     var r = HEADERS[S_KITTEN].map(function () { return ""; });
     r[1] = "妹妹"; r[3] = "否";
     rows.splice(1, 0, r);
-    kittenQuery = ""; kittenFilter = { status: "", gender: "", color: "", birth: "" };
+    kittenQuery = ""; kittenFilter = { status: "", gender: "", color: "", birth: "", home: "" };
     openRow = 1; touch(); render(true);
   };
   bar.appendChild(add);
@@ -1073,9 +1092,10 @@ function renderKittens(v) {
   }
   dropdown("color", "全部花色", distinct(0, true));
   dropdown("birth", "全部生日", distinct(4, false));
-  if (kittenFilter.status || kittenFilter.gender || kittenFilter.color || kittenFilter.birth) {
+  dropdown("home", "全部新家", distinct(5, true));
+  if (kittenFilter.status || kittenFilter.gender || kittenFilter.color || kittenFilter.birth || kittenFilter.home) {
     var clr = el("button", "btn sm ghost", "✕ 清除筛选");
-    clr.onclick = function () { kittenFilter = { status: "", gender: "", color: "", birth: "" }; render(); };
+    clr.onclick = function () { kittenFilter = { status: "", gender: "", color: "", birth: "", home: "" }; render(); };
     fbar.appendChild(clr);
   }
   var cnt = el("span");
@@ -1099,6 +1119,7 @@ function renderKittens(v) {
         if (kittenFilter.gender && String(r[1] || "").trim() !== kittenFilter.gender) return;
         if (kittenFilter.color && String(r[0] || "").trim() !== kittenFilter.color) return;
         if (kittenFilter.birth && String(r[4] || "").trim() !== kittenFilter.birth) return;
+        if (kittenFilter.home && String(r[5] || "").trim() !== kittenFilter.home) return;
         shown++;
         var card = el("div", "card");
         var head = el("div", "card-head");
@@ -1165,7 +1186,7 @@ function renderKittens(v) {
       })(i);
     }
     cnt.textContent = "显示 " + shown + " / " + (rows.length - 1) + " 只";
-    if (!shown) list.appendChild(el("div", "empty", (kittenQuery || kittenFilter.status || kittenFilter.gender || kittenFilter.color || kittenFilter.birth) ? "没有匹配的小猫,试试清除筛选" : "还没有小猫,点右上角「新增小猫」"));
+    if (!shown) list.appendChild(el("div", "empty", (kittenQuery || kittenFilter.status || kittenFilter.gender || kittenFilter.color || kittenFilter.birth || kittenFilter.home) ? "没有匹配的小猫,试试清除筛选" : "还没有小猫,点右上角「新增小猫」"));
   }
   drawList();
 }
@@ -1346,6 +1367,8 @@ function computeTodos() {
         out.push({ lv: 2, row: i, key: "home|" + kid, t: name + " 缺新家地址", d: "足迹地图不会为它打点" });
       if (String(r[15] || "").trim() === "已付定金" && !String(r[9] || "").trim())
         out.push({ lv: 2, row: i, key: "deposit|" + kid, t: name + " 已付定金,可填「定新家日期」", d: "网站的小猫日记会显示这一步" });
+      if (!String(r[15] || "").trim())
+        out.push({ lv: 2, row: i, key: "stage|" + kid, t: name + " 未填交易阶段", d: "在编辑页选择:咨询中 / 已付定金 / 已付尾款 / 已接猫" });
     }
   }
   var ig = readIgnoredTodos();
@@ -1395,7 +1418,7 @@ function renderTodos(v) {
     item.appendChild(ig);
     item.onclick = function () {
       tab = S_KITTEN; kittenQuery = "";
-      kittenFilter = { status: "", gender: "", color: "", birth: "" };
+      kittenFilter = { status: "", gender: "", color: "", birth: "", home: "" };
       openRow = td.row;
       render(true); scrollToOpen();
     };

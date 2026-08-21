@@ -1200,13 +1200,15 @@ window.addEventListener("error", function (e) {
       });
       var typedEvents = [], gEntries = [];
       gAll.forEach(function (e) {
-        var t0 = e.texts[0];
-        if (t0 && EVT_ICON[t0]) typedEvents.push({ type: t0, d: e.d, texts: e.texts.slice(1), media: e.media });
+        var t0 = e.texts[0] || "";
+        var tm = t0.match(/^「(.+)」$/);
+        var typeName = tm ? tm[1] : (EVT_ICON[t0] ? t0 : null);
+        if (typeName) typedEvents.push({ type: typeName, d: e.d, texts: e.texts.slice(1), media: e.media });
         else gEntries.push(e);
       });
       typedEvents.forEach(function (e) {
         var body = e.media.length ? '<div class="diary-photo" data-media="' + esc(e.media.join("|")) + '" data-title="' + esc(name) + '">' + mediaTag(e.media[0], "shk-drawer-media") + "</div>" : "";
-        pages.push({ k: dkey(e.d) || 3, html: dpage(false, EVT_ICON[e.type], e.type, esc(e.d), e.texts.map(esc).join(" \u00b7 "), body, !!body) });
+        pages.push({ k: dkey(e.d) || 3, html: dpage(false, EVT_ICON[e.type] || "\ud83d\udccc", esc(e.type), esc(e.d), e.texts.map(esc).join(" \u00b7 "), body, !!body) });
       });
       var hasTypedVac = typedEvents.some(function (e) { return e.type === "打疫苗" && e.d === r.vac; });
       var hasTypedSero = typedEvents.some(function (e) { return e.type === "血清检测" && e.d === r.sero; });
