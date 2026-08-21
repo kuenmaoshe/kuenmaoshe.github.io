@@ -389,6 +389,10 @@ body.day .status-badge{background:rgba(247,243,234,.92)!important}
 
 /* 毕业去向排行:与足迹地图并排,占地更小 */
 .kittens-side .sold-regions{flex:0 0 195px;margin-top:0;width:auto}
+.kittens-side .sold-regions,.kittens-side .sold-regions *{pointer-events:auto}
+.kittens-side .sold-regions summary{cursor:pointer}
+.news-map-box{overflow:hidden}
+.news-map-box img{transform-origin:0 0}
 .kittens-side .sold-regions-head{font-size:10.5px;letter-spacing:.14em;margin:0 0 7px;color:#8a8377}
 .kittens-side .sold-regions-row{grid-template-columns:minmax(0,auto) 1fr auto;gap:7px;font-size:11.5px;margin:3.5px 0;color:#3a342a}
 .kittens-side .sold-regions-row .lbl{max-width:76px;overflow:hidden;text-overflow:ellipsis;color:#6a655c}
@@ -1398,17 +1402,42 @@ window.addEventListener("error", function (e) {
       }
       return best;
     }
+    var pts = [];
     places.forEach(function (p) {
       var g = geoFor(p);
       if (!g) return;
       var xy = worldPct(g[0], g[1]);
       var dot = document.createElement("span");
       dot.className = "sold-dot";
-      dot.style.left = xy[0].toFixed(1) + "%";
-      dot.style.top = xy[1].toFixed(1) + "%";
       dot.setAttribute("data-place", p + " \u00d7 " + counts[p]);
       mapWrap.appendChild(dot);
+      pts.push({ x: xy[0], y: xy[1], el: dot });
     });
+    // 按光点范围裁切地图:去掉没有小猫去过的大片空白,光点更清楚
+    (function cropToDots() {
+      var img = mapWrap.querySelector("img");
+      if (!img || !pts.length) return;
+      var PAD = 7, MINW = 26, MINH = 20, RATIO = 731 / 1400; // world-map.svg viewBox
+      var xs = pts.map(function (p) { return p.x; }), ys = pts.map(function (p) { return p.y; });
+      var x0 = Math.max(0, Math.min.apply(null, xs) - PAD), x1 = Math.min(100, Math.max.apply(null, xs) + PAD);
+      var y0 = Math.max(0, Math.min.apply(null, ys) - PAD), y1 = Math.min(100, Math.max.apply(null, ys) + PAD);
+      function widen(a, b, min, lo, hi) {
+        if (b - a >= min) return [a, b];
+        var c = (a + b) / 2, h = min / 2;
+        if (c - h < lo) return [lo, Math.min(hi, lo + min)];
+        if (c + h > hi) return [Math.max(lo, hi - min), hi];
+        return [c - h, c + h];
+      }
+      var xr = widen(x0, x1, MINW, 0, 100); x0 = xr[0]; x1 = xr[1];
+      var yr = widen(y0, y1, MINH, 0, 100); y0 = yr[0]; y1 = yr[1];
+      var cw = x1 - x0, ch = y1 - y0, k = 100 / cw;
+      img.style.transform = "scale(" + k.toFixed(4) + ") translate(" + (-x0).toFixed(2) + "%," + (-y0).toFixed(2) + "%)";
+      mapWrap.style.aspectRatio = "1 / " + (RATIO * k * ch / 100).toFixed(4);
+      pts.forEach(function (p) {
+        p.el.style.left = ((p.x - x0) / cw * 100).toFixed(1) + "%";
+        p.el.style.top = ((p.y - y0) / ch * 100).toFixed(1) + "%";
+      });
+    })();
     capBox.querySelector(".hero-sold-caption").innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="12" cy="16.5" rx="4.4" ry="3.6"/><circle cx="6.2" cy="11.5" r="2"/><circle cx="10" cy="8.6" r="2.1"/><circle cx="14" cy="8.6" r="2.1"/><circle cx="17.8" cy="11.5" r="2"/></svg><span>\u5c0f\u732b\u8db3\u8ff9</span>';
 
     // 地区榜:按省份/国家合并(四川成都 + 四川自贡 → 四川),数量多的用条形,其余折叠成标签
@@ -1429,8 +1458,7 @@ window.addEventListener("error", function (e) {
     });
     var sorted = Object.keys(provCounts).map(function (p) { return [p, provCounts[p]]; })
       .sort(function (a, b) { return b[1] - a[1] || (a[0] < b[0] ? -1 : 1); });
-    var main = sorted.filter(function (x) { return x[1] > 1; });
-    if (main.length < 4) main = sorted.slice(0, Math.min(6, sorted.length));
+    var main = sorted.slice(0, 8);
     var rest = sorted.slice(main.length);
     var max = sorted[0][1];
     var list = capBox.querySelector(".sold-regions");
