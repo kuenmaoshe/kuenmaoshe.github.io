@@ -288,7 +288,30 @@ body.day .d-date{color:#6a655c}
 .footprints-fold summary::-webkit-details-marker{display:none}
 .footprints-fold summary:after{content:"\25be";transition:transform .3s}
 .footprints-fold[open] summary:after{transform:rotate(180deg)}
+/* 毕业去向:地图下方的地区榜(少量地区折叠) */
+.sold-regions{flex-basis:100%;width:100%;margin-top:14px}
+.sold-regions-head{font-size:11px;letter-spacing:.16em;color:#b0aa9e;margin:0 0 8px}
+body.day .sold-regions-head{color:#6a655c}
+.sold-regions-row{display:grid;grid-template-columns:minmax(64px,auto) 1fr auto;align-items:center;gap:10px;font-size:12.5px;margin:5px 0;color:#d8d0c0}
+body.day .sold-regions-row{color:#3a342a}
+.sold-regions-row .lbl{text-align:right;white-space:nowrap}
+.sold-regions-row .trk{height:6px;background:rgba(198,161,91,.18);border-radius:3px;overflow:hidden}
+.sold-regions-row .bar{height:100%;background:linear-gradient(90deg,#8c6b31,var(--gold));border-radius:3px}
+.sold-regions-row .val{color:var(--gold);font-variant-numeric:tabular-nums;min-width:14px}
+.sold-regions details{margin-top:8px}
+.sold-regions summary{list-style:none;cursor:pointer;font-size:12px;color:#8c6b31;display:inline-flex;gap:6px;align-items:center;letter-spacing:.06em}
+.sold-regions summary::-webkit-details-marker{display:none}
+.sold-regions summary:after{content:"\25be";transition:transform .3s}
+.sold-regions details[open] summary:after{transform:rotate(180deg)}
+.sold-regions .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sold-regions .chip{font-size:11.5px;padding:3px 9px;border:1px solid rgba(198,161,91,.45);border-radius:999px;color:#b0aa9e}
+body.day .sold-regions .chip{color:#6a655c}
+@media (min-width:761px){.kittens-side .news-map{flex-wrap:wrap}}
+.footprints-fold .sold-regions{padding:0 2px}
+
 .footprints-fold .hero-sold-caption{display:none!important}
+/* 收起时真正隐藏地图与地区榜(此前被 news-map 的 display:block!important 顶掉) */
+.footprints-fold:not([open]) .news-map,.footprints-fold:not([open]) .sold-regions{display:none!important}
 
 /* filters flow compactly inside one panel (~2 rows) */
 .filter-panel{display:flex;flex-wrap:wrap;align-items:center;column-gap:28px;row-gap:9px;margin:0 0 16px}
@@ -955,6 +978,10 @@ window.addEventListener("error", function (e) {
     "海外访客": ["International Visitors", "해외 방문자"],
     "游乐区": ["Play Area", "놀이 공간"],
     "花园小径": ["Garden Path", "정원 산책로"],
+    "毕业去向": ["Where They Live Now", "새 가족이 사는 곳"],
+    "个地区": ["regions", "개 지역"],
+    "更多地区": ["More regions", "더 많은 지역"],
+    "只": ["kittens", "마리"],
     "种公": ["Sire", "아빠 고양이"],
     "种母": ["Dam", "엄마 고양이"],
     "总访问量": ["Page Views", "총 조회수"],
@@ -1334,6 +1361,7 @@ window.addEventListener("error", function (e) {
     var places = Object.keys(counts);
     if (!places.length) return;
     var mapWrap = box;
+    Array.prototype.forEach.call(mapWrap.querySelectorAll(".sold-dot"), function (d) { d.remove(); });
     function geoFor(p) {
       if (GEO[p]) return GEO[p];
       var best = null, bestIdx = -1, bestLen = 0;
@@ -1356,6 +1384,24 @@ window.addEventListener("error", function (e) {
       mapWrap.appendChild(dot);
     });
     capBox.querySelector(".hero-sold-caption").innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="12" cy="16.5" rx="4.4" ry="3.6"/><circle cx="6.2" cy="11.5" r="2"/><circle cx="10" cy="8.6" r="2.1"/><circle cx="14" cy="8.6" r="2.1"/><circle cx="17.8" cy="11.5" r="2"/></svg><span>\u5c0f\u732b\u8db3\u8ff9</span>';
+
+    // 地区榜:数量多的用条形,其余折叠成标签
+    var sorted = places.map(function (p) { return [p, counts[p]]; }).sort(function (a, b) { return b[1] - a[1]; });
+    var main = sorted.filter(function (x) { return x[1] > 1; });
+    if (main.length < 4) main = sorted.slice(0, Math.min(6, sorted.length));
+    var rest = sorted.slice(main.length);
+    var max = sorted[0][1];
+    var list = capBox.querySelector(".sold-regions");
+    if (!list) { list = document.createElement("div"); list.className = "sold-regions"; capBox.appendChild(list); }
+    var html = '<p class="sold-regions-head"><span>\u6bd5\u4e1a\u53bb\u5411</span> \u00b7 ' + places.length + ' <span>\u4e2a\u5730\u533a</span> \u00b7 ' + total + ' <span>\u53ea</span></p>';
+    html += main.map(function (x) {
+      return '<div class="sold-regions-row"><span class="lbl">' + esc(x[0]) + '</span><span class="trk"><span class="bar" style="width:' + Math.max(6, Math.round(x[1] / max * 100)) + '%"></span></span><span class="val">' + x[1] + "</span></div>";
+    }).join("");
+    if (rest.length) {
+      html += '<details><summary><span>\u66f4\u591a\u5730\u533a</span> \u00b7 ' + rest.length + '</summary><div class="chips">' +
+        rest.map(function (x) { return '<span class="chip">' + esc(x[0]) + (x[1] > 1 ? " \u00d7 " + x[1] : "") + "</span>"; }).join("") + "</div></details>";
+    }
+    list.innerHTML = html;
   }
 
   function buildAboutStats(kittens, settings) {
