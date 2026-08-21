@@ -252,6 +252,7 @@ var MAX_SIDE = 1300, THUMB_SIDE = 500, TARGET_KB = 260;
 /* ================= 状态 ================= */
 var token = "", state = null, dirty = false, tab = S_KITTEN, kittenQuery = "", openRow = -1;
 var kittenFilter = { status: "", gender: "", color: "", birth: "", home: "" };
+var todoFilter = { lv: "", type: "" };
 
 var $ = function (id) { return document.getElementById(id); };
 function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
@@ -1381,25 +1382,62 @@ function computeTodos() {
   visible.sort(function (a, b) { return a.lv - b.lv; });
   return visible;
 }
+var TODO_TYPES = {
+  photo: "缺花色/照片", depart: "即将出发", serum: "血清检测", vaccine: "疫苗提醒",
+  birth: "缺生日", home: "缺新家地址", deposit: "定金跟进", stage: "交易阶段"
+};
 function renderTodos(v) {
-  var todos = computeTodos();
+  var all = computeTodos();
   v.appendChild(el("div", "note", "以下事项每次打开后台时从小猫数据自动算出,处理完对应数据后自动消失。点击条目直达那只猫的编辑页;不想再看到的条目点「忽略」(只影响本设备的显示,不改数据)。"));
-  if (!todos.length) {
-    var ok = el("div", "empty", "✅ 一切正常,暂时没有需要处理的事项");
-    ok.style.fontSize = "16px";
-    v.appendChild(ok);
-  } else {
-    var bar = el("div", "toolbar");
-    bar.style.justifyContent = "flex-end";
+
+  var todos = all.filter(function (td) {
+    if (todoFilter.lv !== "" && td.lv !== +todoFilter.lv) return false;
+    if (todoFilter.type && td.key.split("|")[0] !== todoFilter.type) return false;
+    return true;
+  });
+
+  if (all.length) {
+    var fbar = el("div");
+    fbar.style.cssText = "display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:12px";
+    [["全部", ""], ["🔴 紧急", "0"], ["🟡 提醒", "1"], ["⚪ 补全", "2"]].forEach(function (o) {
+      var b = el("button", "btn sm" + (todoFilter.lv === o[1] ? " primary" : ""), o[0]);
+      b.onclick = function () { todoFilter.lv = o[1]; render(); };
+      fbar.appendChild(b);
+    });
+    var tc = {};
+    all.forEach(function (td) { var t = td.key.split("|")[0]; tc[t] = (tc[t] || 0) + 1; });
+    var sel = document.createElement("select");
+    sel.style.maxWidth = "180px";
+    var o0 = document.createElement("option"); o0.value = ""; o0.textContent = "全部类型"; sel.appendChild(o0);
+    Object.keys(TODO_TYPES).forEach(function (t) {
+      if (!tc[t]) return;
+      var o = document.createElement("option"); o.value = t;
+      o.textContent = TODO_TYPES[t] + " · " + tc[t] + " 条";
+      if (todoFilter.type === t) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.onchange = function () { todoFilter.type = sel.value; render(); };
+    fbar.appendChild(sel);
+    if (todoFilter.lv !== "" || todoFilter.type) {
+      var clr = el("button", "btn sm ghost", "✕ 清除筛选");
+      clr.onclick = function () { todoFilter = { lv: "", type: "" }; render(); };
+      fbar.appendChild(clr);
+    }
     var igAll = el("button", "btn sm", "全部忽略（" + todos.length + " 条）");
+    igAll.style.marginLeft = "auto";
     igAll.onclick = function () {
       var list = readIgnoredTodos();
       todos.forEach(function (td) { if (list.indexOf(td.key) < 0) list.push(td.key); });
       writeIgnoredTodos(list);
       render();
     };
-    bar.appendChild(igAll);
-    v.appendChild(bar);
+    fbar.appendChild(igAll);
+    v.appendChild(fbar);
+  }
+  if (!todos.length) {
+    var ok = el("div", "empty", all.length ? "该筛选下没有事项,试试清除筛选" : "✅ 一切正常,暂时没有需要处理的事项");
+    ok.style.fontSize = "16px";
+    v.appendChild(ok);
   }
   var dots = ["todo-red", "todo-yellow", "todo-gray"];
   todos.forEach(function (td) {
@@ -1428,10 +1466,10 @@ function renderTodos(v) {
     };
     v.appendChild(item);
   });
-  if (todos.ignoredCount) {
+  if (all.ignoredCount) {
     var foot = el("div", "field");
     foot.style.textAlign = "center";
-    var restore = el("button", "btn sm", "已忽略 " + todos.ignoredCount + " 条 · 全部恢复");
+    var restore = el("button", "btn sm", "已忽略 " + all.ignoredCount + " 条 · 全部恢复");
     restore.onclick = function () { writeIgnoredTodos([]); render(); };
     foot.appendChild(restore);
     v.appendChild(foot);
