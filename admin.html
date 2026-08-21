@@ -1495,6 +1495,24 @@ $("discardBtn").onclick = function () {
 };
 $("saveBtn").onclick = save;
 
+/* 版本自检:后台文件在服务器上更新后,自动换到新版(有未保存改动时不打扰) */
+(function () {
+  if (!window.fetch) return;
+  fetch(location.pathname, { method: "HEAD", cache: "no-cache" }).then(function (res) {
+    var tag = res.headers.get("ETag") || res.headers.get("Last-Modified") || "";
+    if (!tag) return;
+    var KEY = "kms_admin_ver", prev = "";
+    try { prev = localStorage.getItem(KEY) || ""; } catch (e) {}
+    if (prev && prev !== tag && !dirty && !sessionStorage.getItem("kms_admin_re")) {
+      try { sessionStorage.setItem("kms_admin_re", "1"); localStorage.setItem(KEY, tag); } catch (e) {}
+      fetch(location.pathname, { cache: "reload" }).then(function () { location.reload(); })
+        .catch(function () { location.reload(); });
+      return;
+    }
+    try { localStorage.setItem(KEY, tag); sessionStorage.removeItem("kms_admin_re"); } catch (e) {}
+  }).catch(function () {});
+})();
+
 /* 自动登录 */
 var saved = readToken();
 if (saved) {
