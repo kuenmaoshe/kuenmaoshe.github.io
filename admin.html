@@ -250,7 +250,7 @@ var COLORS = ["银虎斑","棕虎斑","蓝虎斑","红虎斑","烟灰色","纯�
 var MAX_SIDE = 1300, THUMB_SIDE = 500, TARGET_KB = 260;
 
 /* ================= 状态 ================= */
-var token = "", state = null, dirty = false, tab = "待办", kittenQuery = "", openRow = -1;
+var token = "", state = null, dirty = false, tab = "统计", kittenQuery = "", openRow = -1;
 
 var $ = function (id) { return document.getElementById(id); };
 function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
@@ -810,7 +810,7 @@ function scrollToOpen() {
 }
 function renderTabs() {
   var t = $("tabs"); t.innerHTML = "";
-  [["待办", "待办"], [S_KITTEN, "小猫"], [S_PARENT, "种猫"], [S_FEED, "家长反馈"], [S_FAQ, "常见问题"], [S_SET, "设置"], ["统计", "统计"], ["帮助", "帮助"]]
+  [["统计", "统计"], [S_KITTEN, "小猫"], [S_PARENT, "种猫"], [S_FEED, "家长反馈"], [S_FAQ, "常见问题"], [S_SET, "设置"], ["帮助", "帮助"], ["待办", "待办"]]
     .forEach(function (p) {
       var b = el("button", tab === p[0] ? "active" : "");
       b.appendChild(document.createTextNode(p[1]));
