@@ -390,10 +390,11 @@ body.day .status-badge{background:rgba(247,243,234,.92)!important}
 /* 毕业去向排行:与足迹地图并排,占地更小 */
 .kittens-side .sold-regions{flex:0 0 195px;margin-top:0;width:auto}
 .kittens-side .sold-regions,.kittens-side .sold-regions *{pointer-events:auto}
-.sold-abroad{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:10px 0 0;font-size:11.5px;color:#6a655c}
+.sold-abroad{display:flex;flex-wrap:wrap;align-items:center;gap:5px 9px;margin:6px 0 0;font-size:11.5px;color:#6a655c}
+.sold-abroad .ab-more{color:#8c6b31;cursor:default}
 .kittens-side .news-map-box{order:1}
 .kittens-side .sold-regions{order:2}
-.kittens-side .sold-abroad{order:3;flex:0 0 100%;width:100%}
+.kittens-side .sold-abroad{width:auto;margin-top:9px;padding-top:9px;border-top:1px solid rgba(140,107,49,.18);font-size:11px;gap:4px 8px}
 .kittens-side .sold-world{order:4;flex:0 0 100%;width:100%;max-width:300px;margin-top:10px;position:relative;overflow:hidden;border-radius:8px}
 .cn-map-inline{width:100%;line-height:0}
 .cn-map-inline svg{width:100%;height:auto;display:block}
@@ -427,8 +428,8 @@ body.day .status-badge{background:rgba(247,243,234,.92)!important}
 .kittens-side .sold-regions .chips{gap:4px;margin-top:6px}
 .kittens-side .sold-regions .chip{font-size:10.5px;padding:2px 7px;color:#6a655c;border-color:rgba(140,107,49,.4)}
 @media (min-width:761px){
-  .kittens-side .news-map{display:flex!important;align-items:flex-start;gap:16px!important;flex-wrap:wrap!important}
-  .kittens-side .news-map .hero-sold-caption{order:-1;flex:0 0 100%!important;margin:0 0 8px!important}
+  .kittens-side .news-map{display:flex!important;align-items:flex-start;gap:12px!important;flex-wrap:wrap!important}
+  .kittens-side .news-map .hero-sold-caption{order:-1;flex:0 0 100%!important;margin:0 0 6px!important}
   .kittens-side .news-map-box{flex:1 1 0%!important;min-width:0}
   .kittens-heading{grid-template-columns:1fr 1.18fr!important}
 }
@@ -1457,21 +1458,14 @@ window.addEventListener("error", function (e) {
         var n = el.getAttribute("data-name");
         var c = provCounts[n] || 0;
         var t = c ? 0.18 + 0.82 * Math.sqrt(c / cnMax) : 0;   // 0~1 强度
-        el.style.fill = c ? "rgb(" + Math.round(226 - 78 * t) + "," + Math.round(206 - 88 * t) + "," + Math.round(170 - 108 * t) + ")" : "#e8e0cf";
+        el.style.fill = c ? "rgb(" + Math.round(226 - 86 * t) + "," + Math.round(206 - 99 * t) + "," + Math.round(170 - 121 * t) + ")" : "#d5c9b1";
         el.style.stroke = "#efe9dd";
         var title = el.querySelector("title");
         if (title) title.textContent = label(n) + (c ? " \u00b7 " + c + "\u53ea" : " \u00b7 \u6682\u65e0");
         if (c) el.setAttribute("data-count", c);
       });
-      var lg = capBox.querySelector(".heat-legend");
-      if (!lg) {
-        lg = document.createElement("div");
-        lg.className = "heat-legend";
-        lg.innerHTML = '<span>\u5c11</span><i></i><span>\u591a</span><b></b>';
-        var mb = capBox.querySelector(".news-map-box");
-        if (mb) mb.appendChild(lg);
-      }
-      lg.querySelector("b").textContent = cnMax + "\u53ea";
+      var oldLg = capBox.querySelector(".heat-legend");
+      if (oldLg) oldLg.remove();
     }
     var mapHost = mapWrap.querySelector(".cn-map-inline");
     if (mapHost && mapHost.querySelector("svg")) { paintHeat(mapHost); }
@@ -1494,9 +1488,11 @@ window.addEventListener("error", function (e) {
     // 地区榜:与地图同源,按省份/国家合并
     var sorted = Object.keys(provCounts).map(function (p) { return [p, provCounts[p]]; })
       .sort(function (a, b) { return b[1] - a[1] || (a[0] < b[0] ? -1 : 1); });
-    var main = sorted.slice(0, 8);
-    var rest = sorted.slice(main.length);
-    var max = sorted[0][1];
+    // 排行只列国内省份;海外单独常驻一行,不再混进折叠里
+    var domestic = sorted.filter(function (x) { return isCN(x[0]); });
+    var main = domestic.slice(0, 8);
+    var rest = domestic.slice(main.length);
+    var max = (domestic[0] || sorted[0])[1];
     var list = capBox.querySelector(".sold-regions");
     if (!list) { list = document.createElement("div"); list.className = "sold-regions"; capBox.appendChild(list); }
     var html = '<p class="sold-regions-head"><span>\u6bd5\u4e1a\u53bb\u5411</span> \u00b7 ' + sorted.length + ' <span>\u4e2a\u5730\u533a</span> \u00b7 ' + total + ' <span>\u53ea</span></p>';
@@ -1512,16 +1508,24 @@ window.addEventListener("error", function (e) {
     // 海外去向:中国地图之外的目的地,单独一行显示
     var abroad = sorted.filter(function (x) { return !isCN(x[0]); });
     var abBox = capBox.querySelector(".sold-abroad");
+    if (abBox && abBox.parentNode !== list) { abBox.remove(); abBox = null; }
     if (!abBox) {
       abBox = document.createElement("p");
       abBox.className = "sold-abroad";
-      capBox.appendChild(abBox);
+      (capBox.querySelector(".sold-regions") || capBox).appendChild(abBox);
     }
-    abBox.innerHTML = abroad.length
-      ? '<span class="ab-label">\u6d77\u5916</span>' + abroad.map(function (x) {
-          return '<span class="ab-item">' + esc(label(x[0])) + (x[1] > 1 ? ' <b>' + x[1] + "</b>" : "") + "</span>";
-        }).join("")
-      : "";
+    if (!abroad.length) { abBox.innerHTML = ""; }
+    else {
+      var AB_MAX = 5, abShown = abroad.slice(0, AB_MAX), abRest = abroad.slice(AB_MAX);
+      var abHtml = '<span class="ab-label">\u6d77\u5916</span>' + abShown.map(function (x) {
+        return '<span class="ab-item">' + esc(label(x[0])) + (x[1] > 1 ? ' <b>' + x[1] + "</b>" : "") + "</span>";
+      }).join("");
+      if (abRest.length) {
+        var restTxt = abRest.map(function (x) { return label(x[0]) + (x[1] > 1 ? " \u00d7 " + x[1] : ""); }).join("\u3001");
+        abHtml += '<span class="ab-more" title="' + esc(restTxt) + '">\u2026 \u8fd8\u6709 ' + abRest.length + '</span>';
+      }
+      abBox.innerHTML = abHtml;
+    }
 
     var oldWorld = capBox.querySelector(".sold-world");
     if (oldWorld) oldWorld.remove();
