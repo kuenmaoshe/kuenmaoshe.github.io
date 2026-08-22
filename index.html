@@ -400,8 +400,6 @@ body.day .status-badge{background:rgba(247,243,234,.92)!important}
 .cn-map-inline svg{width:100%;height:auto;display:block}
 .cn-map-inline .cn-prov{transition:fill .25s}
 .cn-map-inline .cn-prov[data-count]:hover{fill:#8c6b31!important}
-.cattery-tag{position:absolute;transform:translate(-50%,-50%);display:block;color:#5c3f12;z-index:3;pointer-events:auto;cursor:default;filter:drop-shadow(0 1px 2px rgba(239,233,221,.9))}
-.cattery-tag svg{width:15px;height:15px;display:block}
 .heat-legend{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10.5px;color:#8a8377;letter-spacing:.08em}
 .heat-legend i{flex:0 0 76px;height:6px;border-radius:3px;background:linear-gradient(90deg,#e2ceaa,#94764a)}
 .heat-legend b{color:#8c6b31;font-weight:600;margin-left:2px}
@@ -1468,18 +1466,8 @@ window.addEventListener("error", function (e) {
       });
       var oldLg = capBox.querySelector(".heat-legend");
       if (oldLg) oldLg.remove();
-      // 成都的脉冲点上放一个小房子标记猫舍
-      var mb2 = capBox.querySelector(".news-map-box");
-      if (mb2 && !mb2.querySelector(".cattery-tag")) {
-        var tag = document.createElement("span");
-        tag.className = "cattery-tag";
-        tag.title = "Shakoshako \u732b\u820d \u00b7 \u56db\u5ddd\u6210\u90fd";
-        tag.style.left = (396.9 / 800 * 100).toFixed(2) + "%";
-        tag.style.top = (417.4 / 810 * 100).toFixed(2) + "%";
-        tag.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-          '<path d="M4 11.5 12 5l8 6.5"/><path d="M6.5 10.6V19h11v-8.4"/><path d="M10.3 19v-4.2h3.4V19"/></svg>';
-        mb2.appendChild(tag);
-      }
+      var oldTag = capBox.querySelector(".cattery-tag");
+      if (oldTag) oldTag.remove();
     }
     var mapHost = mapWrap.querySelector(".cn-map-inline");
     if (mapHost && mapHost.querySelector("svg")) { paintHeat(mapHost); }
