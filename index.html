@@ -400,7 +400,10 @@ body.day .status-badge{background:rgba(247,243,234,.92)!important}
 .cn-map-inline svg{width:100%;height:auto;display:block}
 .cn-map-inline .cn-prov{transition:fill .25s}
 .cn-map-inline .cn-prov[data-count]:hover{fill:#8c6b31!important}
-.cattery-tag{position:absolute;transform:translate(14px,-50%);font-size:11px;letter-spacing:.1em;color:#7a5a22;font-weight:600;white-space:nowrap;text-shadow:0 1px 2px rgba(239,233,221,.95),0 0 6px rgba(239,233,221,.9);pointer-events:auto;cursor:default}
+.cattery-callout{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.cattery-tag{position:absolute;transform:translate(-100%,-50%);display:flex;align-items:center;gap:4px;padding-right:6px;font-size:10.5px;letter-spacing:.08em;color:#7a5a22;white-space:nowrap;z-index:3;pointer-events:auto;cursor:default;text-shadow:0 1px 2px rgba(239,233,221,.95),0 0 6px rgba(239,233,221,.9)}
+.cattery-tag svg{width:13px;height:13px;flex:none}
+.cattery-tag b{font-weight:600}
 .heat-legend{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10.5px;color:#8a8377;letter-spacing:.08em}
 .heat-legend i{flex:0 0 76px;height:6px;border-radius:3px;background:linear-gradient(90deg,#e2ceaa,#94764a)}
 .heat-legend b{color:#8c6b31;font-weight:600;margin-left:2px}
@@ -1467,15 +1470,26 @@ window.addEventListener("error", function (e) {
       });
       var oldLg = capBox.querySelector(".heat-legend");
       if (oldLg) oldLg.remove();
-      // 成都的脉冲点标注为猫舍所在地
+      // 成都的脉冲点:引出线 + 小房子 + 「我们在这里」
       var mb2 = capBox.querySelector(".news-map-box");
-      if (mb2 && !mb2.querySelector(".cattery-tag")) {
+      if (mb2 && !mb2.querySelector(".cattery-callout")) {
+        var DX = 396.9 / 800 * 100, DY = 417.4 / 810 * 100;   // 脉冲点位置(%)
+        var LX = 35, LY = 37;                                  // 引线末端(%)
+        var line = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        line.setAttribute("class", "cattery-callout");
+        line.setAttribute("viewBox", "0 0 100 100");
+        line.setAttribute("preserveAspectRatio", "none");
+        line.innerHTML = '<line x1="' + DX + '" y1="' + DY + '" x2="' + LX + '" y2="' + LY +
+          '" stroke="#8c6b31" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linecap="round" opacity=".75"/>';
+        mb2.appendChild(line);
         var tag = document.createElement("span");
         tag.className = "cattery-tag";
-        tag.textContent = "\u732b\u820d";
         tag.title = "Shakoshako \u732b\u820d \u00b7 \u56db\u5ddd\u6210\u90fd";
-        tag.style.left = (396.9 / 800 * 100).toFixed(2) + "%";
-        tag.style.top = (417.4 / 810 * 100).toFixed(2) + "%";
+        tag.style.left = LX + "%";
+        tag.style.top = LY + "%";
+        tag.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<path d="M4 11.5 12 5l8 6.5"/><path d="M6.5 10.6V19h11v-8.4"/><path d="M10.3 19v-4.2h3.4V19"/></svg>' +
+          '<b>\u6211\u4eec\u5728\u8fd9\u91cc</b>';
         mb2.appendChild(tag);
       }
     }
@@ -1528,15 +1542,9 @@ window.addEventListener("error", function (e) {
     }
     if (!abroad.length) { abBox.innerHTML = ""; }
     else {
-      var AB_MAX = 5, abShown = abroad.slice(0, AB_MAX), abRest = abroad.slice(AB_MAX);
-      var abHtml = '<span class="ab-label">\u6d77\u5916</span>' + abShown.map(function (x) {
+      abBox.innerHTML = '<span class="ab-label">\u6d77\u5916</span>' + abroad.map(function (x) {
         return '<span class="ab-item">' + esc(label(x[0])) + (x[1] > 1 ? ' <b>' + x[1] + "</b>" : "") + "</span>";
       }).join("");
-      if (abRest.length) {
-        var restTxt = abRest.map(function (x) { return label(x[0]) + (x[1] > 1 ? " \u00d7 " + x[1] : ""); }).join("\u3001");
-        abHtml += '<span class="ab-more" title="' + esc(restTxt) + '">\u2026</span>';
-      }
-      abBox.innerHTML = abHtml;
     }
 
     var oldWorld = capBox.querySelector(".sold-world");
