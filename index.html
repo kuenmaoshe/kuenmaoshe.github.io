@@ -395,6 +395,14 @@ body.day .status-badge{background:rgba(247,243,234,.92)!important}
 .kittens-side .sold-regions{order:2}
 .kittens-side .sold-abroad{order:3;flex:0 0 100%;width:100%}
 .kittens-side .sold-world{order:4;flex:0 0 100%;width:100%;max-width:300px;margin-top:10px;position:relative;overflow:hidden;border-radius:8px}
+.cn-map-inline{width:100%;line-height:0}
+.cn-map-inline svg{width:100%;height:auto;display:block}
+.cn-map-inline .cn-prov{transition:fill .25s}
+.cn-map-inline .cn-prov[data-count]:hover{fill:#8c6b31!important}
+.heat-legend{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10.5px;color:#8a8377;letter-spacing:.08em}
+.heat-legend i{flex:0 0 76px;height:6px;border-radius:3px;background:linear-gradient(90deg,#e2ceaa,#94764a)}
+.heat-legend b{color:#8c6b31;font-weight:600;margin-left:2px}
+
 @media (min-width:761px){.kittens-side .news-map-box{max-width:300px}}
 .sold-world img{width:100%;height:auto;display:block;opacity:.62;transform-origin:0 0}
 .news-map-box .sold-dot{display:flex;align-items:center;justify-content:center;color:#2f2711;font-weight:600;line-height:1;letter-spacing:0}
@@ -1442,30 +1450,45 @@ window.addEventListener("error", function (e) {
     var provNames = Object.keys(provCounts);
     var cnMax = 1;
     provNames.forEach(function (n) { if (isCN(n) && provCounts[n] > cnMax) cnMax = provCounts[n]; });
-    // 中国地图上每个省一个光点,大小随数量变化(面积正比于数量)
-    provNames.forEach(function (n) {
-      if (!isCN(n)) return;
-      var g = PROV_GEO[n] || GEO[n];
-      if (!g) return;
-      var xy = chinaPct(g[0], g[1]);
-      if (xy[0] < -2 || xy[0] > 102 || xy[1] < -2 || xy[1] > 102) return;
-      var c = provCounts[n];
-      var size = 9 + 13 * Math.sqrt(c / cnMax);
-      var dot = document.createElement("span");
-      dot.className = "sold-dot";
-      dot.style.left = xy[0].toFixed(1) + "%";
-      dot.style.top = xy[1].toFixed(1) + "%";
-      dot.style.width = size.toFixed(1) + "px";
-      dot.style.height = size.toFixed(1) + "px";
-      dot.style.transform = "translate(-50%,-50%)";
-      dot.setAttribute("data-place", label(n) + " \u00d7 " + c);
-      dot.setAttribute("title", label(n) + " \u00b7 " + c + "\u53ea");
-      if (size >= 13) {
-        dot.textContent = c;
-        dot.style.fontSize = Math.max(9, Math.round(size * 0.42)) + "px";
+    // 中国地图:按各省数量着色的热力图(省界来自 china-provinces.svg)
+    function paintHeat(svg) {
+      var nodes = svg.querySelectorAll(".cn-prov");
+      Array.prototype.forEach.call(nodes, function (el) {
+        var n = el.getAttribute("data-name");
+        var c = provCounts[n] || 0;
+        var t = c ? 0.18 + 0.82 * Math.sqrt(c / cnMax) : 0;   // 0~1 强度
+        el.style.fill = c ? "rgb(" + Math.round(226 - 78 * t) + "," + Math.round(206 - 88 * t) + "," + Math.round(170 - 108 * t) + ")" : "#e8e0cf";
+        el.style.stroke = "#efe9dd";
+        var title = el.querySelector("title");
+        if (title) title.textContent = label(n) + (c ? " \u00b7 " + c + "\u53ea" : " \u00b7 \u6682\u65e0");
+        if (c) el.setAttribute("data-count", c);
+      });
+      var lg = capBox.querySelector(".heat-legend");
+      if (!lg) {
+        lg = document.createElement("div");
+        lg.className = "heat-legend";
+        lg.innerHTML = '<span>\u5c11</span><i></i><span>\u591a</span><b></b>';
+        var mb = capBox.querySelector(".news-map-box");
+        if (mb) mb.appendChild(lg);
       }
-      mapWrap.appendChild(dot);
-    });
+      lg.querySelector("b").textContent = cnMax + "\u53ea";
+    }
+    var mapHost = mapWrap.querySelector(".cn-map-inline");
+    if (mapHost && mapHost.querySelector("svg")) { paintHeat(mapHost); }
+    else if (window.fetch) {
+      if (!mapHost) {
+        mapHost = document.createElement("div");
+        mapHost.className = "cn-map-inline";
+        mapWrap.appendChild(mapHost);
+      }
+      var oldImg = mapWrap.querySelector("img");
+      fetch("assets/china-provinces.svg", { cache: "force-cache" }).then(function (r) { return r.text(); })
+        .then(function (txt) {
+          mapHost.innerHTML = txt;
+          if (oldImg) oldImg.remove();
+          paintHeat(mapHost);
+        }).catch(function () {});
+    }
     capBox.querySelector(".hero-sold-caption").innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="12" cy="16.5" rx="4.4" ry="3.6"/><circle cx="6.2" cy="11.5" r="2"/><circle cx="10" cy="8.6" r="2.1"/><circle cx="14" cy="8.6" r="2.1"/><circle cx="17.8" cy="11.5" r="2"/></svg><span>\u5c0f\u732b\u8db3\u8ff9</span>';
 
     // 地区榜:与地图同源,按省份/国家合并
@@ -1500,60 +1523,8 @@ window.addEventListener("error", function (e) {
         }).join("")
       : "";
 
-    // 海外小地图:世界地图裁切到海外目的地所在范围
-    var wBox = capBox.querySelector(".sold-world");
-    if (!abroad.length) { if (wBox) wBox.remove(); }
-    else {
-      if (!wBox) {
-        wBox = document.createElement("div");
-        wBox.className = "sold-world";
-        wBox.innerHTML = '<img src="assets/world-map.svg" alt="\u6d77\u5916\u53bb\u5411" loading="lazy" decoding="async">';
-        capBox.appendChild(wBox);
-      }
-      Array.prototype.forEach.call(wBox.querySelectorAll(".sold-dot"), function (d) { d.remove(); });
-      var wPts = [], wMax = 1;
-      abroad.forEach(function (x) { if (x[1] > wMax) wMax = x[1]; });
-      abroad.forEach(function (x) {
-        var g = geoFor(x[0]);
-        if (!g) return;
-        var xy = worldPct(g[0], g[1]);
-        var d = document.createElement("span");
-        d.className = "sold-dot";
-        d.setAttribute("data-place", label(x[0]) + " \u00d7 " + x[1]);
-        d.setAttribute("title", label(x[0]) + " \u00b7 " + x[1] + "\u53ea");
-        wBox.appendChild(d);
-        wPts.push({ x: xy[0], y: xy[1], el: d, c: x[1] });
-      });
-      (function cropWorld() {
-        var img = wBox.querySelector("img");
-        if (!img || !wPts.length) return;
-        var PAD = 9, MINW = 40, MINH = 24, RATIO = 731 / 1400;
-        var xs = wPts.map(function (q) { return q.x; }), ys = wPts.map(function (q) { return q.y; });
-        var x0 = Math.max(0, Math.min.apply(null, xs) - PAD), x1 = Math.min(100, Math.max.apply(null, xs) + PAD);
-        var y0 = Math.max(0, Math.min.apply(null, ys) - PAD), y1 = Math.min(100, Math.max.apply(null, ys) + PAD);
-        function widen(a, b, min, lo, hi) {
-          if (b - a >= min) return [a, b];
-          var c2 = (a + b) / 2, h = min / 2;
-          if (c2 - h < lo) return [lo, Math.min(hi, lo + min)];
-          if (c2 + h > hi) return [Math.max(lo, hi - min), hi];
-          return [c2 - h, c2 + h];
-        }
-        var xr = widen(x0, x1, MINW, 0, 100); x0 = xr[0]; x1 = xr[1];
-        var yr = widen(y0, y1, MINH, 0, 100); y0 = yr[0]; y1 = yr[1];
-        var cw = x1 - x0, ch = y1 - y0, k = 100 / cw;
-        img.style.transformOrigin = "0 0";
-        img.style.transform = "scale(" + k.toFixed(4) + ") translate(" + (-x0).toFixed(2) + "%," + (-y0).toFixed(2) + "%)";
-        wBox.style.aspectRatio = "1 / " + (RATIO * k * ch / 100).toFixed(4);
-        wPts.forEach(function (q) {
-          var sz = 7 + 7 * Math.sqrt(q.c / wMax);
-          q.el.style.left = ((q.x - x0) / cw * 100).toFixed(1) + "%";
-          q.el.style.top = ((q.y - y0) / ch * 100).toFixed(1) + "%";
-          q.el.style.width = sz.toFixed(1) + "px";
-          q.el.style.height = sz.toFixed(1) + "px";
-          q.el.style.transform = "translate(-50%,-50%)";
-        });
-      })();
-    }
+    var oldWorld = capBox.querySelector(".sold-world");
+    if (oldWorld) oldWorld.remove();
   }
 
   function buildAboutStats(kittens, settings) {
