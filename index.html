@@ -388,7 +388,7 @@ body.day .status-badge{background:rgba(247,243,234,.92)!important}
 
 
 /* 毕业去向排行:与足迹地图并排,占地更小 */
-.kittens-side .sold-regions{flex:0 0 195px;margin-top:0;width:auto}
+.kittens-side .sold-regions{flex:0 0 232px;margin-top:0;width:auto}
 .kittens-side .sold-regions,.kittens-side .sold-regions *{pointer-events:auto}
 .sold-abroad{display:flex;flex-wrap:wrap;align-items:center;gap:5px 9px;margin:6px 0 0;font-size:11.5px;color:#6a655c}
 .sold-abroad .ab-more{color:#8c6b31;cursor:default}
@@ -400,11 +400,12 @@ body.day .status-badge{background:rgba(247,243,234,.92)!important}
 .cn-map-inline svg{width:100%;height:auto;display:block}
 .cn-map-inline .cn-prov{transition:fill .25s}
 .cn-map-inline .cn-prov[data-count]:hover{fill:#8c6b31!important}
+.cattery-tag{position:absolute;transform:translate(14px,-50%);font-size:11px;letter-spacing:.1em;color:#7a5a22;font-weight:600;white-space:nowrap;text-shadow:0 1px 2px rgba(239,233,221,.95),0 0 6px rgba(239,233,221,.9);pointer-events:auto;cursor:default}
 .heat-legend{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10.5px;color:#8a8377;letter-spacing:.08em}
 .heat-legend i{flex:0 0 76px;height:6px;border-radius:3px;background:linear-gradient(90deg,#e2ceaa,#94764a)}
 .heat-legend b{color:#8c6b31;font-weight:600;margin-left:2px}
 
-@media (min-width:761px){.kittens-side .news-map-box{max-width:300px}}
+@media (min-width:761px){.kittens-side .news-map-box{max-width:258px}}
 .sold-world img{width:100%;height:auto;display:block;opacity:.62;transform-origin:0 0}
 .news-map-box .sold-dot{display:flex;align-items:center;justify-content:center;color:#2f2711;font-weight:600;line-height:1;letter-spacing:0}
 .sold-world .sold-dot{background:rgba(198,161,91,.6);border:1px solid rgba(198,161,91,.95);box-shadow:0 0 8px rgba(226,201,141,.4);animation:none}
@@ -1466,6 +1467,17 @@ window.addEventListener("error", function (e) {
       });
       var oldLg = capBox.querySelector(".heat-legend");
       if (oldLg) oldLg.remove();
+      // 成都的脉冲点标注为猫舍所在地
+      var mb2 = capBox.querySelector(".news-map-box");
+      if (mb2 && !mb2.querySelector(".cattery-tag")) {
+        var tag = document.createElement("span");
+        tag.className = "cattery-tag";
+        tag.textContent = "\u732b\u820d";
+        tag.title = "Shakoshako \u732b\u820d \u00b7 \u56db\u5ddd\u6210\u90fd";
+        tag.style.left = (396.9 / 800 * 100).toFixed(2) + "%";
+        tag.style.top = (417.4 / 810 * 100).toFixed(2) + "%";
+        mb2.appendChild(tag);
+      }
     }
     var mapHost = mapWrap.querySelector(".cn-map-inline");
     if (mapHost && mapHost.querySelector("svg")) { paintHeat(mapHost); }
@@ -1490,7 +1502,7 @@ window.addEventListener("error", function (e) {
       .sort(function (a, b) { return b[1] - a[1] || (a[0] < b[0] ? -1 : 1); });
     // 排行只列国内省份;海外单独常驻一行,不再混进折叠里
     var domestic = sorted.filter(function (x) { return isCN(x[0]); });
-    var main = domestic.slice(0, 8);
+    var main = domestic.slice(0, 6);
     var rest = domestic.slice(main.length);
     var max = (domestic[0] || sorted[0])[1];
     var list = capBox.querySelector(".sold-regions");
@@ -1522,7 +1534,7 @@ window.addEventListener("error", function (e) {
       }).join("");
       if (abRest.length) {
         var restTxt = abRest.map(function (x) { return label(x[0]) + (x[1] > 1 ? " \u00d7 " + x[1] : ""); }).join("\u3001");
-        abHtml += '<span class="ab-more" title="' + esc(restTxt) + '">\u2026 \u8fd8\u6709 ' + abRest.length + '</span>';
+        abHtml += '<span class="ab-more" title="' + esc(restTxt) + '">\u2026</span>';
       }
       abBox.innerHTML = abHtml;
     }
