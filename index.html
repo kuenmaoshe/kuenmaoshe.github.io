@@ -401,7 +401,7 @@ body.day .status-badge{background:rgba(247,243,234,.92)!important}
 .cn-map-inline .cn-prov{transition:fill .25s}
 .cn-map-inline .cn-prov[data-count]:hover{fill:#8c6b31!important}
 .cattery-callout{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
-.cattery-tag{position:absolute;transform:translate(-100%,-50%);display:flex;align-items:center;gap:4px;padding-right:6px;font-size:10.5px;letter-spacing:.08em;color:#7a5a22;white-space:nowrap;z-index:3;pointer-events:auto;cursor:default;text-shadow:0 1px 2px rgba(239,233,221,.95),0 0 6px rgba(239,233,221,.9)}
+.cattery-tag{position:absolute;transform:translate(-50%,-100%);display:flex;align-items:center;gap:4px;padding-right:6px;font-size:10.5px;letter-spacing:.08em;color:#7a5a22;white-space:nowrap;z-index:3;pointer-events:auto;cursor:default;text-shadow:0 1px 2px rgba(239,233,221,.95),0 0 6px rgba(239,233,221,.9)}
 .cattery-tag svg{width:13px;height:13px;flex:none}
 .cattery-tag b{font-weight:600}
 .heat-legend{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10.5px;color:#8a8377;letter-spacing:.08em}
@@ -1474,12 +1474,12 @@ window.addEventListener("error", function (e) {
       var mb2 = capBox.querySelector(".news-map-box");
       if (mb2 && !mb2.querySelector(".cattery-callout")) {
         var DX = 396.9 / 800 * 100, DY = 417.4 / 810 * 100;   // 脉冲点位置(%)
-        var LX = 35, LY = 37;                                  // 引线末端(%)
+        var LX = DX, LY = 8;                                   // 引线末端(%):脉冲点正上方的空白处
         var line = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         line.setAttribute("class", "cattery-callout");
         line.setAttribute("viewBox", "0 0 100 100");
         line.setAttribute("preserveAspectRatio", "none");
-        line.innerHTML = '<line x1="' + DX + '" y1="' + DY + '" x2="' + LX + '" y2="' + LY +
+        line.innerHTML = '<line x1="' + DX + '" y1="' + (DY - 2.5) + '" x2="' + LX + '" y2="' + (LY + 2) +
           '" stroke="#8c6b31" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linecap="round" opacity=".75"/>';
         mb2.appendChild(line);
         var tag = document.createElement("span");
