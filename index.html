@@ -398,6 +398,7 @@ body.day .status-badge{background:rgba(247,243,234,.92)!important}
 .kittens-side .sold-world{order:4;flex:0 0 100%;width:100%;max-width:300px;margin-top:10px;position:relative;overflow:hidden;border-radius:8px}
 .cn-map-inline{width:100%;line-height:0}
 .cn-map-inline svg{width:100%;height:auto;display:block}
+.news-map-box img.fp-world{width:100%;height:auto;display:block;opacity:.72;transform:none}
 .cn-map-inline .cn-prov{transition:fill .25s}
 .cn-map-inline .cn-prov[data-count]:hover{fill:#8c6b31!important}
 .heat-legend{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10.5px;color:#8a8377;letter-spacing:.08em}
@@ -1034,6 +1035,48 @@ window.addEventListener("error", function (e) {
     "游乐区": ["Play Area", "놀이 공간"],
     "花园小径": ["Garden Path", "정원 산책로"],
     "毕业去向": ["Where They Live Now", "새 가족이 사는 곳"],
+    "\u6d77\u5916": ["Overseas", "\ud574\uc678"],
+    "\u56db\u5ddd": ["Sichuan", "\uc4f0\ucd28"],
+    "\u4e0a\u6d77": ["Shanghai", "\uc0c1\ud558\uc774"],
+    "\u6d59\u6c5f": ["Zhejiang", "\uc800\uc7a5"],
+    "\u5c71\u4e1c": ["Shandong", "\uc0b0\ub465"],
+    "\u6c5f\u82cf": ["Jiangsu", "\uc7a5\uc464"],
+    "\u9655\u897f": ["Shaanxi", "\uc0b0\uc2dc"],
+    "\u5e7f\u4e1c": ["Guangdong", "\uad11\ub465"],
+    "\u5317\u4eac": ["Beijing", "\ubca0\uc774\uc9d5"],
+    "\u5929\u6d25": ["Tianjin", "\ud188\uc9c4"],
+    "\u6cb3\u5317": ["Hebei", "\ud5c8\ubca0\uc774"],
+    "\u5c71\u897f": ["Shanxi", "\uc0b0\uc2dc"],
+    "\u5185\u8499\u53e4": ["Inner Mongolia", "\ub0b4\ubabd\uace8"],
+    "\u8fbd\u5b81": ["Liaoning", "\ub7b4\uc624\ub2dd"],
+    "\u5409\u6797": ["Jilin", "\uc9c0\ub9b0"],
+    "\u9ed1\u9f99\u6c5f": ["Heilongjiang", "\ud5e4\uc774\ub8fd\uc7a5"],
+    "\u5b89\u5fbd": ["Anhui", "\uc548\ud6c4\uc774"],
+    "\u798f\u5efa": ["Fujian", "\ud478\uc820"],
+    "\u6c5f\u897f": ["Jiangxi", "\uc7a5\uc2dc"],
+    "\u6cb3\u5357": ["Henan", "\ud5c8\ub09c"],
+    "\u6e56\u5317": ["Hubei", "\ud6c4\ubca0\uc774"],
+    "\u6e56\u5357": ["Hunan", "\ud6c4\ub09c"],
+    "\u5e7f\u897f": ["Guangxi", "\uad11\uc2dc"],
+    "\u6d77\u5357": ["Hainan", "\ud558\uc774\ub09c"],
+    "\u91cd\u5e86": ["Chongqing", "\ucda9\uce6d"],
+    "\u8d35\u5dde": ["Guizhou", "\uad6c\uc774\uc800\uc6b0"],
+    "\u4e91\u5357": ["Yunnan", "\uc708\ub09c"],
+    "\u897f\u85cf": ["Tibet", "\ud2f0\ubca0\ud2b8"],
+    "\u7518\u8083": ["Gansu", "\uac04\uc464"],
+    "\u9752\u6d77": ["Qinghai", "\uce6d\ud558\uc774"],
+    "\u5b81\u590f": ["Ningxia", "\ub2dd\uc0e4"],
+    "\u65b0\u7586": ["Xinjiang", "\uc2e0\uc7a5"],
+    "\u4e2d\u56fd\u53f0\u6e7e": ["Taiwan, China", "\uc911\uad6d \ub300\ub9cc"],
+    "\u4e2d\u56fd\u9999\u6e2f": ["Hong Kong, China", "\uc911\uad6d \ud64d\ucf69"],
+    "\u4e2d\u56fd\u6fb3\u95e8": ["Macao, China", "\uc911\uad6d \ub9c8\uce74\uc624"],
+    "\u97e9\u56fd": ["South Korea", "\ud55c\uad6d"],
+    "\u65e5\u672c": ["Japan", "\uc77c\ubcf8"],
+    "\u7f8e\u56fd": ["United States", "\ubbf8\uad6d"],
+    "\u5fb7\u56fd": ["Germany", "\ub3c5\uc77c"],
+    "\u65b0\u52a0\u5761": ["Singapore", "\uc2f1\uac00\ud3ec\ub974"],
+    "\u67ec\u57d4\u5be8": ["Cambodia", "\uce84\ubcf4\ub514\uc544"],
+    "\u9a6c\u6765\u897f\u4e9a": ["Malaysia", "\ub9d0\ub808\uc774\uc2dc\uc544"],
     "个地区": ["regions", "개 지역"],
     "更多地区": ["More regions", "더 많은 지역"],
     "只": ["kittens", "마리"],
@@ -1125,6 +1168,7 @@ window.addEventListener("error", function (e) {
         langBtns.forEach(function (x) { x.classList.remove("active"); });
         b.classList.add("active");
         translatePage(code);
+        if (FOOT_KITTENS) { buildSoldRegions(FOOT_KITTENS); translatePage(code); }
       });
     });
   }
@@ -1136,6 +1180,7 @@ window.addEventListener("error", function (e) {
         x.classList.toggle("active", x.getAttribute("data-lang") === saved);
       });
       translatePage(saved);
+      if (FOOT_KITTENS) { buildSoldRegions(FOOT_KITTENS); translatePage(saved); }
     }
   }
 
@@ -1406,7 +1451,9 @@ window.addEventListener("error", function (e) {
     var my = Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
     return [ (rad - WX0) / (WX1 - WX0) * 100, (WY1 - my) / (WY1 - WY0) * 100 ];
   }
+  var FOOT_KITTENS = null;
   function buildSoldRegions(kittens) {
+    FOOT_KITTENS = kittens;
     var box = document.querySelector(".news-map");
     if (box) box = box.querySelector(".news-map-box") || box;
     var capBox = document.querySelector(".news-map");
@@ -1469,21 +1516,60 @@ window.addEventListener("error", function (e) {
       var oldTag = capBox.querySelector(".cattery-tag");
       if (oldTag) oldTag.remove();
     }
-    var mapHost = mapWrap.querySelector(".cn-map-inline");
-    if (mapHost && mapHost.querySelector("svg")) { paintHeat(mapHost); }
-    else if (window.fetch) {
-      if (!mapHost) {
-        mapHost = document.createElement("div");
-        mapHost.className = "cn-map-inline";
-        mapWrap.appendChild(mapHost);
+    // 中文版:中国省级热力图;英文/韩文版:完整世界地图(海外读者更关心全球分布)
+    if (currentLang === "zh") {
+      var oldWorldImg = mapWrap.querySelector("img.fp-world");
+      if (oldWorldImg) oldWorldImg.remove();
+      mapWrap.style.aspectRatio = "";
+      var mapHost = mapWrap.querySelector(".cn-map-inline");
+      if (mapHost && mapHost.querySelector("svg")) { paintHeat(mapHost); }
+      else if (window.fetch) {
+        if (!mapHost) {
+          mapHost = document.createElement("div");
+          mapHost.className = "cn-map-inline";
+          mapWrap.appendChild(mapHost);
+        }
+        var oldImg = mapWrap.querySelector("img");
+        fetch("assets/china-provinces.svg", { cache: "force-cache" }).then(function (r) { return r.text(); })
+          .then(function (txt) {
+            mapHost.innerHTML = txt;
+            if (oldImg) oldImg.remove();
+            paintHeat(mapHost);
+          }).catch(function () {});
       }
-      var oldImg = mapWrap.querySelector("img");
-      fetch("assets/china-provinces.svg", { cache: "force-cache" }).then(function (r) { return r.text(); })
-        .then(function (txt) {
-          mapHost.innerHTML = txt;
-          if (oldImg) oldImg.remove();
-          paintHeat(mapHost);
-        }).catch(function () {});
+    } else {
+      var cnHost = mapWrap.querySelector(".cn-map-inline");
+      if (cnHost) cnHost.remove();
+      var wImg = mapWrap.querySelector("img.fp-world");
+      if (!wImg) {
+        wImg = document.createElement("img");
+        wImg.className = "fp-world";
+        wImg.loading = "lazy";
+        wImg.decoding = "async";
+        wImg.alt = "Where our kittens live";
+        wImg.src = "assets/world-map.svg";
+        mapWrap.appendChild(wImg);
+      }
+      mapWrap.style.aspectRatio = "1400 / 731";
+      var wMax = 1;
+      provNames.forEach(function (n) { if (provCounts[n] > wMax) wMax = provCounts[n]; });
+      provNames.forEach(function (n) {
+        var g = PROV_GEO[n] || GEO[n] || geoFor(n);
+        if (!g) return;
+        var xy = worldPct(g[0], g[1]);
+        if (xy[0] < 0 || xy[0] > 100 || xy[1] < 0 || xy[1] > 100) return;
+        var c = provCounts[n], sz = 7 + 11 * Math.sqrt(c / wMax);
+        var d = document.createElement("span");
+        d.className = "sold-dot";
+        d.style.left = xy[0].toFixed(1) + "%";
+        d.style.top = xy[1].toFixed(1) + "%";
+        d.style.width = sz.toFixed(1) + "px";
+        d.style.height = sz.toFixed(1) + "px";
+        d.style.transform = "translate(-50%,-50%)";
+        d.setAttribute("data-place", label(n) + " \u00d7 " + c);
+        d.setAttribute("title", label(n) + " \u00b7 " + c);
+        mapWrap.appendChild(d);
+      });
     }
     capBox.querySelector(".hero-sold-caption").innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="12" cy="16.5" rx="4.4" ry="3.6"/><circle cx="6.2" cy="11.5" r="2"/><circle cx="10" cy="8.6" r="2.1"/><circle cx="14" cy="8.6" r="2.1"/><circle cx="17.8" cy="11.5" r="2"/></svg><span>\u5c0f\u732b\u8db3\u8ff9</span>';
 
