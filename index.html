@@ -399,6 +399,13 @@ body.day .status-badge{background:rgba(247,243,234,.92)!important}
 .cn-map-inline{width:100%;line-height:0}
 .cn-map-inline svg{width:100%;height:auto;display:block}
 .news-map-box img.fp-world{width:100%;height:auto;display:block;opacity:.72;transform:none}
+@media (min-width:761px){
+  .kittens-side.fp-world-mode .news-map-box{max-width:none!important;flex:0 0 100%!important}
+  .kittens-side.fp-world-mode .sold-regions{flex:0 0 100%!important;width:100%!important;margin-top:14px}
+  .kittens-side.fp-world-mode .rows-wrap{column-count:2;column-gap:28px}
+  .kittens-side.fp-world-mode .sold-regions-row{break-inside:avoid}
+  .kittens-side.fp-world-mode .sold-regions-row .lbl{max-width:110px}
+}
 .cn-map-inline .cn-prov{transition:fill .25s}
 .cn-map-inline .cn-prov[data-count]:hover{fill:#8c6b31!important}
 .heat-legend{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10.5px;color:#8a8377;letter-spacing:.08em}
@@ -1035,6 +1042,22 @@ window.addEventListener("error", function (e) {
     "游乐区": ["Play Area", "놀이 공간"],
     "花园小径": ["Garden Path", "정원 산책로"],
     "毕业去向": ["Where They Live Now", "새 가족이 사는 곳"],
+    "\u5c0f\u732b\u7684\u4ef7\u683c\u8303\u56f4\uff1f": ["What is the price range?", "\uc544\uae30 \uace0\uc591\uc774 \uac00\uaca9\ub300\ub294?"],
+    "5000\u201330000 \u5143\u4e0d\u7b49\uff0c\u5177\u4f53\u53d6\u51b3\u4e8e\u8138\u7248\u54c1\u76f8\u3001\u9aa8\u91cf\u7ed3\u6784\u4e0e\u6bdb\u91cf\u6bdb\u8272\u7b49\u7efc\u5408\u54c1\u76f8\uff0c\u6b22\u8fce\u5fae\u4fe1\u54a8\u8be2\u5fc3\u4eea\u7684\u5c0f\u732b\u3002": ["From \u00a55,000 to \u00a530,000, depending on head type, bone structure, coat volume and colour. Feel free to ask us on WeChat about any kitten.", "5,000~30,000\uc704\uc548\uc774\uba70 \uc5bc\uad74\ud615\u00b7\uace8\uaca9\u00b7\ubaa8\ub7c9\uacfc \ubaa8\uc0c9 \ub4f1 \uc804\ubc18\uc801\uc778 \ud488\uc9c8\uc5d0 \ub530\ub77c \ub2ec\ub77c\uc9d1\ub2c8\ub2e4. \ub9c8\uc74c\uc5d0 \ub4dc\ub294 \uc544\uc774\ub294 \uc704\ucc57\uc73c\ub85c \ubb38\uc758\ud574 \uc8fc\uc138\uc694."],
+    "\u5982\u4f55\u9884\u8ba2\u5fc3\u4eea\u7684\u5c0f\u732b\uff1f": ["How do I reserve a kitten?", "\ub9c8\uc74c\uc5d0 \ub4dc\ub294 \uc544\uae30 \uace0\uc591\uc774\ub294 \uc5b4\ub5bb\uac8c \uc608\uc57d\ud558\ub098\uc694?"],
+    "\u901a\u8fc7\u5fae\u4fe1\u6c9f\u901a\u786e\u8ba4\u5c0f\u732b\u540e\uff0c\u652f\u4ed8 30% \u5b9a\u91d1\u5e76\u7b7e\u8ba2\u7535\u5b50\u5408\u540c\u5373\u5b8c\u6210\u9884\u8ba2\uff1b\u63a5\u732b\u524d\u4e00\u5929\u4ed8\u6e05\u5c3e\u6b3e\u3002": ["Once the kitten is confirmed on WeChat, a 30% deposit and an e-contract complete the reservation; the balance is due the day before pickup.", "\uc704\ucc57\uc73c\ub85c \uc544\uae30 \uace0\uc591\uc774\ub97c \ud655\uc815\ud55c \ub4a4 30% \uc608\uc57d\uae08 \uacb0\uc81c\uc640 \uc804\uc790 \uacc4\uc57d\uc11c \uc11c\uba85\uc73c\ub85c \uc608\uc57d\uc774 \uc644\ub8cc\ub418\uba70, \uc794\uae08\uc740 \ub370\ub824\uac00\uae30 \uc804\ub0a0 \uacb0\uc81c\ud569\ub2c8\ub2e4."],
+    "\u5c0f\u732b\u63a5\u56de\u5bb6\u65f6\u4f1a\u9644\u5e26\u4ec0\u4e48\uff1f": ["What comes with the kitten?", "\uc544\uae30 \uace0\uc591\uc774\uc640 \ud568\uaed8 \ubb34\uc5c7\uc774 \uc624\ub098\uc694?"],
+    "\u65b0\u5bb6\u793c\u5305\u4f1a\u968f\u5c0f\u732b\u4e00\u540c\u5feb\u9012\u5bc4\u51fa\uff0c\u5185\u542b\u65e5\u5e38\u7528\u54c1\u3001\u732b\u7cae\u548c\u5e38\u7528\u836f\u54c1\uff1b\u540c\u65f6\u63d0\u4f9b\u75ab\u82d7\u4e0e\u9a71\u866b\u8bb0\u5f55\u3002": ["A go-home kit ships with your kitten \u2014 daily supplies, food and basic medications \u2014 along with vaccination and deworming records.", "\uc0c8 \uac00\uc815 \ud328\ud0a4\uc9c0\uac00 \uc544\uae30 \uace0\uc591\uc774\uc640 \ud568\uaed8 \ubc1c\uc1a1\ub418\uba70 \uc77c\uc0c1 \uc6a9\ud488\u00b7\uc0ac\ub8cc\u00b7\uc0c1\ube44\uc57d\uc774 \ub4e4\uc5b4 \uc788\uace0, \uc608\ubc29\uc811\uc885\u00b7\uad6c\ucda9 \uae30\ub85d\ub3c4 \uc81c\uacf5\ud569\ub2c8\ub2e4."],
+    "\u732b\u820d\u505a\u4e86\u54ea\u4e9b\u5065\u5eb7\u4fdd\u969c\uff1f": ["What health guarantees do you provide?", "\uc5b4\ub5a4 \uac74\uac15 \ubcf4\uc99d\uc774 \uc788\ub098\uc694?"],
+    "\u79cd\u732b\u5747\u8fdb\u884c HCM\uff08\u80a5\u539a\u578b\u5fc3\u808c\u75c5\uff09\u4e0e PKD\uff08\u591a\u56ca\u80be\uff09\u57fa\u56e0\u68c0\u6d4b\uff0c\u5e7c\u732b\u6309\u6708\u9f84\u5b8c\u6210\u75ab\u82d7\u548c\u9a71\u866b\uff0c\u5e76\u63d0\u4f9b\u7ec8\u8eab\u9972\u517b\u6307\u5bfc\u3002": ["All breeding cats are DNA tested for HCM and PKD; kittens are vaccinated and dewormed on schedule, and we offer lifetime care guidance.", "\ubaa8\ub4e0 \uc885\ubb18\ub294 HCM(\ube44\ub300\uc131 \uc2ec\uadfc\uc99d)\u00b7PKD(\ub2e4\ub0ad\uc131 \uc2e0\uc7a5) \uc720\uc804\uc790 \uac80\uc0ac\ub97c \ubc1b\uc558\uace0, \uc544\uae30 \uace0\uc591\uc774\ub294 \uc6d4\ub839\uc5d0 \ub9de\ucdb0 \uc811\uc885\uacfc \uad6c\ucda9\uc744 \ub9c8\uce58\uba70 \ud3c9\uc0dd \uc0ac\uc721 \uc0c1\ub2f4\uc744 \uc81c\uacf5\ud569\ub2c8\ub2e4."],
+    "\u5c0f\u732b\u591a\u5927\u53ef\u4ee5\u63a5\u56de\u5bb6\uff1f": ["When can a kitten go home?", "\uc544\uae30 \uace0\uc591\uc774\ub294 \uc5b8\uc81c \ub370\ub824\uac08 \uc218 \uc788\ub098\uc694?"],
+    "\u4e00\u822c\u6ee1 3 \u4e2a\u6708\u3001\u5b8c\u6210\u57fa\u7840\u75ab\u82d7\u540e\u4ea4\u4ed8\uff0c\u5177\u4f53\u4ee5\u6bcf\u53ea\u5c0f\u732b\u7684\u72b6\u6001\u4e3a\u51c6\u3002": ["Usually at three months old, after the core vaccinations \u2014 the exact timing depends on each kitten.", "\ubcf4\ud1b5 \uc0dd\ud6c4 3\uac1c\uc6d4\uc5d0 \uae30\ubcf8 \uc811\uc885\uc744 \ub9c8\uce5c \ub4a4 \uc778\ub3c4\ud558\uba70, \uc815\ud655\ud55c \uc2dc\uae30\ub294 \uc544\uc774 \uc0c1\ud0dc\uc5d0 \ub530\ub77c \ub2ec\ub77c\uc9d1\ub2c8\ub2e4."],
+    "\u732b\u820d\u6709\u54ea\u4e9b\u82b1\u8272\uff1f": ["Which colours do you breed?", "\uc5b4\ub5a4 \ubaa8\uc0c9\uc774 \uc788\ub098\uc694?"],
+    "\u94f6\u864e\u6591\u3001\u68d5\u864e\u6591\u3001\u84dd\u864e\u6591\u3001\u7ea2\u864e\u6591\u3001\u8865\u4e01\u864e\u6591\u3001\u70df\u7070\u8272\u3001\u51ef\u7c73\u5c14\u3001\u9634\u5f71\u8272\u3001\u7eaf\u767d\u3001\u7eaf\u9ed1\u3001\u7eaf\u84dd\u7b49\uff01": ["Silver tabby, brown tabby, blue tabby, red tabby, patched tabby, smoke, cameo, silver shaded, white, black, blue and more!", "\uc2e4\ubc84 \ud0dc\ube44, \ube0c\ub77c\uc6b4 \ud0dc\ube44, \ube14\ub8e8 \ud0dc\ube44, \ub808\ub4dc \ud0dc\ube44, \ud328\uce58\ub4dc \ud0dc\ube44, \uc2a4\ubaa8\ud06c, \uce74\uba54\uc624, \uc2e4\ubc84 \uc250\uc774\ub514\ub4dc, \ud654\uc774\ud2b8, \ube14\ub799, \ube14\ub8e8 \ub4f1!"],
+    "\u8fd8\u6709\u5176\u4ed6\u95ee\u9898\uff1f": ["Any other questions?", "\ub2e4\ub978 \ubb38\uc758\uac00 \uc788\uc73c\uc2e0\uac00\uc694?"],
+    "\u6b22\u8fce\u901a\u8fc7\u9875\u9762\u4e0b\u65b9\u7684\u5fae\u4fe1\u6216\u7535\u8bdd\u76f4\u63a5\u54a8\u8be2\u6211\u4eec\u3002": ["Contact us any time via the WeChat or phone links at the bottom of the page.", "\ud398\uc774\uc9c0 \ud558\ub2e8\uc758 \uc704\ucc57\uc774\ub098 \uc804\ud654\ub85c \uc5b8\uc81c\ub4e0 \ubb38\uc758\ud574 \uc8fc\uc138\uc694."],
+    "\u8fc7\u6e21\u732b\u7cae\uff08\u534a\u4e2a\u6708\u5de6\u53f3\uff09": ["Transition food (about 2 weeks)", "\uc801\uc751\uc6a9 \uc0ac\ub8cc(\uc57d 2\uc8fc\ubd84)"],
+    "\u5e38\u7528\u836f\u54c1\uff08\u9a71\u866b\u836f\u7b49\uff09": ["Basic medications (dewormer, etc.)", "\uc0c1\ube44\uc57d(\uad6c\ucda9\uc81c \ub4f1)"],
     "\u6d77\u5916": ["Overseas", "\ud574\uc678"],
     "\u56db\u5ddd": ["Sichuan", "\uc4f0\ucd28"],
     "\u4e0a\u6d77": ["Shanghai", "\uc0c1\ud558\uc774"],
@@ -1088,6 +1111,16 @@ window.addEventListener("error", function (e) {
   };
 
   var KITTEN_COLORS = [
+    ["\u9634\u5f71\u8272NS12", "Silver Shell · Chinchilla (NS 12)", "\uc2e4\ubc84 \uc258 \u00b7 \uce5c\uce60\ub77c (NS 12)"],
+    ["\u9634\u5f71\u8272NS11", "Silver Shaded (NS 11)", "\uc2e4\ubc84 \uc250\uc774\ub514\ub4dc (NS 11)"],
+    ["\u9634\u5f71\u8272", "Silver Shaded", "\uc2e4\ubc84 \uc250\uc774\ub514\ub4dc"],
+    ["\u68d5\u864e\u8865\u4e01", "Brown Patched Tabby", "\ube0c\ub77c\uc6b4 \ud328\uce58\ub4dc \ud0dc\ube44"],
+    ["\u84dd\u94f6\u864e\u6591", "Blue Silver Tabby", "\ube14\ub8e8 \uc2e4\ubc84 \ud0dc\ube44"],
+    ["\u91d1\u68d5\u864e\u6591", "Golden Brown Tabby", "\uace8\ub4e0 \ube0c\ub77c\uc6b4 \ud0dc\ube44"],
+    ["\u6d45\u51ef\u7c73\u5c14", "Light Cameo", "\ub77c\uc774\ud2b8 \uce74\uba54\uc624"],
+    ["\u51ef\u7c73\u5c14", "Cameo", "\uce74\uba54\uc624"],
+    ["\u73b3\u7441\u8272", "Tortoiseshell", "\ud1a0\ud130\uc178"],
+    ["\u9ed1\u70df\u8272", "Black Smoke", "\ube14\ub799 \uc2a4\ubaa8\ud06c"],
     ["浅色烟灰色", "Light Smoke", "라이트 스모크"],
     ["浅色银虎斑", "Light Silver Tabby", "라이트 실버 태비"],
     ["银虎斑补丁色", "Silver Patched Tabby", "실버 패치드 태비"],
@@ -1118,6 +1151,8 @@ window.addEventListener("error", function (e) {
         }
       }
     }
+    for (var ci = 0; ci < KITTEN_COLORS.length; ci++)
+      if (zh === KITTEN_COLORS[ci][0]) return KITTEN_COLORS[ci][li + 1];
     var am = zh.match(/^(\d+)个月$/);
     if (am) {
       var n = parseInt(am[1], 10);
@@ -1125,8 +1160,17 @@ window.addEventListener("error", function (e) {
     }
     var pm2 = zh.match(/^父母 · (.+)$/);
     if (pm2) return li === 0 ? "Parents \u00b7 " + pm2[1] : "\ubd80\ubaa8 \u00b7 " + pm2[1];
+    var xm = zh.match(/^(.+?)\s*\u00d7\s*(\d+)$/);
+    if (xm) { var tx = lookup(xm[1], li); if (tx !== null) return tx + " \u00d7 " + xm[2]; }
+    var vm = zh.match(/^(\d+)\s*\u4e2a\u89c6\u9891(.*)$/);
+    if (vm) return li === 0 ? vm[1] + (vm[1] === "1" ? " video" : " videos") + (vm[2] || "") : vm[1] + "\uac1c \ube44\ub514\uc624" + (vm[2] || "");
+    var zm = zh.match(/^(\d+)\s*张(.*)$/);
+    if (zm) return li === 0 ? zm[1] + (zm[1] === "1" ? " photo" : " photos") + (zm[2] || "") : zm[1] + "\uc7a5" + (zm[2] || "");
     var dm = zh.match(/^(.+) · (.+)$/);
-    if (dm) { var t1 = lookup(dm[1], li); if (t1 !== null) return t1 + " \u00b7 " + dm[2]; }
+    if (dm) {
+      var t1 = lookup(dm[1], li), t2 = lookup(dm[2], li);
+      if (t1 !== null || t2 !== null) return (t1 !== null ? t1 : dm[1]) + " \u00b7 " + (t2 !== null ? t2 : dm[2]);
+    }
     var hc = zh.match(/^在售 (\d+) 只 · 已售 (\d+) 只(.*)$/);
     if (hc) return li === 0 ? hc[1] + " available \u00b7 " + hc[2] + " rehomed" + (hc[3]||"") : "\ubd84\uc591 \uac00\ub2a5 " + hc[1] + " \u00b7 \ubd84\uc591 \uc644\ub8cc " + hc[2] + (hc[3]||"");
     var cm = zh.match(/^(\d+) 只$/);
@@ -1517,6 +1561,8 @@ window.addEventListener("error", function (e) {
       if (oldTag) oldTag.remove();
     }
     // 中文版:中国省级热力图;英文/韩文版:完整世界地图(海外读者更关心全球分布)
+    var side = capBox.parentNode;
+    if (side && side.classList) side.classList.toggle("fp-world-mode", currentLang !== "zh");
     if (currentLang === "zh") {
       var oldWorldImg = mapWrap.querySelector("img.fp-world");
       if (oldWorldImg) oldWorldImg.remove();
@@ -1584,9 +1630,9 @@ window.addEventListener("error", function (e) {
     var list = capBox.querySelector(".sold-regions");
     if (!list) { list = document.createElement("div"); list.className = "sold-regions"; capBox.appendChild(list); }
     var html = '<p class="sold-regions-head"><span>\u6bd5\u4e1a\u53bb\u5411</span> \u00b7 ' + sorted.length + ' <span>\u4e2a\u5730\u533a</span> \u00b7 ' + total + ' <span>\u53ea</span></p>';
-    html += main.map(function (x) {
+    html += '<div class="rows-wrap">' + main.map(function (x) {
       return '<div class="sold-regions-row"><span class="lbl">' + esc(label(x[0])) + '</span><span class="trk"><span class="bar" style="width:' + Math.max(6, Math.round(x[1] / max * 100)) + '%"></span></span><span class="val">' + x[1] + "</span></div>";
-    }).join("");
+    }).join("") + "</div>";
     if (rest.length) {
       html += '<details><summary><span>\u66f4\u591a\u5730\u533a</span> \u00b7 ' + rest.length + '</summary><div class="chips">' +
         rest.map(function (x) { return '<span class="chip">' + esc(label(x[0])) + (x[1] > 1 ? " \u00d7 " + x[1] : "") + "</span>"; }).join("") + "</div></details>";
